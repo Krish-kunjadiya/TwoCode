@@ -1,0 +1,422 @@
+'use strict';
+// Claude Code hooks → TwoCode traffic light.
+// Claude Code posts each hook event to a small server on 127.0.0.1. No browser or window reading needed.
+const http = require('node:http');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { randomBytes, timingSafeEqual } = require('node:crypto');
+const { questionFrom } = require('./ai-monitor-model.cjs');
+
+const PORT = 47823;
+const ROUTE = '/twocode-hook';
+const STATUS_ROUTE = '/twocode-status';
+const STATUS_SCRIPT = path.join(__dirname, 'twocode-statusline.cjs');
+const WAIT_ROUTE = '/twocode-wait';
+const REPLY_SCRIPT = path.join(__dirname, 'twocode-reply.cjs');
+const REPLY_WAIT_S = 1800; // how long an island answer can still wake Claude after it stopped
+const VERSION = 4; // Bump when the installed hook config changes; older installs are upgraded on start.
+const HOOK_URL = 'http://127.0.0.1:' + PORT + ROUTE + '?v=' + VERSION;
+const EVENTS = ['UserPromptSubmit', 'PreToolUse', 'PostToolUse', 'PostToolUseFailure', 'PermissionRequest',
+  'Notification', 'Stop', 'StopFailure', 'SessionEnd'];
+// The terminal dialog stays usable while this hook waits; whoever answers first wins.
+const PERMISSION_WAIT_S = 300;
+const QUESTION_NOTIFICATIONS = new Set(['elicitation_dialog', 'elicitation_url_dialog', 'agent_needs_input']);
+const RANK = { question: 4, error: 3, running: 2, done: 1, ready: 0 };
+
+function createHub(options = {}) {
+  const userData = options.userData;
+  const settingsFile = options.settingsFile || path.join(os.homedir(), '.claude', 'settings.json');
+  const onChange = options.onChange || (() => {});
+  const onFinish = options.onFinish || (() => {});
+  // The pid a hook sends is a short-lived helper shell. Right away (while it still exists) we look up the
+  // window that really runs Claude Code (Windows Terminal, VS Code, ...) and remember that one.
+  const resolvePid = options.resolvePid || (pid => Promise.resolve(pid));
+  function learnPid(s, pid) {
+    if (!Number.isSafeInteger(pid) || pid <= 0 || s.windowPid || s.resolving === pid) return;
+    s.pid ||= pid; s.resolving = pid;
+    resolvePid(pid).then(win => { if (win) { s.windowPid = win; s.pid = win; onChange(); } }).catch(() => {}).finally(() => { if (s.resolving === pid) s.resolving = null; });
+  }
+  const sessions = new Map();
+  const waiting = new Map(); // session id → open PermissionRequest response
+  let server = null, listening = false, serverError = '', hooksCache = false, checkedAt = 0;
+  let usage = { fiveHour: null, sevenDay: null, at: 0 };
+  const changed = () => { checkedAt = 0; onChange(); };
+
+  function token() {
+    const file = path.join(userData, 'claude-code-hook-token');
+    try { const saved = fs.readFileSync(file, 'utf8').trim(); if (/^[a-f0-9]{48}$/.test(saved)) return saved; } catch {}
+    const fresh = randomBytes(24).toString('hex');
+    fs.mkdirSync(userData, { recursive: true }); fs.writeFileSync(file, fresh, { mode: 0o600 });
+    return fresh;
+  }
+
+  // ---- settings.json ----
+  const isReplyHook = hook => hook?.type === 'command' && typeof hook.command === 'string' && hook.command.includes('twocode-reply');
+  const isOurs = hook => (typeof hook?.url === 'string' && hook.url.startsWith('http://127.0.0.1:' + PORT + ROUTE)) || isReplyHook(hook);
+  const replyCommand = () => `node "${REPLY_SCRIPT}" ${token()}`;
+  function readSettings() {
+    try { return JSON.parse(fs.readFileSync(settingsFile, 'utf8')); }
+    catch (error) { if (error.code === 'ENOENT') return {}; throw new Error('~/.claude/settings.json is geen geldige JSON. Er is niets veranderd.'); }
+  }
+  function ours() {
+    try {
+      const hooks = readSettings().hooks || {};
+      return EVENTS.flatMap(event => (hooks[event] || []).flatMap(group => (group.hooks || []).filter(isOurs)));
+    } catch { return []; }
+  }
+  // Our status line forwards your 5-hour / weekly usage. A status line you made yourself is never replaced.
+  const isOurStatus = line => typeof line?.command === 'string' && line.command.includes('twocode-statusline');
+  const statusCommand = () => `node "${STATUS_SCRIPT}" ${token()}`;
+  function statusOk() {
+    try { const line = readSettings().statusLine; return !line || !isOurStatus(line) ? Boolean(line) : line.command === statusCommand(); }
+    catch { return false; }
+  }
+  const installed = () => {
+    const list = ours();
+    return list.length === EVENTS.length + 1 && list.every(h => (isReplyHook(h) ? h.command === replyCommand() : h.url === HOOK_URL)) && statusOk();
+  };
+  function writeSettings(settings) {
+    fs.mkdirSync(path.dirname(settingsFile), { recursive: true });
+    if (fs.existsSync(settingsFile)) fs.copyFileSync(settingsFile, settingsFile + '.twocode-backup');
+    fs.writeFileSync(settingsFile + '.tmp', JSON.stringify(settings, null, 2) + '\n');
+    fs.renameSync(settingsFile + '.tmp', settingsFile);
+  }
+  // Which Claude model Claude Code starts with (settings.json "model"). 'default' = Claude Code's own choice.
+  const MODELS = ['default', 'opus', 'sonnet', 'haiku', 'opusplan'];
+  let modelCache = null, modelAt = 0;
+  function getModel() {
+    if (modelCache && Date.now() - modelAt < 5000) return modelCache;
+    try { const m = readSettings().model; modelCache = MODELS.includes(m) ? m : m ? 'custom:' + String(m) : 'default'; } catch { modelCache = 'default'; }
+    modelAt = Date.now(); return modelCache;
+  }
+  function setModel(model) {
+    if (!MODELS.includes(model)) throw new Error('Onbekend model.');
+    const settings = readSettings(); if (model === 'default') delete settings.model; else settings.model = model;
+    writeSettings(settings); modelCache = model; modelAt = Date.now(); onChange();
+  }
+  function strip(settings) {
+    for (const event of Object.keys(settings.hooks || {})) {
+      const groups = (settings.hooks[event] || [])
+        .map(group => ({ ...group, hooks: (group.hooks || []).filter(hook => !isOurs(hook)) }))
+        .filter(group => group.hooks.length);
+      if (groups.length) settings.hooks[event] = groups; else delete settings.hooks[event];
+    }
+    if (settings.hooks && !Object.keys(settings.hooks).length) delete settings.hooks;
+  }
+  function install() {
+    const settings = readSettings(); strip(settings); settings.hooks ||= {};
+    for (const event of EVENTS) {
+      const hook = { type: 'http', url: HOOK_URL, timeout: event === 'PermissionRequest' ? PERMISSION_WAIT_S + 5 : 2, headers: { 'X-TwoCode-Token': token() } };
+      (settings.hooks[event] ||= []).push({ hooks: [hook] });
+    }
+    // Answer from the island: runs in the background after Claude stops; exit 2 wakes Claude with your text.
+    settings.hooks.Stop.push({ hooks: [{ type: 'command', command: replyCommand(), asyncRewake: true, timeout: REPLY_WAIT_S + 10 }] });
+    if (!settings.statusLine || isOurStatus(settings.statusLine)) settings.statusLine = { type: 'command', command: statusCommand(), padding: 0 };
+    writeSettings(settings); changed(); return { ok: true };
+  }
+  function uninstall() {
+    const settings = readSettings();
+    if (ours().length || isOurStatus(settings.statusLine)) {
+      strip(settings); if (isOurStatus(settings.statusLine)) delete settings.statusLine; writeSettings(settings);
+    }
+    for (const id of [...waiting.keys()]) release(id);
+    for (const id of [...replies.keys()]) answer(id, '');
+    sessions.clear(); changed(); return { ok: true };
+  }
+
+  // ---- answers typed in the island (twocode-reply.cjs waits on WAIT_ROUTE) ----
+  const replies = new Map(); // session id → { res, timer }
+  function answer(id, text) {
+    const wait = replies.get(id); if (!wait) return false;
+    replies.delete(id); clearTimeout(wait.timer);
+    try { wait.res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(text ? { reply: text } : { cancel: true })); } catch {}
+    return true;
+  }
+  function holdReply(id, res) {
+    if (!id) { res.writeHead(400).end(); return; }
+    answer(id, ''); // an older wait for this session is stale
+    replies.set(id, { res, timer: setTimeout(() => { answer(id, ''); onChange(); }, REPLY_WAIT_S * 1000) });
+    res.on('close', () => { if (replies.get(id)?.res === res) { replies.delete(id); onChange(); } });
+    onChange();
+  }
+  function reply(sessionId, text) {
+    const clean = String(text || '').trim();
+    if (!clean || clean.length > 5000) throw new Error('Typ een antwoord van maximaal 5000 tekens.');
+    if (!answer(sessionId, clean)) throw new Error('Claude Code wacht niet meer op een antwoord. Typ het in de terminal.');
+    const s = sessions.get(sessionId);
+    if (s) { s.state = 'running'; s.detail = 'Je antwoord is verstuurd'; s.question = ''; s.startedAt = Date.now(); s.endedAt = null; }
+    onChange(); return { ok: true };
+  }
+
+  // ---- permission answers ----
+  function release(id, decision) {
+    const wait = waiting.get(id); if (!wait) return false;
+    waiting.delete(id); clearTimeout(wait.timer);
+    const body = decision ? JSON.stringify({ hookSpecificOutput: { hookEventName: 'PermissionRequest', decision } }) : '';
+    try { wait.res.writeHead(200, body ? { 'content-type': 'application/json' } : {}).end(body); } catch {}
+    return true;
+  }
+  function decide(sessionId, behavior) {
+    if (!['allow', 'deny'].includes(behavior)) throw new Error('Kies toestaan of weigeren.');
+    const s = sessions.get(sessionId);
+    const decision = behavior === 'allow' ? { behavior: 'allow', updatedInput: s?.permissionInput || {} } : { behavior: 'deny', message: 'Geweigerd vanuit TwoCode.' };
+    if (!release(sessionId, decision)) throw new Error('Deze vraag is al beantwoord, misschien in de terminal.');
+    if (s) { s.permission = null; s.question = ''; s.state = 'running'; s.detail = behavior === 'allow' ? 'Toegestaan, gaat verder' : 'Geweigerd'; }
+    onChange(); return { ok: true };
+  }
+
+  // Multiple-choice question (AskUserQuestion): answers map question text → chosen label(s) or your own text.
+  function answerQuestions(sessionId, answers) {
+    const s = sessions.get(sessionId);
+    if (!s?.ask) throw new Error('Er staat geen keuzevraag meer open.');
+    const clean = {};
+    for (const q of s.ask) {
+      const value = answers?.[q.question];
+      const text = Array.isArray(value) ? value.map(String).filter(Boolean).join(', ') : String(value || '').trim();
+      if (!text) throw new Error('Kies bij elke vraag een antwoord.');
+      clean[q.question] = text.slice(0, 2000);
+    }
+    const decision = { behavior: 'allow', updatedInput: { ...s.permissionInput, answers: clean } };
+    if (!release(sessionId, decision)) throw new Error('Deze vraag is al beantwoord, misschien in de terminal.');
+    s.permission = null; s.ask = null; s.question = ''; s.state = 'running'; s.detail = 'Je antwoord is verstuurd';
+    onChange(); return { ok: true };
+  }
+  // Plan mode (ExitPlanMode): approve the plan, or send it back with your feedback.
+  function decidePlan(sessionId, approve, feedback) {
+    const s = sessions.get(sessionId);
+    if (!s?.plan) throw new Error('Er staat geen plan meer open.');
+    const note = String(feedback || '').trim().slice(0, 4000);
+    const decision = approve ? { behavior: 'allow', updatedInput: s.permissionInput || {} }
+      : { behavior: 'deny', message: note ? 'De gebruiker wil het plan aanpassen: ' + note : 'De gebruiker wil het plan nog niet uitvoeren. Vraag wat er anders moet.' };
+    if (!release(sessionId, decision)) throw new Error('Dit plan is al beantwoord, misschien in de terminal.');
+    s.permission = null; s.plan = null; s.question = ''; s.state = 'running';
+    s.detail = approve ? 'Toegestaan, gaat verder' : 'Je antwoord is verstuurd';
+    onChange(); return { ok: true };
+  }
+
+  // From the status line: plan usage is account-wide, context is per session.
+  function applyUsage(data) {
+    const window = w => (w && Number.isFinite(w.used) ? { used: Math.max(0, Math.min(100, w.used)), resetsAt: Number(w.resets_at) || null } : null);
+    usage = { fiveHour: window(data.five_hour) || usage.fiveHour, sevenDay: window(data.seven_day) || usage.sevenDay, at: Date.now() };
+    const s = sessions.get(String(data.session_id || ''));
+    if (s && Number.isFinite(data.context)) s.context = data.context;
+    if (s) learnPid(s, data.pid);
+    if (s && typeof data.model === 'string' && data.model) s.modelName = data.model.slice(0, 40); // the model this session really uses
+    onChange();
+  }
+
+  // You looked at it: green, red and plain questions go back to quiet. An open permission stays.
+  function seen() {
+    for (const s of sessions.values()) {
+      if (['done', 'error'].includes(s.state) || (s.state === 'question' && !waiting.has(s.id))) {
+        s.state = 'ready'; s.detail = 'Gezien'; s.question = ''; s.permission = null;
+      }
+    }
+    onChange(); return { ok: true };
+  }
+
+  // ---- events ----
+  function apply(event, res) {
+    const id = typeof event.session_id === 'string' ? event.session_id : '';
+    const name = event.hook_event_name;
+    if (!id || !EVENTS.includes(name)) return false;
+    // A finished tool or turn means the permission was answered elsewhere (terminal, phone).
+    // PreToolUse is excluded: parallel tool calls may start while a permission is still open.
+    if (!['PermissionRequest', 'Notification', 'PreToolUse'].includes(name)) release(id);
+    // You typed in the terminal (or the session ended): the island answer is no longer needed.
+    if (['UserPromptSubmit', 'SessionEnd'].includes(name)) answer(id, '');
+    if (name === 'SessionEnd') { sessions.delete(id); onChange(); return false; }
+    const now = Date.now();
+    const s = sessions.get(id) || { id, state: 'ready', detail: '', question: '', permission: null, startedAt: null, endedAt: null, updatedAt: now };
+    if (typeof event.cwd === 'string') s.project = path.basename(event.cwd);
+    s.updatedAt = now;
+    const start = () => { if (!s.startedAt || s.endedAt) s.startedAt = now; s.endedAt = null; };
+    let held = false;
+    switch (name) {
+      case 'UserPromptSubmit':
+        s.startedAt = now; s.endedAt = null; s.state = 'running'; s.detail = 'Claude is bezig'; s.question = ''; s.permission = null;
+        s.ask = null; s.plan = null; s.stats = {}; s.steps = []; s.files = []; s.commands = []; s.code = null; s.run = null;
+        s.prompt = String(event.prompt || '').replace(/\s+/g, ' ').trim().slice(0, 240); s.lastMessage = ''; break;
+      case 'PreToolUse':
+        start();
+        // Step list for the Claude page: what Claude is doing, one line per tool call.
+        if (!['AskUserQuestion', 'ExitPlanMode'].includes(event.tool_name)) {
+          s.steps ||= []; s.steps.push({ tool: String(event.tool_name || ''), kind: toolKind(event.tool_name) || 'other', label: toolLabel(event), what: toolDetail(event).slice(0, 120), state: 'running' });
+          if (s.steps.length > 12) s.steps.shift();
+          // For the summary: which files were changed and which commands were run.
+          const file = event.tool_input?.file_path ? path.basename(String(event.tool_input.file_path)) : '';
+          s.files ||= []; s.commands ||= [];
+          if (toolKind(event.tool_name) === 'edit' && file && !s.files.includes(file)) s.files.push(file);
+          if (toolKind(event.tool_name) === 'run' && event.tool_input?.command) s.commands.push(String(event.tool_input.command).slice(0, 80));
+          // The code Claude is changing right now (shown as a small red/green diff in the island).
+          const input = event.tool_input || {}, edit = Array.isArray(input.edits) ? input.edits[0] || {} : input;
+          const cut = text => String(text || '').split('\n').map(l => l.replace(/\t/g, '  ').slice(0, 90)).filter((l, i, all) => l.trim() || (i > 0 && i < all.length - 1));
+          if (toolKind(event.tool_name) === 'edit' && file) {
+            const removed = cut(edit.old_string).slice(0, 3).map(text => ({ t: '-', text })), added = cut(edit.new_string ?? edit.content ?? input.content).slice(0, removed.length ? 3 : 6).map(text => ({ t: '+', text }));
+            s.code = { file, lines: [...removed, ...added] };
+          }
+          if (toolKind(event.tool_name) === 'run' && input.command) s.run = { command: String(input.command).slice(0, 80), out: [] };
+        }
+        if (waiting.has(id)) break;
+        s.state = 'running'; s.detail = toolLabel(event); s.question = ''; s.permission = null; break;
+      case 'PostToolUse': case 'PostToolUseFailure': {
+        start(); s.state = 'running'; s.question = ''; s.permission = null; s.ask = null; s.plan = null;
+        const kind = toolKind(event.tool_name); if (kind) { s.stats ||= {}; s.stats[kind] = (s.stats[kind] || 0) + 1; }
+        const step = (s.steps || []).find(x => x.state === 'running' && x.tool === String(event.tool_name || '')) || (s.steps || []).find(x => x.state === 'running');
+        if (step) step.state = name === 'PostToolUseFailure' ? 'failed' : 'done';
+        // What the terminal said (last lines), for the island.
+        if (kind === 'run' && s.run) { const r = event.tool_response || {}, text = typeof r === 'string' ? r : [r.stdout, r.stderr, r.output].filter(Boolean).join('\n'); s.run.out = String(text).split('\n').map(l => l.trimEnd().slice(0, 90)).filter(Boolean).slice(-3); s.run.failed = name === 'PostToolUseFailure'; }
+        break;
+      }
+      case 'PermissionRequest': {
+        release(id); // an older open request for this session is stale
+        const input = event.tool_input && typeof event.tool_input === 'object' ? event.tool_input : {};
+        s.permissionInput = input; s.ask = null; s.plan = null;
+        s.state = 'question'; s.detail = 'Wil toestemming';
+        s.permission = { kind: 'tool', tool: toolLabel(event), what: toolDetail(event) };
+        if (event.tool_name === 'AskUserQuestion' && Array.isArray(input.questions)) {
+          s.ask = input.questions.slice(0, 4).map(q => ({ question: String(q?.question || ''), header: String(q?.header || '').slice(0, 20),
+            multiSelect: Boolean(q?.multiSelect), options: (Array.isArray(q?.options) ? q.options : []).slice(0, 6)
+              .map(o => ({ label: String(o?.label || ''), description: String(o?.description || '') })) }));
+          s.permission = { kind: 'ask', tool: 'Claude vraagt iets', what: '' }; s.detail = 'Kies een antwoord';
+        } else if (event.tool_name === 'ExitPlanMode') {
+          s.plan = String(input.plan || '').slice(0, 20000);
+          s.permission = { kind: 'plan', tool: 'Plan klaar', what: '' }; s.detail = 'Plan klaar: goedkeuren?';
+        }
+        s.question = s.ask ? s.ask.map(q => q.question).join('\n') : s.plan ? 'Claude heeft een plan gemaakt.' : s.permission.tool + (s.permission.what ? ':\n' + s.permission.what : '');
+        if (res) {
+          waiting.set(id, { res, timer: setTimeout(() => { release(id); onChange(); }, PERMISSION_WAIT_S * 1000) });
+          res.on('close', () => { if (waiting.get(id)?.res === res) { waiting.delete(id); onChange(); } });
+          held = true;
+        }
+        onFinish(s); break;
+      }
+      case 'Notification': {
+        const kind = event.notification_type || '';
+        if (QUESTION_NOTIFICATIONS.has(kind) && s.state !== 'question') {
+          s.state = 'question'; s.detail = 'Wacht op jou'; s.question = String(event.message || 'Claude Code heeft je nodig.');
+          onFinish(s);
+        }
+        break;
+      }
+      case 'Stop': {
+        const question = questionFrom(String(event.last_assistant_message || ''));
+        s.endedAt = now; s.state = question ? 'question' : 'done'; s.permission = null; s.ask = null; s.plan = null;
+        for (const step of s.steps || []) if (step.state === 'running') step.state = 'done';
+        s.lastMessage = tail(String(event.last_assistant_message || ''), 2000);
+        s.detail = question ? 'Heeft een vraag voor jou' : 'Klaar'; s.question = question ? s.lastMessage : '';
+        onFinish(s); break;
+      }
+      case 'StopFailure':
+        s.endedAt = now; s.state = 'error'; s.permission = null; s.question = '';
+        s.detail = 'Fout: ' + errorLabel(event.error_type || event.error); onFinish(s); break;
+    }
+    sessions.set(id, s); onChange();
+    return held;
+  }
+
+  // ---- server ----
+  function start() {
+    if (server) return;
+    if (ours().length && !installed()) { try { install(); } catch {} } // upgrade an older TwoCode install
+    const expected = Buffer.from(token());
+    server = http.createServer((req, res) => {
+      const given = Buffer.from(String(req.headers['x-twocode-token'] || ''));
+      const route = String(req.url).split('?')[0];
+      if (req.method !== 'POST' || ![ROUTE, STATUS_ROUTE, WAIT_ROUTE].includes(route) || given.length !== expected.length || !timingSafeEqual(given, expected)) {
+        res.writeHead(403).end(); req.resume(); return;
+      }
+      let body = '';
+      req.setEncoding('utf8');
+      req.on('data', chunk => { body += chunk; if (body.length > 1_000_000) req.destroy(); });
+      req.on('end', () => {
+        let held = false;
+        try {
+          const data = JSON.parse(body);
+          if (route === WAIT_ROUTE) {
+            const s = sessions.get(String(data.session_id || ''));
+            if (s) learnPid(s, data.pid); // for "jump to terminal"
+            holdReply(String(data.session_id || ''), res); held = true;
+          }
+          else if (route === STATUS_ROUTE) applyUsage(data);
+          else held = apply(data, res);
+        } catch {}
+        if (!held) res.writeHead(200).end(); // Empty body: Claude Code continues as normal.
+      });
+    });
+    server.on('error', error => {
+      listening = false; server = null;
+      serverError = error.code === 'EADDRINUSE' ? 'TwoCode draait al ergens anders (poort ' + PORT + ' is bezet). Sluit de andere TwoCode.' : error.message;
+      onChange();
+    });
+    server.listen(PORT, '127.0.0.1', () => { listening = true; serverError = ''; onChange(); });
+  }
+  function stop() { for (const id of [...waiting.keys()]) release(id); for (const id of [...replies.keys()]) answer(id, ''); try { server?.close(); } catch {} server = null; listening = false; }
+
+  // One entry for the island: the session that needs you most first.
+  function view() {
+    const list = [...sessions.values()].sort((a, b) => (RANK[b.state] - RANK[a.state]) || (b.updatedAt - a.updatedAt));
+    const now = Date.now(), top = list[0];
+    if (now - checkedAt > 5000) { hooksCache = installed(); checkedAt = now; } // settings.json is read at most every 5 s
+    const hooks = hooksCache;
+    const base = { provider: 'claudecode', name: 'Claude Code', kind: 'hooks', hooksInstalled: hooks, model: getModel(), modelNow: top?.modelName || '', canReply: false, questionId: '', error: serverError,
+      usage: { fiveHour: live(usage.fiveHour, now), sevenDay: live(usage.sevenDay, now), context: top?.context ?? null } };
+    if (!hooks || !listening) return { ...base, connected: false, state: 'disconnected', detail: hooks ? 'Niet actief' : 'Niet gekoppeld', question: '', elapsed: 0, list: [] };
+    const item = s => ({ id: s.id, project: s.project || 'Claude Code', state: s.state, detail: s.detail,
+      elapsed: s.startedAt ? Math.floor(((s.endedAt || now) - s.startedAt) / 1000) : 0 });
+    if (!top) return { ...base, connected: true, state: 'ready', detail: 'Wacht op Claude Code', question: '', elapsed: 0, list: [] };
+    return { ...base, connected: true, state: top.state, detail: top.detail, question: top.question, elapsed: item(top).elapsed,
+      sessionId: top.id, lastMessage: top.lastMessage || '', ask: waiting.has(top.id) ? top.ask || null : null,
+      plan: waiting.has(top.id) ? top.plan || null : null, stats: top.stats || {}, steps: (top.steps || []).slice(-8), prompt: top.prompt || '', files: (top.files || []).slice(-8), commands: (top.commands || []).slice(-3), code: top.code || null, run: top.run || null, canJump: Boolean(top.pid), canReply: replies.has(top.id) && !waiting.has(top.id), permission: top.permission && waiting.has(top.id) ? top.permission : null,
+      source: { process: 'Claude Code', title: top.project }, list: list.slice(0, 4).map(item) };
+  }
+  const pidOf = sessionId => sessions.get(sessionId)?.pid || null;
+  // The window was closed: learn it again from the next hook.
+  const forgetWindow = sessionId => { const s = sessions.get(sessionId); if (s) { s.windowPid = null; s.pid = null; } };
+  return { start, stop, install, uninstall, installed, view, apply, applyUsage, decide, seen, reply, answerQuestions, decidePlan, pidOf, forgetWindow, getModel, setModel, PORT };
+}
+
+// Groups for "what Claude did" (read 3 · edited 2 · ran 1 ...).
+function toolKind(tool) {
+  if (tool === 'Read') return 'read';
+  if (/^(Edit|Write|MultiEdit|NotebookEdit)$/.test(tool)) return 'edit';
+  if (/^(Bash|PowerShell)$/.test(tool)) return 'run';
+  if (/^(Grep|Glob)$/.test(tool)) return 'search';
+  if (/^(WebSearch|WebFetch)$/.test(tool)) return 'web';
+  if (/^(Agent|Task)$/.test(tool)) return 'agent';
+  return '';
+}
+function toolLabel(event) {
+  const tool = String(event.tool_name || '');
+  const file = event.tool_input?.file_path ? path.basename(String(event.tool_input.file_path)) : '';
+  if (tool === 'Read') return 'Leest ' + (file || 'een bestand');
+  if (/^(Edit|Write|MultiEdit|NotebookEdit)$/.test(tool)) return 'Bewerkt ' + (file || 'een bestand');
+  if (/^(Bash|PowerShell)$/.test(tool)) return 'Voert een opdracht uit';
+  if (/^(Grep|Glob)$/.test(tool)) return 'Zoekt in de code';
+  if (/^(WebSearch|WebFetch)$/.test(tool)) return 'Zoekt op internet';
+  if (/^(Agent|Task)$/.test(tool)) return 'Start een helper';
+  return tool ? 'Gebruikt ' + tool : 'Claude is bezig';
+}
+// What exactly will happen, so you can judge before allowing.
+function toolDetail(event) {
+  const input = event.tool_input || {};
+  const text = input.command || input.file_path || input.url || input.query || input.pattern || '';
+  return String(text).slice(0, 300);
+}
+// After its reset time a usage window starts again at 0%.
+const live = (w, now) => (w && w.resetsAt && w.resetsAt * 1000 <= now ? { used: 0, resetsAt: null } : w);
+// The end of a long message, starting at a whole line where possible.
+function tail(text, max) {
+  const clean = text.trim();
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(-max), line = cut.indexOf('\n');
+  return '…' + (line > 0 && line < max / 2 ? cut.slice(line + 1) : cut);
+}
+function errorLabel(type) {
+  const labels = { rate_limit: 'limiet bereikt', overloaded: 'Claude is overbelast', authentication_failed: 'niet ingelogd',
+    billing_error: 'betaalprobleem', server_error: 'serverfout', max_output_tokens: 'antwoord te lang' };
+  return labels[type] || String(type || 'onbekend');
+}
+
+module.exports = { createHub, EVENTS, PORT, HOOK_URL };

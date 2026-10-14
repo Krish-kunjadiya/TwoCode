@@ -1,0 +1,22 @@
+{
+  "name": "project-editor",
+  "publisher": "twocode",
+  "displayName": "TwoCode Project Editor",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "activationEvents": [
+    "onUri"
+  ],
+  "main": "./extension.js",
+  "description": "Lokale projectkoppeling voor TwoCode Assistent.",
+  "extensionKind": [
+    "ui"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    }
+  }
+}

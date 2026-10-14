@@ -1,0 +1,21 @@
+{
+  "name": "twocode-assistent-electron",
+  "version": "1.1.0-beta.2",
+  "description": "TwoCode Assistent: Dynamic Island met native Windows AI-monitor.",
+  "main": "main.js",
+  "scripts": {
+    "test": "node --test tests/monitor.test.cjs tests/windows-check.test.cjs tests/claude-code-hooks.test.cjs tests/extras.test.cjs",
+    "start": "electron .",
+    "check:windows": "node check-windows.cjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^44.5.1"
+  },
+  "dependencies": {
+    "@openai/codex": "^0.160.0"
+  }
+}
