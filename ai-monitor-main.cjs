@@ -125,6 +125,9 @@ function setup(electron, options = {}) {
   const { app, BrowserWindow, ipcMain, shell, Notification } = electron;
   const worker = options.worker || new NativeWorker();
   const sessions = new Map(), notifications = new Set(), answering = new Set();
+  // ChatGPT and Claude (the chat apps / websites) come later, with the TwoCode extension for Chrome.
+  // Until then only Claude Code and Codex are followed; the window-reading code stays for that moment.
+  const chatSoon = options.chatSoon ?? !options.worker;
   const liveNotifications = new Set();
   let found = new Map(), interval = null, polling = false, scanPromise = null, closing = false;
   const settingsPath = () => path.join(app.getPath('userData'), 'ai-monitor-windows.json');
@@ -138,9 +141,11 @@ function setup(electron, options = {}) {
   const hub = options.hub !== undefined ? options.hub : options.worker ? null : createHub({
     userData: app.getPath('userData'), onChange: () => emit(), onFinish: session => notifyHook(session), resolvePid: windowPidOf });
   const view = () => ({ ok: true, available: process.platform === 'win32' || Boolean(options.worker),
-    providers: [...Object.keys(PROVIDERS).map(provider => sessions.get(provider)?.public() ||
-      { provider, name: PROVIDERS[provider].name, state: 'disconnected', connected: false, detail: 'Verbind jouw gesprek', question: '', elapsed: 0, canReply: false }),
-    ...(hub ? [hub.view()] : [])] });
+    providers: [...Object.keys(PROVIDERS).map(provider => (!chatSoon && sessions.get(provider)?.public()) ||
+      { provider, name: PROVIDERS[provider].name, state: 'disconnected', connected: false, soon: chatSoon, detail: chatSoon ? 'Binnenkort' : 'Verbind jouw gesprek', question: '', elapsed: 0, canReply: false }),
+    ...(hub ? [hub.view('claude'), hub.view('codex')] : [])],
+    // the last jobs of Claude Code and Codex, so a quiet page still shows what they did for you
+    history: (hub?.history?.() || []).slice(0, 12).map(h => ({ at: h.at, agent: h.agent, project: h.project, prompt: String(h.prompt || '').slice(0, 300), result: h.result, files: h.files, seconds: h.seconds })) });
   const emit = () => {
     for (const win of BrowserWindow.getAllWindows()) {
       if (!win.isDestroyed() && trusted({ sender: win.webContents })) win.webContents.send('ai-monitor:state', view());
@@ -213,6 +218,44 @@ function setup(electron, options = {}) {
     })();
     try { return await scanPromise; } finally { scanPromise = null; }
   }
+  // ---- Claude and ChatGPT without choosing a window: TwoCode finds the conversation by itself ----
+  // Turned on per AI in TwoCode → Verbindingen. Every few seconds, while it is on and not connected,
+  // the open windows are checked and the first one that really shows that conversation is followed.
+  const autoPath = () => path.join(app.getPath('userData'), 'ai-monitor-auto.json');
+  let auto = { claude: false, chatgpt: false }, autoBusy = false;
+  try { auto = { ...auto, ...JSON.parse(fs.readFileSync(autoPath(), 'utf8')) }; } catch {}
+  const saveAuto = () => { try { fs.writeFileSync(autoPath(), JSON.stringify(auto)); } catch {} };
+  // A browser shows the chat's own title (not "ChatGPT"), so every browser and chat-app window is checked;
+  // what the window really shows (chatgpt.com or claude.ai) decides. Windows that are something else are
+  // skipped for a minute, so this stays light.
+  const notChat = new Map(); // window id → until
+  async function autoConnect(provider) {
+    const list = await scan(); if (!list?.ok) return false;
+    const now = Date.now(), isApp = new RegExp('^' + provider + '$', 'i');
+    const candidates = [...found.values()].filter(t => (notChat.get(t.id) || 0) < now)
+      .sort((a, b) => Number(isApp.test(String(b.process))) - Number(isApp.test(String(a.process))));
+    for (const t of candidates.slice(0, 8)) {
+      try {
+        const snapshot = await worker.request('read', { target: t });
+        if (snapshot?.provider !== provider) { if (!snapshot?.provider) notChat.set(t.id, now + 60000); continue; }
+        const obs = observe(snapshot, provider);
+        if (!obs.valid) continue;
+        const session = new Session(provider, t); session.accept(obs); sessions.set(provider, session); save(); emit();
+        return true;
+      } catch {}
+    }
+    return false;
+  }
+  async function autoTick() {
+    if (autoBusy || closing) return; autoBusy = true;
+    try {
+      for (const provider of Object.keys(auto)) {
+        const session = sessions.get(provider), lost = session && session.public?.().state === 'unavailable';
+        if (auto[provider] && (!session || lost)) await autoConnect(provider);
+      }
+    } catch {} finally { autoBusy = false; }
+  }
+
   function providerOf(payload) {
     if (!payload || !Object.hasOwn(PROVIDERS, payload.provider)) throw new Error('Kies ChatGPT of Claude.');
     return payload.provider;
@@ -221,6 +264,7 @@ function setup(electron, options = {}) {
     'ai-monitor:get': async () => view(),
     'ai-monitor:windows': scan,
     'ai-monitor:connect': async payload => {
+      if (chatSoon) throw new Error('ChatGPT en Claude komen binnenkort.');
       const provider = providerOf(payload), target = found.get(payload.targetId);
       if (!target) throw new Error('Vernieuw de vensterlijst en kies een venster.');
       if (answering.has(provider)) throw new Error('Wacht tot de verzending is gecontroleerd.');
@@ -229,8 +273,9 @@ function setup(electron, options = {}) {
       const session = new Session(provider, target); session.accept(obs); sessions.set(provider, session); notifications.clear(); save(); emit();
       return view();
     },
-    'ai-monitor:hooks-install': async () => { if (!hub) throw new Error('Niet beschikbaar.'); hub.install(); return view(); },
-    'ai-monitor:hooks-uninstall': async () => { if (!hub) throw new Error('Niet beschikbaar.'); hub.uninstall(); return view(); },
+    // agent: 'claude' (Claude Code) or 'codex'
+    'ai-monitor:hooks-install': async payload => { if (!hub) throw new Error('Niet beschikbaar.'); if (payload?.agent === 'codex') hub.installCodex(); else hub.install(); return view(); },
+    'ai-monitor:hooks-uninstall': async payload => { if (!hub) throw new Error('Niet beschikbaar.'); if (payload?.agent === 'codex') hub.uninstallCodex(); else hub.uninstall(); return view(); },
     'ai-monitor:hooks-answer': async payload => {
       if (!hub) throw new Error('Niet beschikbaar.');
       hub.answerQuestions(String(payload?.sessionId || ''), payload?.answers || {}); return view();
@@ -293,6 +338,14 @@ function setup(electron, options = {}) {
       if (!hub) throw new Error('Niet beschikbaar.');
       hub.decide(String(payload?.sessionId || ''), payload?.behavior); return view();
     },
+    'ai-monitor:auto-get': async () => ({ ok: true, auto: chatSoon ? { claude: false, chatgpt: false } : { ...auto } }),
+    'ai-monitor:auto-set': async payload => {
+      if (chatSoon) return { ...view(), auto: { claude: false, chatgpt: false }, found: false, soon: true };
+      const provider = providerOf(payload); auto[provider] = Boolean(payload.on); saveAuto();
+      if (!auto[provider] && !answering.has(provider)) { sessions.delete(provider); notifications.clear(); save(); emit(); }
+      const connected = auto[provider] ? await autoConnect(provider) : false;
+      return { ...view(), auto: { ...auto }, found: connected };
+    },
     'ai-monitor:disconnect': async payload => {
       const provider = providerOf(payload);
       if (answering.has(provider)) throw new Error('Wacht tot de verzending is gecontroleerd.');
@@ -343,7 +396,7 @@ function setup(electron, options = {}) {
     try { return await handler(payload); } catch (error) { return { ok: false, error: error.message }; }
   });
   app.whenReady().then(() => {
-    try {
+    if (!chatSoon) try {
       const entries = JSON.parse(fs.readFileSync(settingsPath(), 'utf8'));
       for (const entry of entries) {
         if (!Object.hasOwn(PROVIDERS, entry.provider) || !entry.target?.id || !entry.target.started) continue;
@@ -351,11 +404,14 @@ function setup(electron, options = {}) {
       }
     } catch {}
     interval = setInterval(poll, 2600); interval.unref?.(); if (sessions.size) poll();
+    if (!chatSoon) { const autoTimer = setInterval(autoTick, 8000); autoTimer.unref?.(); setTimeout(autoTick, 4000); }
     hub?.start();
     // Keep the Claude Code clock ticking while it works.
-    if (hub) { const tick = setInterval(() => { if (hub.view().state === 'running') emit(); }, 1000); tick.unref?.(); }
+    if (hub) { const tick = setInterval(() => { if (hub.view('claude').state === 'running' || hub.view('codex').state === 'running') emit(); }, 1000); tick.unref?.(); }
   });
   app.on('before-quit', () => { closing = true; clearInterval(interval); worker.close(); hub?.stop(); liveNotifications.clear(); });
+  // The TwoCode app (settings-app-main.cjs) reads the connections and the history from here.
+  app.twocodeMonitor = { view, handlers, history: () => hub?.history() || [], projects: () => hub?.projects?.() || [] };
   return { view, handlers, poll, close: () => { closing = true; clearInterval(interval); worker.close(); } };
 }
 if (process.versions.electron) setup(require('electron'));

@@ -2537,3 +2537,6 @@ ipcMain.handle('ai-settings:chatgpt-logout', async () => {
 const projectEditor = require('./project-editor-main')({ resolveProjectFile, loadProjectPath, resolveAIConfig, chatgpt, openAIRequest, extractResponseText, loadChats, saveChats, chatKey, hashContent });
 
 require('./project-agent-main')({ loadProjectPath, listProjectFiles, resolveAIConfig, chatgpt, openAIRequest, extractResponseText }, projectEditor);
+
+// Robo the buddy: grab him out of the island and ask about anything on screen (uses the AI from Settings → AI)
+require('./buddy-main.cjs')({ resolveAIConfig, openAIRequest, extractResponseText });

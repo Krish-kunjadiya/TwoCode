@@ -1574,6 +1574,9 @@ function drawGhost(
   y,
   diameter
 ) {
+  // Robo is out of the island (buddy-ui.js): there is only one Robo
+  if (window.__twocodeCarried?.() && !window.__twocodeBuddyDrawing) return;
+
   const scale =
     bodyScale(
       diameter
@@ -4027,6 +4030,11 @@ async function refreshSpotify() {
 
         track:
           result.track ||
+          null,
+
+        // where it plays (this PC, your phone, the car…)
+        device:
+          result.device ||
           null
       };
 
@@ -4740,6 +4748,9 @@ function drawExpanded(
     );
   }
 
+  // Robo's chat (chat-ui.js): Robo himself sits bottom left, drawn on the canvas
+  if (currentView === 'chat') window.__twocodeDrawChat?.(content);
+
 
   if (
     currentView ===
@@ -4833,6 +4844,8 @@ let interactiveSentAt = 0;
 function sendInteractive(
   next
 ) {
+  // while Robo is carried the island keeps the mouse, so letting go anywhere on screen reaches us
+  if (window.__twocodeDragging?.()) next = true;
   if (
     next ===
     interactiveSent &&
@@ -5469,6 +5482,9 @@ setInterval(
 <script src="./ai-monitor-ui.js"></script>
 <script src="./spotify-ui.js"></script>
 <script src="./twocode-fun.js"></script>
+<script src="./buddy-ui.js"></script>
+<script src="./settings-bridge-ui.js"></script>
+<script src="./chat-ui.js"></script>
 <script src="./extras-ui.js"></script>
 <script src="./focus-ui.js"></script>
 <script src="./blob-ui.js"></script>

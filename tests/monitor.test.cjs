@@ -92,7 +92,8 @@ test('closed/hidden window, changed conversation and incomplete tree never becom
     assert.notEqual(session.accept(observe(snapshot({ names: ['Klaar.'] }), 'chatgpt'), 6200).state, 'done');
   }
   const session = new Session('chatgpt', target); session.accept(observe(snapshot({ stop: true }), 'chatgpt'), 1000);
-  assert.equal(session.accept(observe(snapshot({ contextKey: target.id + ':https://chatgpt.com/c/other' }), 'chatgpt'), 3600).state, 'unavailable');
+  // another chat: Robo follows it, but it never turns green by itself
+  assert.equal(session.accept(observe(snapshot({ contextKey: target.id + ':https://chatgpt.com/c/other' }), 'chatgpt'), 3600).state, 'ready');
   assert.equal(session.notification, null);
 });
 test('long generation still waits for final response controls; a timeout is unavailable, never done', () => {

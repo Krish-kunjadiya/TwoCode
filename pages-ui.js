@@ -3,7 +3,7 @@
 // the title and a grey subtitle always at the same height, the content always starting on the same line.
 // TwoCode only appears where he does something (Spotify: dancing, Lade: catching files). The other UI files use window.__twocodePage.
 (function pageLayout() {
-  const PAGES = ['apps', 'settings', 'spotify', 'monitor', 'assistant', 'tray', 'mirror', 'focus', 'clips', 'note'];
+  const PAGES = ['apps', 'settings', 'spotify', 'monitor', 'assistant', 'tray', 'mirror', 'focus', 'clips', 'note', 'chat'];
   const PAGE = {
     height: 300,
     contentX: 24,   // left edge of titles and content: TwoCode only appears on pages where he does something

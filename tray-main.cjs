@@ -31,6 +31,7 @@ function buildMenu() {
     { label: 'TwoCode', enabled: false },
     { type: 'separator' },
     { label: 'Open de island', accelerator: 'Ctrl+Alt+1', registerAccelerator: false, click: openIsland },
+    { label: 'Instellingen', click: () => app.emit('twocode-open-settings') },
     { label: 'Starten met Windows', type: 'checkbox', checked: startsWithWindows(), click: item => setStartsWithWindows(item.checked) },
     { type: 'separator' },
     { label: 'Opnieuw starten', click: restart },
@@ -42,7 +43,8 @@ if (!app.requestSingleInstanceLock()) {
   // TwoCode already runs: that one opens its island, this one stops right away.
   app.exit(0);
 } else {
-  app.on('second-instance', openIsland);
+  // "TwoCode Instellingen" in the Start menu starts TwoCode with --settings: then only that app opens.
+  app.on('second-instance', (event, argv) => { if ((argv || []).includes('--settings')) app.emit('twocode-open-settings'); else openIsland(); });
   app.setName('TwoCode');
   app.whenReady().then(() => {
     // Windows shows the name and icon of a notification from a Start menu shortcut with the same app id.
@@ -66,6 +68,16 @@ if (!app.requestSingleInstanceLock()) {
           appUserModelId: 'nl.twocode.assistent',
           description: 'TwoCode: Robo, de Dynamic Island voor Windows'
         });
+        // The second app: TwoCode Instellingen, with its own icon and app id (its own button on the taskbar).
+        const settingsLink = path.join(programs, 'TwoCode Instellingen.lnk');
+        shell.writeShortcutLink(settingsLink, require('node:fs').existsSync(settingsLink) ? 'replace' : 'create', {
+          target: process.execPath,
+          args: (app.isPackaged ? '' : `"${app.getAppPath()}" `) + '--settings',
+          cwd: app.isPackaged ? path.dirname(process.execPath) : app.getAppPath(),
+          icon: path.join(__dirname, 'assets', 'settings-icon.ico'), iconIndex: 0,
+          appUserModelId: 'nl.twocode.instellingen',
+          description: 'TwoCode Instellingen: verbindingen, Robo, kledingkast en meer'
+        });
       } catch {}
       // The shortcut alone was not enough: Windows also reads the name and icon of notifications from
       // HKCU\Software\Classes\AppUserModelId\<app id>. Only TwoCode's own key, in the user's own registry part.
@@ -75,6 +87,9 @@ if (!app.requestSingleInstanceLock()) {
         const set = (name, value) => execFile('reg.exe', ['add', key, '/v', name, '/t', 'REG_SZ', '/d', value, '/f'], { windowsHide: true }, () => {});
         set('DisplayName', 'TwoCode');
         set('IconUri', path.join(__dirname, 'assets', 'icon-256.png'));
+        const key2 = 'HKCU\\Software\\Classes\\AppUserModelId\\nl.twocode.instellingen';
+        execFile('reg.exe', ['add', key2, '/v', 'DisplayName', '/t', 'REG_SZ', '/d', 'TwoCode Instellingen', '/f'], { windowsHide: true }, () => {});
+        execFile('reg.exe', ['add', key2, '/v', 'IconUri', '/t', 'REG_SZ', '/d', path.join(__dirname, 'assets', 'settings-icon.png'), '/f'], { windowsHide: true }, () => {});
       } catch {}
     }
     const image = nativeImage.createFromPath(path.join(__dirname, 'assets', 'tray.png'));

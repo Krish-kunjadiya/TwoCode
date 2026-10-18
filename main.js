@@ -19,6 +19,7 @@ const os = require('os');
 require('./project-mode-main');
 require('./ai-monitor-main.cjs');
 require('./extras-main.cjs');
+require('./settings-app-main.cjs'); // TwoCode Instellingen: settings as their own app
 
 app.setAppUserModelId(
   'nl.twocode.assistent'
@@ -3788,7 +3789,12 @@ async function getSpotifyState() {
         image_url:
           images?.[0]?.url ||
           ''
-      }
+      },
+
+      // where it plays: this PC, your phone, the car… (the island only grows for music on this PC)
+      device: spotifyDevice(
+        data.device
+      )
     };
 
   } catch (error) {
@@ -3800,6 +3806,33 @@ async function getSpotifyState() {
       error:
         error.message
     };
+  }
+}
+
+// One Spotify Connect device, and whether it is this PC (the Spotify app here, or a web player here).
+function spotifyDevice(device) {
+  if (!device) return null;
+  const name = String(device.name || ''), type = String(device.type || '');
+  const here = type === 'Computer' && (name.toLowerCase() === os.hostname().toLowerCase() || /^web player/i.test(name));
+  return { id: String(device.id || ''), name, type, active: Boolean(device.is_active), volume: Number.isFinite(device.volume_percent) ? device.volume_percent : null, here };
+}
+
+// Spotify Connect: your devices, and moving the music to another one (like the speaker button in Spotify).
+async function spotifyDevices() {
+  try {
+    const data = await spotifyApi('/v1/me/player/devices');
+    return { ok: true, devices: (data?.devices || []).filter(d => d.id && !d.is_restricted).map(spotifyDevice) };
+  } catch (error) {
+    return { ok: false, devices: [], error: error.message };
+  }
+}
+async function spotifyTransfer(id) {
+  if (typeof id !== 'string' || !/^[\w-]{6,80}$/.test(id)) return { ok: false, error: 'Onbekend apparaat.' };
+  try {
+    await spotifyApi('/v1/me/player', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ device_ids: [id], play: true }) });
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: /premium/i.test(error.message) ? 'Wisselen van apparaat kan alleen met Spotify Premium.' : error.message };
   }
 }
 
@@ -4372,6 +4405,9 @@ ipcMain.handle(
     )
 );
 
+
+ipcMain.handle('spotify:devices', () => spotifyDevices()); // Spotify Connect: where it can play
+ipcMain.handle('spotify:transfer', (_event, id) => spotifyTransfer(id));
 
 ipcMain.handle(
   'spotify:seek',

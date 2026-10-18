@@ -622,6 +622,8 @@
   }
 
   const sleepRow = () => `<div class="tc-setting-row tc-demo" data-demo="sleep"><div><strong>Slaapeffect</strong><small>Hij valt in slaap als er even niks gebeurt</small></div><button type="button" data-action="sleep" class="tc-toggle ${sleepEnabled ? 'on' : ''}" aria-pressed="${sleepEnabled}">${sleepEnabled ? 'Aan' : 'Uit'}</button></div>`;
+  // The settings app (settings-app.html) shows these same lists in its own window (settings-bridge-ui.js).
+  window.__twocodeSettingsHtml = which => which === 'karakter' ? window.__twocodeSettingsCharacter?.(sleepRow()) || '' : window.__twocodeSettingsExtra?.() || '';
   // Picking an option rebuilds the list: keep it scrolled exactly where you were.
   let renderedTab = null;
   function render() {

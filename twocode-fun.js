@@ -25,7 +25,8 @@
   }
   const petName = () => String(prefs.name || '').trim() || 'TwoCode';
   if (!['snel', 'normaal'].includes(prefs.speed)) prefs.speed = 'normaal'; // 'rustig' no longer exists
-  const save = () => { store.set('twocode:prefs', prefs); apply(); };
+  let drafting = false; // TwoCode Instellingen is trying something out (settings-bridge-ui.js): not saved, not on the real Robo
+  const save = () => { if (drafting) return; store.set('twocode:prefs', prefs); apply(); };
 
   const EYES = { mint: '#e3ffd4', wit: '#ffffff', blauw: '#8fd3ff', roze: '#ffb3d9', paars: '#c9a7ff', geel: '#fff3a3' };
   // 'wolk' is the bright white blob (default since the new look); the others are the classic dark ghost.
@@ -87,7 +88,11 @@
     hello: [392, 523, 659, 784].map((f, i) => [f, f * 1.02, 0.1, 0.014, i * 0.07]),
     pop: [[700, 1100, 0.06, 0.012]],
     badge: [784, 988, 1175, 1568].map((f, i) => [f, f * 1.01, 0.1, 0.014, i * 0.06]),
-    yum: [[500, 760, 0.08, 0.016], [760, 620, 0.08, 0.014, 0.09]]
+    yum: [[500, 760, 0.08, 0.016], [760, 620, 0.08, 0.014, 0.09]],
+    // Robo's chat: a soft whoosh when you send, two bright notes for an answer, a little fanfare for a fix
+    send: [[480, 960, 0.07, 0.011]],
+    reply: [[880, 1175, 0.08, 0.012], [1175, 1568, 0.12, 0.01, 0.08]],
+    fix: [523, 659, 784, 1047, 1319].map((f, i) => [f, f * 1.01, 0.13, 0.015, i * 0.075])
   };
   function chime(kind) {
     if (!soundEnabled || !prefs.chimes) return;
@@ -229,9 +234,13 @@
 
   // ---------- feelings: short-lived expressions on top of the status ----------
   let feeling = null, feelingUntil = 0, bounceAt = -1e9;
-  function feel(mood, ms) { feeling = mood; feelingUntil = now() + ms; }
-  function jump() { bounceAt = now(); }
+  // The settings app's own Robo: his own feelings, hops, waves and the look you are trying out.
+  const pv = { prefs: null, feeling: null, feelingUntil: 0, bounceAt: -1e9, danceUntil: 0, waveUntil: 0, nextBlink: 0 };
+  function feel(mood, ms) { if (drafting) { pv.feeling = mood; pv.feelingUntil = now() + ms; return; } feeling = mood; feelingUntil = now() + ms; }
+  function jump() { if (drafting) { pv.bounceAt = now(); return; } bounceAt = now(); }
   window.__twocodeFeel = feel;
+  window.__twocodeCelebrate = (kind = 'done', bits = 40) => { chime(kind); jump(); confetti(bits); }; // Robo's chat: a fix landed
+  window.__twocodeChime = kind => chime(kind);
   window.__twocodeCheer = () => { jump(); feel('happy', 800); chime('pop'); };
 
   // ---------- sleeping ----------
@@ -510,7 +519,7 @@
       const t = now() / 1000;
       ['z', 'Z', 'Z'].forEach((letter, i) => { const k = (t * 0.5 + i / 3) % 1; c.globalAlpha = 1 - k; c.fillText(letter, 30 + k * 18, -20 - k * 34); });
     }
-    if (focus.active() && mode !== 'expanded') { // focus progress around the small ghost
+    if (focus.active() && mode !== 'expanded' && !previewing) { // focus progress around the small ghost
       const part = 1 - focus.left() / focusLength;
       c.globalAlpha = 1; c.lineWidth = 5; c.lineCap = 'round';
       c.beginPath(); c.arc(0, 0, 50, 0, Math.PI * 2); c.strokeStyle = 'rgba(255,255,255,.12)'; c.stroke();
@@ -668,7 +677,7 @@
     confetti: () => { confetti(30); jump(); feel('happy', 900); },
     chimes: () => chime('done')
   };
-  window.__twocodeDemo = name => { DEMOS[name]?.(); };
+  window.__twocodeDemo = name => { if (drafting) previewDemo(name); else DEMOS[name]?.(); };
   // ---------- test mode: see every state without a real Claude Code session or music ----------
   let fakeMusicUntil = 0;
   function fakeMusic() {
@@ -716,7 +725,7 @@
     }
     if (target.dataset.lightpreset) {
       const [b, d, e] = LIGHT_PRESETS[target.dataset.lightpreset]; Object.assign(prefs, { lightBusy: b, lightDone: d, lightError: e }); save();
-      lightsDemoAt = now(); return true;
+      if (!drafting) lightsDemoAt = now(); return true;
     }
     const key = target.dataset.pref; if (!key) return false;
     if (target.dataset.save) {
@@ -734,7 +743,66 @@
     save();
     if (key === 'eye' || key === 'body' || key === 'palette' || key === 'outfit' || key === 'seasonal') { jump(); feel('happy', 700); }
     if (key === 'pack') chime('done');
-    if (/^light(Busy|Done|Error)$/.test(key)) lightPreview = { color: prefs[key], until: now() + 1400 }; // show the new colour on his eyes
+    if (/^light(Busy|Done|Error)$/.test(key) && !drafting) lightPreview = { color: prefs[key], until: now() + 1400 }; // show the new colour on his eyes
     return true;
+  };
+
+  // ---------- TwoCode Instellingen: drafts and the app's own Robo (settings-bridge-ui.js, buddy-ui.js) ----------
+  let previewing = false;
+  const later2 = (ms, fn) => setTimeout(fn, ms);
+  const pFeel = (mood, ms) => { pv.feeling = mood; pv.feelingUntil = now() + ms; };
+  // The examples in the settings list, played by the app's Robo only.
+  function previewDemo(name) {
+    const hop = () => { pv.bounceAt = now(); };
+    ({
+      look: () => { hop(); pFeel('happy', 900); },
+      lights: () => { hop(); pFeel('happy', 700); },
+      faces: () => [['happy', 0], ['curious', 750], ['surprised', 1500], ['sad', 2250], ['heart', 3000]].forEach(([m, ms]) => later2(ms, () => pFeel(m, 760))),
+      blink: () => [0, 450, 900].forEach(ms => later2(ms, () => pFeel('blink', 160))),
+      dance: () => { pv.danceUntil = now() + 3200; },
+      sleep: () => pFeel('sleep', 3200),
+      hello: () => { hop(); pFeel('happy', 1300); pv.waveUntil = now() + 1300; },
+      hunger: () => { pFeel('sad', 1800); later2(1900, () => { hop(); pFeel('happy', 900); }); },
+      confetti: () => { hop(); pFeel('happy', 900); },
+      chimes: () => { chime('done'); pFeel('happy', 700); }
+    })[name]?.();
+  }
+  window.__twocodePreviewPrefs = p => { pv.prefs = p ? { ...p } : null; };
+  window.__twocodeRealPrefs = () => ({ ...prefs });
+  // Run a click from the settings app on a draft: prefs become the draft for this moment, nothing is saved,
+  // feelings go to the app's Robo, and afterwards the real prefs are back.
+  window.__twocodeWithDraft = (draft, fn) => {
+    const real = { ...prefs };
+    for (const k of Object.keys(prefs)) delete prefs[k];
+    Object.assign(prefs, draft); drafting = true;
+    try { return fn(); }
+    finally {
+      const out = { ...prefs };
+      for (const k of Object.keys(prefs)) delete prefs[k];
+      Object.assign(prefs, real); drafting = false;
+      for (const k of Object.keys(draft)) delete draft[k];
+      Object.assign(draft, out);
+    }
+  };
+  // Save: the draft becomes the real thing, and the real Robo is happy with it.
+  window.__twocodeSaveDraft = draft => { Object.assign(prefs, draft); save(); jump(); feel('happy', 1400); chime('pop'); };
+  // Draw the app's Robo: for this one drawing everything he reads comes from the preview, then the real
+  // Robo's state is put back. So a test timer, Claude or music never shows on him, and nothing leaks out.
+  window.__twocodeDrawPreview = draw => {
+    const keep = { prefs: { ...prefs }, feeling, feelingUntil, bounceAt, danceDemoUntil, waveUntil, showAt, byeAt, popAt, nextBlink, lastWake,
+      spotify: spotifyState, angry: typeof angry === 'number' ? angry : 0, dizzy: typeof dizzy === 'number' ? dizzy : 0, basket: window.__twocodeBasket, locker: window.__twocodeLockerDraw };
+    if (pv.prefs) Object.assign(prefs, pv.prefs);
+    feeling = pv.feeling; feelingUntil = pv.feelingUntil; bounceAt = pv.bounceAt; danceDemoUntil = pv.danceUntil;
+    waveUntil = pv.waveUntil; showAt = null; byeAt = null; popAt = -1e9; nextBlink = pv.nextBlink || now() + 2000; lastWake = Date.now();
+    spotifyState = { is_playing: false, track: null }; angry = 0; dizzy = 0; window.__twocodeBasket = null; window.__twocodeLockerDraw = true;
+    previewing = true;
+    try { draw(); }
+    finally {
+      previewing = false; pv.nextBlink = nextBlink;
+      for (const k of Object.keys(prefs)) delete prefs[k];
+      Object.assign(prefs, keep.prefs);
+      ({ feeling, feelingUntil, bounceAt, danceDemoUntil, waveUntil, showAt, byeAt, popAt, nextBlink, lastWake } = keep);
+      spotifyState = keep.spotify; angry = keep.angry; dizzy = keep.dizzy; window.__twocodeBasket = keep.basket; window.__twocodeLockerDraw = keep.locker;
+    }
   };
 })();

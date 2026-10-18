@@ -20,7 +20,7 @@ namespace TwoCode.Native {
   }
   public class Snapshot {
     public bool ok, truncated;
-    public string error, provider, contextKey;
+    public string error, provider, contextKey, title;
     public List<Node> nodes = new List<Node>();
   }
   public class Guard { public string id, name; }
@@ -149,6 +149,7 @@ namespace TwoCode.Native {
       try {
         var root = Root(target); string provider;
         result.contextKey = Identity(target, root, out provider); result.provider = provider;
+        try { result.title = root.Current.Name; } catch { }
         bool truncated = false;
         var cache = new CacheRequest(); cache.TreeScope = TreeScope.Element; cache.TreeFilter = Automation.RawViewCondition;
         cache.AutomationElementMode = AutomationElementMode.Full;

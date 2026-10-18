@@ -732,7 +732,7 @@ async function logout() {
   selectedModel = '';
 }
 
-async function answer(prompt, instructions) {
+async function answer(prompt, instructions, images = []) {
   const account = await status(true);
 
   if (!account.ready) {
@@ -814,7 +814,9 @@ async function answer(prompt, instructions) {
         {
           type: 'text',
           text: prompt
-        }
+        },
+        // screenshots (Robo the buddy sends what is under him)
+        ...images.map(file => ({ type: 'localImage', path: file }))
       ],
       approvalPolicy: 'never',
       permissions: 'twocode-chat'
@@ -865,10 +867,44 @@ app.on('before-quit', () => {
   stop();
 });
 
+// "Fix it" for Robo Buddy: Codex changes files in one project folder, with TwoCode's ChatGPT login.
+// Only that folder may change (workspace-write sandbox), no web search, no hooks.
+function fixInFolder(dir, prompt, images = [], sandbox = 'workspace-write') {
+  const runtime = nativeRuntime();
+  const env = { ...process.env };
+  env.CODEX_HOME = path.join(folder(), 'codex');
+  for (const name of ['OPENAI_API_KEY', 'TWOCODE_OPENAI_API_KEY', 'CODEX_API_KEY', 'CODEX_ACCESS_TOKEN', 'ELECTRON_RUN_AS_NODE']) delete env[name];
+  if (fs.existsSync(runtime.helpers)) {
+    const key = Object.keys(env).find(name => name.toLowerCase() === 'path') || 'PATH';
+    env[key] = [runtime.helpers, env[key] || ''].filter(Boolean).join(path.delimiter);
+  }
+  const out = path.join(folder(), `fix-${Date.now()}.txt`);
+  const args = ['exec', '--skip-git-repo-check', '--ephemeral', '--sandbox', sandbox === 'read-only' ? 'read-only' : 'workspace-write', '-C', dir, '-o', out,
+    '-c', 'forced_login_method="chatgpt"', '-c', 'cli_auth_credentials_store="keyring"', '-c', 'features.hooks=false', '-c', 'web_search="disabled"',
+    ...images.flatMap(file => ['-i', file]), '-'];
+  return new Promise((resolve, reject) => {
+    const running = spawn(runtime.executable, args, { cwd: dir, env, windowsHide: true, shell: false, stdio: ['pipe', 'pipe', 'pipe'] });
+    let diagnostics = '';
+    const timer = setTimeout(() => { try { running.kill(); } catch {} reject(new Error('Codex deed er te lang over.')); }, 300000);
+    running.stderr.on('data', data => { diagnostics = (diagnostics + data.toString()).slice(-2000); });
+    running.stdout.on('data', () => {});
+    running.on('error', error => { clearTimeout(timer); reject(new Error(`Codex kon niet starten: ${safeMessage(error.message)}`)); });
+    running.on('close', code => {
+      clearTimeout(timer);
+      let text = '';
+      try { text = fs.readFileSync(out, 'utf8').trim(); fs.unlinkSync(out); } catch {}
+      if (text) resolve(text);
+      else reject(new Error(code === 0 ? 'Codex gaf geen antwoord.' : `Codex stopte: ${safeMessage(diagnostics.split('\n').filter(Boolean).pop() || String(code))}`));
+    });
+    running.stdin.end(prompt);
+  });
+}
+
 module.exports = {
   status,
   login,
   cancelLogin,
   logout,
-  answer
+  answer,
+  fixInFolder
 };

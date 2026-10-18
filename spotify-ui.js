@@ -19,6 +19,28 @@
     ctx.fill(); ctx.restore();
   }
   window.__twocodeMediaIcon = mediaIcon;
+  // ---- Spotify Connect: where the music plays (this PC, your phone, the car…) and moving it, like Spotify's speaker button ----
+  let devicesOpen = false, devices = [], devicesNote = '';
+  function devIcon(type, x, y, s, colour) { // small line icons per kind of device
+    ctx.save(); ctx.strokeStyle = colour; ctx.fillStyle = colour; ctx.lineWidth = 1.6; ctx.lineJoin = 'round'; ctx.beginPath();
+    if (type === 'Smartphone') ctx.roundRect(x - s * 0.28, y - s * 0.5, s * 0.56, s, 2.5);
+    else if (type === 'Automobile') { ctx.roundRect(x - s * 0.5, y - s * 0.1, s, s * 0.38, 3); ctx.moveTo(x - s * 0.32, y - s * 0.1); ctx.lineTo(x - s * 0.2, y - s * 0.38); ctx.lineTo(x + s * 0.2, y - s * 0.38); ctx.lineTo(x + s * 0.32, y - s * 0.1); }
+    else if (type === 'Speaker' || type === 'CastAudio' || type === 'AVR') { ctx.roundRect(x - s * 0.34, y - s * 0.5, s * 0.68, s, 3); ctx.moveTo(x + s * 0.14, y + s * 0.12); ctx.arc(x, y + s * 0.12, s * 0.14, 0, Math.PI * 2); }
+    else if (type === 'TV' || type === 'CastVideo') { ctx.roundRect(x - s * 0.5, y - s * 0.38, s, s * 0.62, 2); ctx.moveTo(x - s * 0.22, y + s * 0.42); ctx.lineTo(x + s * 0.22, y + s * 0.42); }
+    else { ctx.roundRect(x - s * 0.42, y - s * 0.36, s * 0.84, s * 0.56, 2); ctx.moveTo(x - s * 0.55, y + s * 0.34); ctx.lineTo(x + s * 0.55, y + s * 0.34); } // a laptop
+    ctx.stroke(); ctx.restore();
+  }
+  async function loadDevices() {
+    devicesNote = '…';
+    try { const r = await api.spotifyDevices?.(); devices = r?.devices || []; devicesNote = r?.ok ? (devices.length ? '' : 'Open Spotify op een ander apparaat, dan zie je het hier.') : (r?.error || 'Kon je apparaten niet ophalen.'); }
+    catch { devicesNote = 'Kon je apparaten niet ophalen.'; }
+  }
+  async function moveTo(device) {
+    devicesNote = 'Wisselen naar ' + device.name + '…';
+    const r = await api.spotifyTransfer?.(device.id).catch(e => ({ ok: false, error: e.message }));
+    if (r?.ok) { devicesOpen = false; devicesNote = ''; window.__twocodeFlash?.('🔊  ' + device.name, 1200); window.__twocodeChime?.('pop'); setTimeout(() => refreshSpotify(), 700); }
+    else devicesNote = r?.error || 'Dat lukte niet.';
+  }
   function control3(x, y, r, kind, key, primary) {
     const bounds = { x: x - r, y: y - r, width: r * 2, height: r * 2 }, over = inside(pointer.x, pointer.y, bounds);
     if (primary || over) { ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = primary ? '#f4f7f0' : 'rgba(255,255,255,.08)'; ctx.fill(); ctx.restore(); }
@@ -52,7 +74,7 @@
     if (art) { ctx.save(); ctx.beginPath(); ctx.roundRect(left, top, size, size, 16); ctx.clip(); ctx.drawImage(albumImage, left, top, size, size); ctx.restore(); }
     else window.__twocodeIcon?.('music', left + size / 2, top + size / 2, 40, '#5d6858');
 
-    const x = left + size + 24, w = right - x, vizW = 130;
+    const x = left + size + 24, w = right - x, vizW = 168;
     // title + artist, visualizer on the right
     if (!track) {
       text('Er speelt nu niks', x, top + 30, 18, '#fff', 700, 'left', w - vizW - 16);
@@ -64,8 +86,12 @@
       text(track.artist, x, top + 50, 12.5, 'rgba(235,240,230,.62)', 500, 'left', w - vizW - 16);
       hit.spTitle = { x, y: top + 10, width: w - vizW - 16, height: 28 };
     }
-    if (spotifyState.is_playing && window.__twocodeBars) window.__twocodeBars(right - vizW, right, top + 30, 18, 30);
-    else for (let i = 0; i < 18; i++) box(right - vizW + i * (vizW / 18) + 1.5, top + 29, vizW / 18 - 3, 2, 1, 'rgba(255,255,255,.16)');
+    const dev = spotifyState.device, elsewhere = dev && !dev.here, bw = 150, bx = right - bw, by = top + 12;
+    const overDev = inside(pointer.x, pointer.y, { x: bx, y: by, width: bw, height: 30 });
+    box(bx, by, bw, 30, 15, devicesOpen || overDev ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.08)');
+    devIcon(dev?.type || 'Computer', bx + 18, by + 15, 15, elsewhere ? colour : '#e8ece6');
+    text(dev ? dev.name : 'Apparaten', bx + 34, by + 19.5, 11.5, elsewhere ? colour : '#e8ece6', 700, 'left', bw - 44);
+    hit.spDevices = { x: bx, y: by, width: bw, height: 30 };
 
     // long progress bar with times
     const barY = top + 76, part = spotifyState.duration_ms ? position() / spotifyState.duration_ms : 0;
@@ -86,6 +112,23 @@
     const ox = right - 14, overOpen = inside(pointer.x, pointer.y, { x: ox - 16, y: cy - 16, width: 32, height: 32 });
     window.__twocodeIcon?.('music', ox, cy, 16, overOpen ? colour : 'rgba(235,240,230,.55)');
     hit.spOpen = { x: ox - 16, y: cy - 16, width: 32, height: 32 };
+    for (let i = 0; i < 5; i++) hit['spDev' + i] = null;
+    if (devicesOpen) {
+      const px = x - 8, py = top - 2, pw = right - px + 4, ph = size + 4;
+      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 20; box(px, py, pw, ph, 16, '#121512'); ctx.restore();
+      text('Speel af op', px + 16, py + 24, 13, '#fff', 700);
+      text('✕', px + pw - 18, py + 24, 13, 'rgba(255,255,255,.6)', 700, 'center'); hit.spDevClose = { x: px + pw - 32, y: py + 6, width: 28, height: 28 };
+      const list = devices.slice(0, 4);
+      list.forEach((d, i) => {
+        const ry = py + 36 + i * 24, over = inside(pointer.x, pointer.y, { x: px + 8, y: ry, width: pw - 16, height: 22 });
+        if (over) box(px + 8, ry, pw - 16, 22, 8, 'rgba(255,255,255,.07)');
+        devIcon(d.type, px + 24, ry + 11, 13, d.active ? colour : '#cfd5cc');
+        text(d.name, px + 40, ry + 15, 12, d.active ? colour : '#eef2ec', d.active ? 700 : 600, 'left', pw - 150);
+        text(d.active ? 'Speelt nu' : d.here ? 'Deze pc' : '', px + pw - 16, ry + 15, 10.5, d.active ? colour : 'rgba(255,255,255,.45)', 600, 'right');
+        hit['spDev' + i] = { x: px + 8, y: ry, width: pw - 16, height: 22, device: d };
+      });
+      if (devicesNote) text(devicesNote, px + 16, py + ph - 12, 10.5, 'rgba(255,255,255,.55)', 600, 'left', pw - 32);
+    }
   };
 
   async function control(action) {
@@ -119,6 +162,9 @@
   canvas.addEventListener('click', async event => {
     if (currentView !== 'spotify' || mode !== 'expanded') return;
     const x = event.clientX, y = event.clientY, hits = {
+      spDevClose: () => { devicesOpen = false; },
+      ...Object.fromEntries([0, 1, 2, 3].map(i => ['spDev' + i, () => hit['spDev' + i]?.device && moveTo(hit['spDev' + i].device)])),
+      spDevices: () => { devicesOpen = !devicesOpen; if (devicesOpen) loadDevices(); },
       spPrev: () => control('previous'), spNext: () => control('next'),
       spPlay: () => control(spotifyState.is_playing ? 'pause' : 'play'), spOpen: () => control('open'), spTitle: () => control('open'),
       spConnect: async () => { try { await api.spotifyConnect(); } catch {} refreshSpotify(); },
@@ -127,6 +173,7 @@
         spotifyState.progress_ms = ms; spotifySyncAt = performance.now(); api.spotifySeek(ms).catch(() => {});
       }
     };
+    if (devicesOpen && !['spDevices', 'spDevClose', 'spDev0', 'spDev1', 'spDev2', 'spDev3'].some(k => inside(x, y, hit[k]))) { devicesOpen = false; event.preventDefault(); event.stopImmediatePropagation(); return; } // a click elsewhere closes the list
     for (const [key, run] of Object.entries(hits)) {
       if (inside(x, y, hit[key])) { event.preventDefault(); event.stopImmediatePropagation(); run(); return; }
     }

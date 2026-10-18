@@ -6,8 +6,8 @@ const PROVIDERS = Object.freeze({
 });
 const hash = text => createHash('sha256').update(text || '').digest('hex');
 const clean = text => String(text || '').replace(/\r/g, '').trim();
-const STOP = /^(stop( generating| response| streaming| answering)?|stoppen( met genereren)?|antwoord stoppen|genereren stoppen)$/i;
-const SEND = /^(send( message)?|send now|verstuur|verzenden|bericht verzenden|bericht versturen)$/i;
+const STOP = /^(stop( generating| response| streaming| answering)?|stoppen( met (genereren|streamen))?|antwoord stoppen|genereren stoppen|streamen stoppen|stop met streamen)$/i;
+const SEND = /^(send( message| prompt)?|send now|verstuur|verzenden|bericht verzenden|bericht versturen|prompt (verzenden|versturen))$/i;
 const LOGIN = /^(log in|login|sign in|inloggen|aanmelden)$/i;
 const ERROR = /^(something went wrong|an error occurred|er is iets misgegaan|er is een fout opgetreden|failed to generate|network error|usage limit reached|you.ve reached your limit|limiet bereikt)/i;
 const HALTED = /^(stopped generating|response stopped|genereren gestopt|antwoord gestopt|generation cancelled)$/i;
@@ -15,7 +15,8 @@ const ASSISTANT = /^(ChatGPT (said|zei)|Claude (said|zei)|Claude.s response|Assi
 const USER = /^(You (said|zei)|Je zei|Jij zei|User|Gebruiker)\s*:?\s*$/i;
 const RESPONSE_CLASS = /(?:^|[\s_-])(font-claude-message|assistant-message|assistant-response|agent-message)(?:$|[\s_-])/i;
 const COMPOSER = /^(prompt-textarea|chat-input|message-input|composer)/i;
-const INPUT_LABEL = /(message (ChatGPT|Claude)|reply to Claude|ask (anything|Claude)|bericht( aan| sturen)?|typ (een|je)|stuur een bericht|how can (I|Claude) help|write (a|your) (message|reply)|reply\.\.\.|antwoord)/i;
+// ChatGPT now says "Stel een vraag aan ChatGPT" / "Ask ChatGPT anything" on its input field.
+const INPUT_LABEL = /(message (ChatGPT|Claude)|reply to Claude|ask (anything|Claude|ChatGPT)|stel (een vraag|iets)|vraag (iets )?aan (ChatGPT|Claude)|bericht( aan| sturen)?|typ (een|je)|stuur een bericht|how can (I|Claude) help|write (a|your) (message|reply)|reply\.\.\.|antwoord)/i;
 
 // Current claude.ai: each turn is a group "Message 52 of 52" that starts with a summary text
 // "Claude responded: …" or "You said: …".
@@ -114,7 +115,7 @@ function observe(snapshot, provider) {
   const edits = nodes.filter(n => !n.password && n.enabled !== false &&
     (n.type === 'Edit' || COMPOSER.test(n.automationId || '')) &&
     (COMPOSER.test(n.automationId || '') || INPUT_LABEL.test(clean(n.name)) || INPUT_LABEL.test(clean(n.helpText)) ||
-      (provider === 'claude' && richEditors.length === 1 && n.id === richEditors[0].id)));
+      (richEditors.length === 1 && n.id === richEditors[0].id))); // the one rich text box of the chat (claude.ai and chatgpt.com)
   // Never guess an arbitrary edit field, search box or address bar.
   const composer = edits.length === 1 ? edits[0] : null;
   // claude.ai also announces streaming in a status line, e.g. "Claude is responding".
@@ -133,6 +134,11 @@ function observe(snapshot, provider) {
     error: error?.name || '', halted: Boolean(halted), question: assistant ? questionFrom(assistant.text) : '',
     activity: phase?.name || 'Antwoord wordt gemaakt', snapshot };
 }
+// "Ideeën voor mijn site - Google Chrome" → "Ideeën voor mijn site"
+function chatTitle(title) {
+  return String(title || '').replace(/\s+[-–—]\s+(Google Chrome|Microsoft​? Edge|Mozilla Firefox|Brave|Opera|Vivaldi|Arc)$/i, '')
+    .replace(/^(ChatGPT|Claude)\s+[-–—]\s+/i, '').trim();
+}
 class Session {
   constructor(provider, target) {
     this.provider = provider; this.target = target; this.contextKey = null; this.state = 'connecting';
@@ -149,11 +155,16 @@ class Session {
     if (this.contextKey && this.contextKey !== obs.contextKey) {
       const isNewChat = this.run && /:https:\/\/(chatgpt\.com|claude\.ai)\/?$/.test(this.contextKey);
       if (!isNewChat) {
-        this.state = 'unavailable'; this.detail = 'Ander gesprek actief. Verbind dit gesprek opnieuw om het te volgen.';
-        this.run = null; this.baseline = null; this.question = ''; this.questionId = ''; return this.public(now);
+        // Another chat is open now: Robo simply follows that one (like Coucou, nothing to reconnect).
+        // Its current answer is the starting point, so an old answer never counts as "done".
+        this.contextKey = obs.contextKey; this.run = null; this.stable = 0; this.startedAt = null; this.endedAt = null;
+        this.baseline = obs.assistant?.fingerprint || ''; this.preview = obs.assistant?.text || '';
+        this.state = 'ready'; this.detail = 'Volgt dit gesprek'; this.question = ''; this.questionId = '';
+        this.title = chatTitle(obs.snapshot?.title || this.target.title); return this.public(now);
       }
     }
-    this.contextKey = obs.contextKey;
+    this.contextKey = obs.contextKey; this.title = chatTitle(obs.snapshot?.title || this.target.title);
+    if (obs.assistant?.text) this.preview = obs.assistant.text;
     const previousReply = this.baseline;
     this.baseline = obs.assistant?.fingerprint || '';
     if (obs.error || obs.halted) {
@@ -205,7 +216,8 @@ class Session {
       state: this.state, detail: this.detail, question: this.question, questionId: this.questionId,
       elapsed: this.startedAt ? Math.floor(((this.endedAt || now) - this.startedAt) / 1000) : 0,
       canReply: this.state === 'question' && Boolean(this.last?.composer),
-      source: { title: this.target.title, process: this.target.process }, targetId: this.target.id };
+      source: { title: this.title || chatTitle(this.target.title), process: this.target.process }, targetId: this.target.id,
+      preview: String(this.preview || '').slice(-1200) };
   }
 }
 module.exports = { PROVIDERS, observe, Session, questionFrom, hash };

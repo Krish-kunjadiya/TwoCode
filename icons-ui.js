@@ -7,6 +7,7 @@
   const ICONS = {
     home(c) { c.beginPath(); c.moveTo(4, 11); c.lineTo(12, 4); c.lineTo(20, 11); c.lineTo(20, 20); c.lineTo(4, 20); c.closePath(); c.fill(); c.stroke();
       c.beginPath(); c.roundRect(10, 14, 4, 6, 1); c.stroke(); },
+    chat(c) { c.beginPath(); c.roundRect(3.5, 5, 17, 12, 5); c.fill(); c.stroke(); c.beginPath(); c.moveTo(8, 17); c.lineTo(7, 20.5); c.lineTo(11.5, 17); c.stroke(); }, // Robo's chat
     plus(c) { c.beginPath(); c.roundRect(4, 4, 16, 16, 5); c.fill(); c.stroke(); c.beginPath(); c.moveTo(12, 8.5); c.lineTo(12, 15.5); c.moveTo(8.5, 12); c.lineTo(15.5, 12); c.stroke(); },
     gear(c) {
       c.beginPath();
@@ -75,15 +76,26 @@
   // Volume: a glass pill that slides out of the speaker icon (springy), a gradient fill and a white knob.
   let barOpen = false, barTouched = 0, dragging = false, barAnim = 0, shownVolume = volume, track = null;
   const backOut = t => { const c = 1.6; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+  const pillAnim = { x: null, shown: 0, v: 0, at: 0 }; // the sliding pill behind the page you are on
   drawHeader = function (alpha) {
     const left = islandBounds.x, right = left + islandBounds.width;
     ctx.save(); ctx.globalAlpha = alpha;
     ctx.strokeStyle = 'rgba(255,255,255,.055)'; ctx.beginPath(); ctx.moveTo(left + 12, 35); ctx.lineTo(right - 12, 35); ctx.stroke();
-    const homeX = left + 27, appsX = left + 61, soundX = right - 138, settingsX = right - 102, collapseX = right - 66, powerX = right - 30;
-    // the page you are on gets a soft pill behind its icon
-    const activePill = x => { ctx.save(); ctx.beginPath(); ctx.roundRect(x - 17, 3, 34, 30, 12); ctx.fillStyle = 'rgba(255,255,255,.1)'; ctx.fill(); ctx.restore(); };
-    if (currentView === 'apps') activePill(homeX); if (currentView === 'shortcuts' || (currentView === 'home' && window.__twocodeHomeEditing?.())) activePill(appsX); if (currentView === 'settings') activePill(settingsX);
-    icon('home', homeX, 18, 19); icon('plus', appsX, 18, 19); icon('speaker', soundX, 18, 19, LINE, volume); icon('gear', settingsX, 18, 18); icon('collapse', collapseX, 18, 19); drawPower(powerX, 18, inside(pointer.x, pointer.y, hit.power) || quitAsk > 0);
+    const homeX = left + 27, chatX = left + 61, appsX = left + 95, soundX = right - 138, settingsX = right - 102, collapseX = right - 66, powerX = right - 30;
+    // the page you are on gets a soft pill behind its icon; switching pages, the pill slides over (and stretches a little on the way)
+    const editing = window.__twocodeHomeEditing?.();
+    const target = currentView === 'home' && !editing ? homeX : currentView === 'chat' ? chatX : currentView === 'shortcuts' || (currentView === 'home' && editing) ? appsX : currentView === 'settings' ? settingsX : null;
+    const now = performance.now(), dt = Math.min(0.05, (now - (pillAnim.at || now)) / 1000); pillAnim.at = now;
+    if (target != null) {
+      if (pillAnim.x == null || pillAnim.shown < 0.05) pillAnim.x = target; // appears where it belongs
+      const before = pillAnim.x; pillAnim.x += (target - pillAnim.x) * Math.min(1, dt * 16); pillAnim.v = Math.abs(pillAnim.x - before) / Math.max(dt, 0.001);
+    }
+    pillAnim.shown += ((target != null ? 1 : 0) - pillAnim.shown) * Math.min(1, dt * 14);
+    if (pillAnim.shown > 0.02 && pillAnim.x != null) {
+      const stretch = Math.min(18, pillAnim.v / 90);
+      ctx.save(); ctx.globalAlpha *= pillAnim.shown; ctx.beginPath(); ctx.roundRect(pillAnim.x - 17 - stretch / 2, 3, 34 + stretch, 30, 12); ctx.fillStyle = 'rgba(255,255,255,.1)'; ctx.fill(); ctx.restore();
+    }
+    icon('home', homeX, 18, 19); icon('chat', chatX, 18, 19); icon('plus', appsX, 18, 19); icon('speaker', soundX, 18, 19, LINE, volume); icon('gear', settingsX, 18, 18); icon('collapse', collapseX, 18, 19); drawPower(powerX, 18, inside(pointer.x, pointer.y, hit.power) || quitAsk > 0);
     // editing the home widgets: a Klaar button (like iPhone) and a hint
     if (currentView === 'home' && window.__twocodeHomeEditing?.() && !window.__twocodeGalleryOpen?.() && !barOpen) {
       const b = { x: left + 88, y: 5, width: 62, height: 26 }, over = inside(pointer.x, pointer.y, b);
@@ -116,7 +128,7 @@
       icon('speaker', soundX, 18, 19, LINE, volume); // the speaker stays on top of the pill
     }
     if (alpha > 0.85) {
-      hit.home = { x: homeX - 16, y: 2, width: 32, height: 30 }; hit.apps = { x: appsX - 16, y: 2, width: 32, height: 30 };
+      hit.home = { x: homeX - 16, y: 2, width: 32, height: 30 }; hit.chat = { x: chatX - 16, y: 2, width: 32, height: 30 }; hit.apps = { x: appsX - 16, y: 2, width: 32, height: 30 };
       hit.sound = { x: soundX - 16, y: 1, width: 32, height: 31 }; hit.settings = { x: settingsX - 15, y: 2, width: 30, height: 30 }; hit.collapse = { x: collapseX - 15, y: 2, width: 30, height: 30 };
       hit.power = { x: powerX - 15, y: 2, width: 30, height: 30 };
     }
@@ -157,7 +169,14 @@
     if (quitAsk && inside(e.clientX, e.clientY, hit.quitNo)) { stop(); quitAsk = 0; sound('click'); return; }
     if (mode === 'expanded' && inside(e.clientX, e.clientY, hit.power)) { stop(); quitAsk = quitAsk ? 0 : 1; quitAskAt = performance.now(); sound('click'); return; }
     if (quitAsk) { quitAsk = 0; } // a click anywhere else: never mind
-    if (mode === 'expanded' && inside(e.clientX, e.clientY, hit.home)) { stop(); setView('apps'); return; }
+    // Home really goes home (your widgets). Already home? Then it shows all apps.
+    if (mode === 'expanded' && inside(e.clientX, e.clientY, hit.home)) {
+      stop(); const was = currentView;
+      if (was === 'monitor') window.__twocodeMonitor?.small?.();
+      if (window.__twocodeHomeEditing?.()) window.__twocodeHomeEdit?.(false);
+      setView(was === 'home' ? 'apps' : 'home'); setMode('expanded'); return;
+    }
+    if (mode === 'expanded' && inside(e.clientX, e.clientY, hit.chat)) { stop(); if (currentView === 'monitor') window.__twocodeMonitor?.small?.(); setView('chat'); setMode('expanded'); return; } // Robo's chat
     if (mode === 'expanded' && inside(e.clientX, e.clientY, hit.apps)) {
       stop();
       if (currentView !== 'home') { setView('home'); window.__twocodeHomeEdit?.(true); }

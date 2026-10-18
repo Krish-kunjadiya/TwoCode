@@ -24,6 +24,8 @@
     spotifyGetState: () => ipcRenderer.invoke('spotify:get-state'),
     spotifyControl: action =>
       ipcRenderer.invoke('spotify:control', action),
+    spotifyDevices: () => ipcRenderer.invoke('spotify:devices'),
+    spotifyTransfer: id => ipcRenderer.invoke('spotify:transfer', id),
     spotifySeek: positionMs =>
       ipcRenderer.invoke('spotify:seek', positionMs),
     spotifyDisconnect: () =>
@@ -82,8 +84,8 @@
     aiMonitorConnect: (provider, targetId) => ipcRenderer.invoke('ai-monitor:connect', { provider, targetId }),
     aiMonitorDisconnect: provider => ipcRenderer.invoke('ai-monitor:disconnect', { provider }),
     aiMonitorOpenSource: provider => ipcRenderer.invoke('ai-monitor:open-source', { provider }),
-    aiMonitorHooksInstall: () => ipcRenderer.invoke('ai-monitor:hooks-install'),
-    aiMonitorHooksUninstall: () => ipcRenderer.invoke('ai-monitor:hooks-uninstall'),
+    aiMonitorHooksInstall: agent => ipcRenderer.invoke('ai-monitor:hooks-install', { agent }),
+    aiMonitorHooksUninstall: agent => ipcRenderer.invoke('ai-monitor:hooks-uninstall', { agent }),
     // Extras: file tray, calendar, weather, volume, Bluetooth battery
     pathForFile: file => { try { return webUtils.getPathForFile(file); } catch { return ''; } },
     trayGet: () => ipcRenderer.invoke('extras:tray-get'),
@@ -131,6 +133,28 @@
     onPointer: callback =>
       subscribe('companion:pointer', callback),
     onGoodbye: callback =>
-      subscribe('twocode:goodbye', callback)
+      subscribe('twocode:goodbye', callback),
+    // Robo the buddy (buddy-main.cjs): grab him out of the island and drop him on the screen
+    settingsOpen: tab => ipcRenderer.send('settings-app:open', typeof tab === 'string' ? tab : ''), // the TwoCode app, its own window
+    buddyGrab: info => ipcRenderer.send('buddy:grab', info),
+    buddyDrop: () => ipcRenderer.send('buddy:drop'),
+    buddyFrame: url => ipcRenderer.send('buddy:frame', url),
+    // Robo's chat in the island (chat-ui.js)
+    buddyAsk: (kind, text, history) => ipcRenderer.invoke('buddy:ask', { kind, text, history }),
+    buddyApply: () => ipcRenderer.invoke('buddy:apply'),
+    buddyForget: () => ipcRenderer.send('buddy:forget'),
+    buddyAi: () => ipcRenderer.invoke('buddy:ai'),
+    buddyUseAi: id => ipcRenderer.invoke('buddy:use-ai', id),
+    buddyLogin: () => ipcRenderer.invoke('buddy:login'),
+    buddyApplyFix: () => ipcRenderer.invoke('buddy:apply-fix'),
+    buddyCancelFix: () => ipcRenderer.send('buddy:cancel-fix'),
+    onBuddyChat: callback => subscribe('buddy:chat', callback),
+    settingsFrame: url => ipcRenderer.send('settings-app:frame', url), // the settings app's own Robo
+    onBuddy: callback => {
+      subscribe('buddy:home', () => callback('home'));
+      subscribe('buddy:mood', data => callback('mood', data));
+      subscribe('buddy:collapse', () => callback('collapse'));
+      subscribe('buddy:dropped', () => callback('dropped'));
+    }
   });
 })();
