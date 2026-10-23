@@ -323,7 +323,11 @@ function setup(electron, options = {}) {
         stop: () => send([{ hook_event_name: 'PostToolUse', tool_name: 'Bash' }, { hook_event_name: 'Stop', last_assistant_message: String(payload?.command || 'Done!').slice(0, 300) }]),
         limit: () => send([{ hook_event_name: 'StopFailure', error_type: 'rate_limit' }]),
         usage: () => hub.applyUsage({ five_hour: { used: Number(payload?.command) || 0, resets_at: Math.floor(Date.now() / 1000) + 3600 } }), // command = percent
-        'demo-perm': () => { const res = { writeHead() { return this; }, end() {}, on() {} }; hub.apply({ ...base, hook_event_name: 'PermissionRequest', tool_name: 'Bash', tool_input: { command: String(payload?.command || 'npm install stripe').slice(0, 200) } }, res); } // command: pick what the demo asks
+        'demo-perm': () => { const res = { writeHead() { return this; }, end() {}, on() {} }; hub.apply({ ...base, hook_event_name: 'PermissionRequest', tool_name: 'Bash', tool_input: { command: String(payload?.command || 'npm install stripe').slice(0, 200) } }, res); }, // command: pick what the demo asks
+        // a multiple-choice question and a plan to approve, answered from the island (videos / testing)
+        'demo-ask': () => { const res = { writeHead() { return this; }, end() {}, on() {} }; hub.apply({ ...base, hook_event_name: 'PermissionRequest', tool_name: 'AskUserQuestion', tool_input: { questions: [{ question: 'Which colour should the button be?', header: 'Colour',
+          multiSelect: false, options: [{ label: 'Blue', description: 'Calm, matches the logo' }, { label: 'Green', description: 'Stands out more' }, { label: 'Orange', description: 'Warm and friendly' }] }] } }, res); },
+        'demo-plan': () => { const res = { writeHead() { return this; }, end() {}, on() {} }; hub.apply({ ...base, hook_event_name: 'PermissionRequest', tool_name: 'ExitPlanMode', tool_input: { plan: String(payload?.command || '## Dark mode\n1. Add a theme switch to the header\n2. Save the choice in localStorage\n3. Use CSS variables for every colour\n4. Test both themes').slice(0, 4000) } }, res); }
       };
       if (!scenes[payload?.kind]) throw new Error('Onbekende test.');
       scenes[payload.kind](); return view();

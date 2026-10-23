@@ -20,6 +20,7 @@ require('./project-mode-main');
 require('./ai-monitor-main.cjs');
 require('./extras-main.cjs');
 require('./settings-app-main.cjs'); // TwoCode Instellingen: settings as their own app
+require('./license-main.cjs'); // packs bought on twocode.nl: which extra apps are open
 
 app.setAppUserModelId(
   'nl.twocode.assistent'

@@ -549,6 +549,7 @@ async function status(refresh = false) {
     };
 
     cachedAt = Date.now();
+    remember(accountCache);
 
     return accountCache;
   } catch (error) {
@@ -558,6 +559,59 @@ async function status(refresh = false) {
       error: error.message
     };
   }
+}
+
+// What we last knew about the account, without starting Codex. Starting codex.exe can freeze all of
+// TwoCode for seconds on Windows (the virus scanner checks it first), so the settings use this.
+// A login or logout changes the revision, which makes the old snapshot invalid.
+const snapshotFile = () =>
+  path.join(folder(), 'account.json');
+
+function remember(account) {
+  try {
+    fs.writeFileSync(
+      snapshotFile(),
+      JSON.stringify({
+        revision: revision(),
+        ready: account.ready,
+        email: account.email,
+        plan: account.plan,
+        fingerprint: account.fingerprint
+      }),
+      'utf8'
+    );
+  } catch {}
+}
+
+function peek() {
+  if (accountCache) return accountCache;
+
+  try {
+    nativeRuntime();
+  } catch (error) {
+    return {
+      installed: false,
+      ready: false,
+      error: error.message
+    };
+  }
+
+  try {
+    const saved = JSON.parse(fs.readFileSync(snapshotFile(), 'utf8'));
+
+    if (saved?.revision === revision()) {
+      return {
+        installed: true,
+        ready: saved.ready === true,
+        email: String(saved.email || ''),
+        plan: String(saved.plan || ''),
+        model: selectedModel,
+        fingerprint: String(saved.fingerprint || '')
+      };
+    }
+  } catch {}
+
+  return null;
 }
 
 async function login() {
@@ -902,6 +956,7 @@ function fixInFolder(dir, prompt, images = [], sandbox = 'workspace-write') {
 
 module.exports = {
   status,
+  peek,
   login,
   cancelLogin,
   logout,

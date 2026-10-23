@@ -365,7 +365,8 @@ function earlier(history) {
   const turns = (Array.isArray(history) ? history : []).slice(-8).map(m => `${m?.who === 'me' ? 'Gebruiker' : 'Robo'}: ${String(m?.text || '').slice(0, 1500)}`);
   return turns.length ? 'Eerder in dit gesprek:\n' + turns.join('\n') + '\n\n' : '';
 }
-async function ask({ kind, text, history }) {
+async function ask({ kind, text, history, lang: language }) {
+  if (language === 'en' || language === 'nl') lang = language; // the island's language (a chat without dropping Robo first never set it)
   const question = String(text || '').trim().slice(0, 2000) || (ASKS[kind] || ASKS.explain)();
   const before = earlier(history);
   toIsland('buddy:mood', { mood: 'focus', ms: 120000 });
@@ -476,7 +477,8 @@ async function askScreen(question, before = '') {
 async function askWord(kind, question) {
   toBuddy('buddy:progress', nl() ? 'Ik lees je hele document…' : 'Reading your whole document…');
   const doc = await ps(['word-read', chatTarget.title], 60000);
-  const text = String(doc.text || '').slice(0, 120000);
+  // Word ends paragraphs with \r: make them real line breaks, or the AI reads "Bakker,I am" and "fixes" spaces that are not missing
+  const text = String(doc.text || '').replace(/\r\n?/g, '\n').slice(0, 120000);
   toBuddy('buddy:progress', nl() ? `${doc.pages} pagina's gelezen. Even nadenken…` : `Read ${doc.pages} pages. Thinking…`);
   if (kind === 'summary' || /summar|samenvat/i.test(question)) {
     const answer = await askAI(`Vraag: ${question}\n\nWord-document "${doc.name}" (${doc.pages} pagina's):\n${text}`, ROBO_RULES(), [], 3000);

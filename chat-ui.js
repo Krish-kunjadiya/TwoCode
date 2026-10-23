@@ -174,7 +174,7 @@
     window.__twocodeChime?.('send');
     window.__twocodeFeel?.('focus', 60000);
     let r;
-    try { r = await api.buddyAsk(kind, text, history); } catch (e) { r = { ok: false, error: String(e?.message || e) }; }
+    try { r = await api.buddyAsk(kind, text, history, window.__twocodePrefs?.().lang === 'en' ? 'en' : 'nl'); } catch (e) { r = { ok: false, error: String(e?.message || e) }; }
     waiting = false; readFrom = true; holdUntil = performance.now() + 10000; shineUntil = performance.now() + 4000; // stay open a moment so you see the answer
     if (r?.ok && r.plan) { toEnd = true; holdUntil = performance.now() + 30000; } // waiting for your yes
     messages.push(r?.ok ? { who: 'ai', text: r.answer || '', fixes: r.word ? r.fixes || [] : null, fixed: !!r.fixed, project: r.project || '', plan: r.plan || null, fresh: true } : { who: 'ai', error: r?.error || L().wrong, fix: r?.fix || '', fresh: true });

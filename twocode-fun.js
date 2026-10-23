@@ -102,7 +102,8 @@
   // ---------- outfits: unlocked by finishing tasks ----------
   const OUTFITS = [{ at: 5, id: 'hat', name: 'feesthoedje' }, { at: 15, id: 'shades', name: 'zonnebril' }, { at: 30, id: 'crown', name: 'kroon' }];
   let doneCount = store.get('twocode:done-count', 0);
-  const unlocked = id => doneCount >= (OUTFITS.find(o => o.id === id)?.at ?? Infinity);
+  // the Style pack (twocode.nl) opens them all at once
+  const unlocked = id => doneCount >= (OUTFITS.find(o => o.id === id)?.at ?? Infinity) || (!!OUTFITS.find(o => o.id === id) && !window.__twocodeLicense?.().locked.includes('outfits'));
   // Holidays: TwoCode dresses up by himself (Settings → Seizoensoutfits).
   function season() {
     if (!prefs.seasonal) return null;
@@ -115,7 +116,7 @@
   }
   const outfit = () => prefs.outfit === 'geen' ? null
     : prefs.outfit !== 'auto' && unlocked(prefs.outfit) ? prefs.outfit
-    : season() || [...OUTFITS].reverse().find(o => doneCount >= o.at)?.id || null;
+    : season() || [...OUTFITS].reverse().find(o => unlocked(o.id))?.id || null;
   window.__twocodeOutfitOn = () => { const o = outfit(); return Boolean(o && o !== 'shades'); }; // something on his head (the antenna grows above it)
   window.__twocodeOutfits = { count: () => doneCount, next: () => OUTFITS.find(o => doneCount < o.at) || null };
   function countDone(status) {
@@ -704,8 +705,10 @@
     else if (kind === 'music') fakeMusic();
     else if (kind === 'focus') focus.start(60);
     else if (kind === 'clear') { claude('clear'); if (fakeMusicUntil) stopFakeMusic(); if (focus.active()) focus.stop(); }
+    else if (kind === 'hungry') { food = { value: 12, at: Date.now() }; store.set('twocode:food', food); } // hungry right away: the next finished task feeds him
     else claude(kind);
   }
+  window.__twocodeTest = runTest; // the same test scenes from the console (or a video recording)
   // City and calendar link live in the main process (extras-main.cjs).
   let extrasCfg = {}, extrasError = '';
   const rerender = () => window.dispatchEvent(new Event('twocode:open-ai-settings'));

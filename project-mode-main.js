@@ -335,7 +335,8 @@ function keyFingerprint(
 // AI ROUTER
 // ============================================================
 
-async function resolveAIConfig() {
+// peek: only what we already know (the settings must never start Codex, see chatgpt-provider.js peek)
+async function resolveAIConfig({ peek = false } = {}) {
   const settings =
     loadAISettingsRaw();
 
@@ -460,7 +461,7 @@ async function resolveAIConfig() {
 
 
   if (provider === 'chatgpt') {
-    const status = await chatgpt.status();
+    const status = peek ? chatgpt.peek() || { ready: false } : await chatgpt.status();
 
     return {
       provider: 'chatgpt',
@@ -506,12 +507,14 @@ async function resolveAIConfig() {
 // PUBLIC AI SETTINGS
 // ============================================================
 
-async function getPublicAISettings() {
+// check: really ask Codex (starts it when it is not running). Without it the settings show what we
+// last knew, or unknown: true, so opening them never freezes TwoCode.
+async function getPublicAISettings({ check = false } = {}) {
   const settings =
     loadAISettingsRaw();
 
-  const selected = await resolveAIConfig();
-  const chatgptStatus = await chatgpt.status();
+  const selected = await resolveAIConfig({ peek: !check });
+  const chatgptStatus = check ? await chatgpt.status() : chatgpt.peek() || { installed: true, ready: false, unknown: true };
 
   const twocodeEnvironmentKey =
     process.env.TWOCODE_OPENAI_API_KEY ||
@@ -594,7 +597,8 @@ async function getPublicAISettings() {
       ready: chatgptStatus.ready,
       email: chatgptStatus.email || '',
       plan: chatgptStatus.plan || '',
-      error: chatgptStatus.error || ''
+      error: chatgptStatus.error || '',
+      unknown: chatgptStatus.unknown === true
     },
 
     local: {
@@ -2447,8 +2451,8 @@ ipcMain.handle(
 ipcMain.handle(
   'ai-settings:get',
 
-  async () =>
-    getPublicAISettings()
+  async (_event, request) =>
+    getPublicAISettings({ check: request?.check === true })
 );
 
 
@@ -2528,7 +2532,7 @@ ipcMain.handle('ai-settings:chatgpt-cancel', async () => {
 ipcMain.handle('ai-settings:chatgpt-logout', async () => {
   try {
     await chatgpt.logout();
-    return await getPublicAISettings();
+    return await getPublicAISettings({ check: true }) // Codex runs anyway now;
   } catch (error) {
     return { ok: false, error: error.message };
   }

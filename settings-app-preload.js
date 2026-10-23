@@ -9,9 +9,16 @@ contextBridge.exposeInMainWorld('settingsApp', {
   connections: () => ipcRenderer.invoke('settings-app:connections'),
   connect: (id, on) => ipcRenderer.invoke('settings-app:connect', { id, on }),
   openUrl: url => ipcRenderer.send('settings-app:open-url', url),
+  // packs bought on twocode.nl (license-main.cjs)
+  license: {
+    get: () => ipcRenderer.invoke('license:get'),
+    activate: code => ipcRenderer.invoke('license:activate', String(code || '')),
+    remove: () => ipcRenderer.invoke('license:remove'),
+    onChange: callback => { const fn = (_e, v) => callback(v); ipcRenderer.on('license:changed', fn); return () => ipcRenderer.removeListener('license:changed', fn); }
+  },
   // AI & Chat: the same settings the project chat and Robo the buddy use (project-mode-main.js)
   ai: {
-    get: () => ipcRenderer.invoke('ai-settings:get'),
+    get: check => ipcRenderer.invoke('ai-settings:get', { check: check === true }), // check: really ask Codex (can take a moment)
     setProvider: provider => ipcRenderer.invoke('ai-settings:set-provider', provider),
     setKey: (type, key) => ipcRenderer.invoke('ai-settings:set-key', { type, key }),
     clearKey: type => ipcRenderer.invoke('ai-settings:clear-key', type),

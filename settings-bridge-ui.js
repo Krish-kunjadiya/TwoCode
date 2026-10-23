@@ -7,8 +7,16 @@
 (() => {
   const openView = setView;
   // The gear, the Settings tile and the AI shortcut all open the app instead of the small settings page.
+  // An app from a pack you don't have yet opens Instellingen → Apps instead, where you can get it (once per few seconds:
+  // dragging a file over the island asks for the Tray again and again).
+  const PACK_VIEWS = ['focus', 'tray', 'clips', 'note', 'spotify'];
+  let askedAt = 0;
   setView = (view, ...rest) => {
     if (view === 'settings' && window.twocode?.settingsOpen) { window.twocode.settingsOpen(); return; }
+    if (PACK_VIEWS.includes(view) && license.locked.includes(view)) {
+      if (performance.now() - askedAt > 4000) { askedAt = performance.now(); window.twocode?.settingsOpen?.('apps'); }
+      return;
+    }
     return openView(view, ...rest);
   };
 
@@ -18,9 +26,16 @@
   root.appendChild(box); // inside the settings root, so its click handler runs for clicks in here
 
   // ---------- apps you removed (ai-monitor-ui.js leaves them out of the island, buddy-ui.js for Robo) ----------
-  let offCache = null; // read once, the island asks every frame
+  let offCache = null, allOff = null; // read once, the island asks every frame
   const appsOff = () => { if (!offCache) { try { offCache = new Set(JSON.parse(localStorage.getItem('twocode:apps-off')) || []); } catch { offCache = new Set(); } } return offCache; };
-  window.__twocodeAppsOff = appsOff;
+  // ---------- packs (license-main.cjs): apps from a pack you did not buy are not in the island either ----------
+  let license = { apps: ['focus', 'tray', 'clips', 'note', 'spotify', 'outfits'], locked: [] }; // free during the beta: everything is open
+  window.__twocodeLicense = () => license;
+  const setLicense = v => { if (v && Array.isArray(v.locked)) { license = v; allOff = null; } };
+  window.twocode?.licenseGet?.().then(setLicense).catch(() => {});
+  window.twocode?.onLicense?.(setLicense);
+  // what the island leaves out: the apps you removed, plus the ones still locked
+  window.__twocodeAppsOff = () => (allOff ??= new Set([...appsOff(), ...license.locked]));
 
   // ---------- the draft ----------
   // prefs: a copy of Robo's preferences; sleep/login: the two switches that live outside prefs;
@@ -91,7 +106,7 @@
       document.querySelectorAll('#tc-in-' + key).forEach(i => { i.value = value; });
       box.querySelector(`[data-save][data-pref="${key}"]`)?.click();
     }
-    offCache = new Set(d.apps);
+    offCache = new Set(d.apps); allOff = null;
     try { localStorage.setItem('twocode:apps-off', JSON.stringify(d.apps)); } catch {}
     draft = null;
     await new Promise(r => setTimeout(r, 120));
@@ -108,7 +123,7 @@
         const off = new Set(d.apps); if (req.on) off.delete(req.id); else off.add(req.id);
         d.apps = [...off];
       }
-      return { off: d.apps, info: info() };
+      return { off: d.apps, locked: license.locked, info: info() };
     }
     if (req?.kind === 'click') {
       await list(which);

@@ -260,6 +260,12 @@
   .appcard .top{display:flex;gap:12px;align-items:center}
   .appcard .top div{flex:1;min-width:0}
   .appcard .tile{width:42px;height:42px;border-radius:11px}
+  .appcard.locked{opacity:.78}.appcard.locked .tile{filter:saturate(.35)}
+  .card.packs{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
+  .card.packs .top{display:flex;gap:12px;align-items:center}.card.packs .top div{flex:1;min-width:0}.card.packs .tile{width:42px;height:42px;border-radius:11px}.card.packs .top small{display:block;margin-top:2px}
+  .card.packs .code{display:flex;gap:8px}.card.packs .code input{flex:1;min-width:0;height:34px;border-radius:8px;border:1px solid var(--line, rgba(128,128,128,.3));background:transparent;color:var(--text);padding:0 12px;font:500 13px Consolas,monospace;letter-spacing:.04em}
+  .card.packs .codemsg{margin:0;min-height:1em;font-size:12.5px}.card.packs .btn.small{align-self:flex-start}
+  .btn.small{height:28px;padding:0 10px;font-size:12px}
   .appcard b{display:block;font-size:14px}
   .appcard small{display:block;color:var(--dim);font-size:12px;margin-top:1px}
   .appcard small.in{color:var(--accent-text)}
@@ -403,6 +409,9 @@ const T = {
     wearing: w => `Draagt nu: ${w}`, locked: n => `Nog ${n} taken`, earned: n => `Verdiend bij ${n} taken`, tasksLeft: 'Verdien meer door taken af te ronden',
     tagOn: 'Verbonden', gptIn: (e, p) => `Ingelogd${e ? ' als ' + e : ''}${p ? ' · ' + p : ''}`, login: 'Inloggen met ChatGPT', logout: 'Uitloggen', cancel: 'Annuleren', loggingIn: 'Kijk in je browser om in te loggen…',
     inApp: 'In je TwoCode', notIn: 'Niet in je TwoCode', always: 'Altijd aan', soon: 'Meer apps komen eraan', soonHelp: 'Heb je een idee voor een app? Laat het ons weten via twocode.nl.',
+    packsTitle: 'Packs', packsFree: 'TwoCode is gratis. Met een pack krijg je er apps bij: één keer betalen, voor altijd.', packsHave: l => 'Je hebt: ' + l,
+    codePh: 'Heb je een code? Plak hem hier', codeBtn: 'Openen', codeChecking: 'Even kijken…', codeOk: 'Gelukt! Je pack staat open. 🎉', codeOffline: 'Geen internet. Probeer het zo nog eens.',
+    codeRemove: 'Code van deze pc halen', seePacks: 'Packs bekijken', locked: p => 'In het ' + p, unlock: 'Ontgrendelen', packNames: { focus: 'Focus pack', music: 'Music pack', style: 'Style pack' },
     added: n => `${n} staat in je TwoCode`, removed: n => `${n} is weggehaald`,
     yours: v => `Je hebt TwoCode ${v}`, latest: v => `Nieuwste versie: ${v}`, upToDate: 'Je bent up-to-date', update: v => `Er is een update: ${v}`,
     download: 'Download', onGithub: 'Bekijk op GitHub', newsError: 'Het nieuws kon niet geladen worden. Heb je internet?', retry: 'Opnieuw', beta: 'beta', newest: 'Nieuwste', loading: 'Laden…' },
@@ -433,6 +442,9 @@ const T = {
     wearing: w => `Wearing: ${w}`, locked: n => `${n} more tasks`, earned: n => `Earned at ${n} tasks`, tasksLeft: 'Earn more by finishing tasks',
     tagOn: 'Connected', gptIn: (e, p) => `Signed in${e ? ' as ' + e : ''}${p ? ' · ' + p : ''}`, login: 'Sign in with ChatGPT', logout: 'Sign out', cancel: 'Cancel', loggingIn: 'Check your browser to sign in…',
     inApp: 'In your TwoCode', notIn: 'Not in your TwoCode', always: 'Always on', soon: 'More apps are coming', soonHelp: 'Got an idea for an app? Tell us at twocode.nl.',
+    packsTitle: 'Packs', packsFree: 'TwoCode is free. A pack adds apps to it: pay once, keep them forever.', packsHave: l => 'You have: ' + l,
+    codePh: 'Have a code? Paste it here', codeBtn: 'Unlock', codeChecking: 'Checking…', codeOk: 'Done! Your pack is open. 🎉', codeOffline: 'No internet. Try again in a moment.',
+    codeRemove: 'Remove the code from this PC', seePacks: 'See packs', locked: p => 'In the ' + p, unlock: 'Unlock', packNames: { focus: 'Focus pack', music: 'Music pack', style: 'Style pack' },
     added: n => `${n} is in your TwoCode`, removed: n => `${n} was removed`,
     yours: v => `You have TwoCode ${v}`, latest: v => `Newest version: ${v}`, upToDate: 'You are up to date', update: v => `There is an update: ${v}`,
     download: 'Download', onGithub: 'View on GitHub', newsError: 'The news could not be loaded. Are you online?', retry: 'Try again', beta: 'beta', newest: 'Newest', loading: 'Loading…' }
@@ -593,10 +605,15 @@ function drawAi() {
   const connect = `<button class="btn" data-ai="connect">${t().aiConnect}</button>`, ok = `<span class="tag good"><i></i>${t().tagOn}</span>`;
   const claude = on('claudecode') ? row('claudecode', 'Claude', esc(t().aiClaude), ok, true) : row('claudecode', 'Claude', esc(t().aiOff), connect, false);
   const codex = !on('codex') ? row('codex', 'Codex', esc(t().aiOff), connect, false)
+    : g.unknown ? row('codex', 'Codex', esc(t().loading), '', false)
     : g.ready ? row('codex', 'Codex', esc(t().gptIn(g.email, g.plan)), `<button class="btn ghost" data-ai="logout">${t().logout}</button>${ok}`, true)
     : row('codex', 'Codex', esc(loggingIn ? t().loggingIn : t().aiCodexOut), loggingIn ? `<button class="btn ghost" data-ai="cancel">${t().cancel}</button>` : `<button class="btn main" data-ai="login">${t().login}</button>`, false);
+  if (on('codex') && g.unknown && !aiChecking) checkAi(); // never checked yet: ask Codex once, only on this tab
   paint(`<p class="lead">${esc(t().aiHow)}</p><div class="group">${claude}${codex}</div>` + (g.error && on('codex') && !g.ready ? `<div class="tc-ai-error">${esc(g.error)}</div>` : ''), false);
 }
+// Starting Codex can take a few seconds, so it only happens here, when you look at AI & Chat.
+let aiChecking = false;
+async function checkAi() { aiChecking = true; let r = null; try { r = await S.ai.get(true); } catch {} if (r?.ok) ai = r; else if (ai?.chatgpt) ai.chatgpt.unknown = false; drawAi(); }
 async function aiAction(fn, ok) {
   if (aiBusy) return; aiBusy = true;
   try {
@@ -611,11 +628,11 @@ async function aiAction(fn, ok) {
 const APPS = [
   { id: 'claude', icon: 'bot', tint: '#c6e994', core: true, nl: ['AI-assistenten', 'Claude Code en Codex: Robo laat zien of je AI bezig is, een vraag heeft of klaar is.'], en: ['AI assistants', 'Claude Code and Codex: Robo shows whether your AI is busy, has a question or is done.'] },
   { id: 'buddy', icon: 'hand', tint: '#8fb8ff', nl: ['Robo Buddy', 'Pak Robo uit het eiland, zet hem op iets en vraag wat er staat. Of laat hem je spelling checken.'], en: ['Robo Buddy', 'Grab Robo out of the island, drop him on anything and ask about it. Or let him check your spelling.'] },
-  { id: 'spotify', icon: 'music', tint: '#1ed760', nl: ['Spotify', 'Wat er speelt, met bediening. Robo danst mee.'], en: ['Spotify', 'What is playing, with controls. Robo dances along.'] },
-  { id: 'focus', icon: 'timer', tint: '#ffb35c', nl: ['Focus', 'Een focus-timer. Robo houdt je even uit de afleiding.'], en: ['Focus', 'A focus timer. Robo keeps distractions away for a while.'] },
-  { id: 'tray', icon: 'inbox', tint: '#7ab8ff', nl: ['Lade', 'Sleep bestanden in het eiland en pak ze later weer terug.'], en: ['Tray', 'Drop files into the island and grab them again later.'] },
-  { id: 'clips', icon: 'clipboard', tint: '#5ad1c4', nl: ['Klembord', 'Je laatste kopieën. Klik er een om hem opnieuw te kopiëren.'], en: ['Clipboard', 'Your last copies. Click one to copy it again.'] },
-  { id: 'note', icon: 'note', tint: '#ffd166', nl: ['Notitie', 'Eén snelle notitie, altijd bij de hand.'], en: ['Note', 'One quick note, always at hand.'] },
+  { id: 'spotify', pack: 'music', icon: 'music', tint: '#1ed760', nl: ['Spotify', 'Wat er speelt, met bediening. Robo danst mee.'], en: ['Spotify', 'What is playing, with controls. Robo dances along.'] },
+  { id: 'focus', pack: 'focus', icon: 'timer', tint: '#ffb35c', nl: ['Focus', 'Een focus-timer. Robo houdt je even uit de afleiding.'], en: ['Focus', 'A focus timer. Robo keeps distractions away for a while.'] },
+  { id: 'tray', pack: 'focus', icon: 'inbox', tint: '#7ab8ff', nl: ['Lade', 'Sleep bestanden in het eiland en pak ze later weer terug.'], en: ['Tray', 'Drop files into the island and grab them again later.'] },
+  { id: 'clips', pack: 'focus', icon: 'clipboard', tint: '#5ad1c4', nl: ['Klembord', 'Je laatste kopieën. Klik er een om hem opnieuw te kopiëren.'], en: ['Clipboard', 'Your last copies. Click one to copy it again.'] },
+  { id: 'note', pack: 'focus', icon: 'note', tint: '#ffd166', nl: ['Notitie', 'Eén snelle notitie, altijd bij de hand.'], en: ['Note', 'One quick note, always at hand.'] },
   { id: 'clock', icon: 'clock', tint: '#a99bff', nl: ['Klok', 'De tijd op je homescherm.'], en: ['Clock', 'The time on your home screen.'] },
   { id: 'settings', icon: 'gear', tint: '#b8b9c0', core: true, nl: ['Instellingen', 'Deze app. Altijd bij de hand via het tandwiel.'], en: ['Settings', 'This app. Always there via the gear.'] }
 ];
@@ -625,14 +642,39 @@ async function loadApps(req) {
   if (r?.ok) { appsOff = new Set(r.off || []); showInfo(r.info); }
   drawApps();
 }
+// Packs (license-main.cjs): bought on twocode.nl, opened here with the code from the e-mail.
+const SHOP = 'https://twocode.nl/twocode/#packs';
+let lic = null, codeMsg = '';
+S.license?.get().then(v => { lic = v; drawApps(); }).catch(() => {});
+S.license?.onChange(v => { lic = v; if (tab === 'apps') loadApps(); });
+const isLocked = id => !!lic?.locked?.includes(id);
+function packsCard() {
+  if (lic?.free) return ''; // free during the beta: no packs to buy
+  const names = (lic?.packs || []).map(p => t().packNames[p] || p);
+  return `<div class="card packs"><div class="top"><span class="tile" style="--c:#ffb35c">${icon('sparkles')}</span><div><b>${t().packsTitle}</b><small>${esc(names.length ? t().packsHave(names.join(', ')) : t().packsFree)}</small></div>
+    <button class="btn ghost" data-url="${SHOP}">${t().seePacks}${icon('external')}</button></div>
+    <div class="code"><input id="packCode" placeholder="${esc(t().codePh)}" autocomplete="off" spellcheck="false" maxlength="40"><button class="btn main" data-code="unlock">${t().codeBtn}</button></div>
+    <p class="muted codemsg">${esc(codeMsg)}</p>${lic?.code ? `<button class="btn ghost small" data-code="remove">${t().codeRemove} (${esc(lic.code)})</button>` : ''}</div>`;
+}
+async function unlockCode() {
+  const code = $('#packCode')?.value.trim(); if (!code) return;
+  codeMsg = t().codeChecking; drawApps();
+  const r = await S.license.activate(code).catch(() => null);
+  codeMsg = r?.ok ? t().codeOk : r?.error === 'offline' || !r ? t().codeOffline : r.error;
+  if (r?.ok) lic = r;
+  await loadApps();
+}
 function drawApps() {
   if (tab !== 'apps') return;
   const cards = APPS.map(a => {
-    const [name, about] = a[lang], on = !appsOff.has(a.id);
-    const control = a.core ? `<span class="tag">${t().always}</span>` : `<button class="switch ${on ? 'on' : ''}" data-app="${a.id}" data-on="${on ? '0' : '1'}" aria-label="${esc(name)}"></button>`;
-    return `<div class="appcard"><div class="top"><span class="tile" style="--c:${a.tint}">${icon(a.icon)}</span><div><b>${esc(name)}</b><small class="${on ? 'in' : ''}">${on ? t().inApp : t().notIn}</small></div>${control}</div><p>${esc(about)}</p></div>`;
+    const [name, about] = a[lang], locked = isLocked(a.id), on = !locked && !appsOff.has(a.id);
+    const control = a.core ? `<span class="tag">${t().always}</span>`
+      : locked ? `<button class="btn small" data-url="${SHOP}">🔒 ${t().unlock}</button>`
+      : `<button class="switch ${on ? 'on' : ''}" data-app="${a.id}" data-on="${on ? '0' : '1'}" aria-label="${esc(name)}"></button>`;
+    const state = locked ? t().locked(t().packNames[a.pack] || '') : on ? t().inApp : t().notIn;
+    return `<div class="appcard ${locked ? 'locked' : ''}"><div class="top"><span class="tile" style="--c:${a.tint}">${icon(a.icon)}</span><div><b>${esc(name)}</b><small class="${on ? 'in' : ''}">${esc(state)}</small></div>${control}</div><p>${esc(about)}</p></div>`;
   }).join('') + `<div class="appcard soon"><div class="top"><span class="tile" style="--c:#8a8b93">${icon('sparkles')}</span><div><b>${t().soon}</b></div></div><p>${t().soonHelp}</p></div>`;
-  paint(`<div class="apps">${cards}</div>`, false);
+  paint(packsCard() + `<div class="apps">${cards}</div>`, false);
 }
 
 // ---------- Nieuws ----------
@@ -773,6 +815,8 @@ list.addEventListener('click', e => {
     b.classList.toggle('on', on);
     loadApps({ kind: 'app', id: a.id, on }).then(() => toast(on ? t().added(a[lang][0]) : t().removed(a[lang][0])));
   }
+  if (tab === 'apps' && b.dataset.code === 'unlock') unlockCode();
+  if (tab === 'apps' && b.dataset.code === 'remove') S.license.remove().then(v => { lic = v; codeMsg = ''; loadApps(); });
   if (b.dataset.url) S.openUrl(b.dataset.url);
   if (b.dataset.news === 'retry') loadNews();
 });
@@ -780,6 +824,7 @@ list.addEventListener('click', e => {
 function islandIndex(b) { return [...list.querySelectorAll('button')].filter(x => !x.closest('.robo-hero')).indexOf(b); }
 list.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
+  if (e.target.id === 'packCode') { e.preventDefault(); unlockCode(); return; }
   if (e.target.matches('input[id^="tc-in-"]')) { e.preventDefault(); e.target.closest('.tc-step')?.querySelector('button')?.click(); }
 });
 

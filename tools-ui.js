@@ -38,7 +38,7 @@
     if (!force && key === lastRender) return; lastRender = key;
     if (view === 'clips') {
       root.innerHTML = `<div class="tc-page-head"><div><p class="tc-page-title">Klembord</p><p class="tc-page-sub">Je laatst gekopieerde tekst · klik om opnieuw te kopiëren</p></div>${clips.length ? '<button class="tl-head-btn" data-clear="1">Wissen</button>' : ''}</div>${
-        clips.length ? `<div class="tl-list">${clips.map((c, i) => `<button class="tl-clip ${i === copied ? 'done' : ''}" data-i="${i}">${i === copied ? '<b>Gekopieerd ✓</b>' : ''}${esc(c.text)}</button>`).join('')}</div>`
+        clips.length ? `<div class="tl-list">${clips.map((c, i) => `<button class="tl-clip ${i === copied ? 'done' : ''}" data-i="${i}">${i === copied ? `<b>${esc(window.__twocodeTr?.('Gekopieerd ✓') ?? 'Gekopieerd ✓')}</b>` : ''}${esc(c.text)}</button>`).join('')}</div>`
           : '<div class="tl-empty"><strong>Nog niks gekopieerd</strong><span>Kopieer iets (Ctrl + C), dan verschijnt het hier.</span></div>'}`;
     } else if (view === 'note') {
       if (root.querySelector('textarea')) return; // don't rebuild while typing

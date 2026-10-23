@@ -759,6 +759,19 @@
     if (busy(p)) return step ? `${NOW[step.kind] || 'Working'} ${shortWhat(step.kind, step.what)}` : 'Working';
     return { done: 'Done ✓', question: 'Waiting for you', error: 'Error', stopped: 'Stopped' }[p.state] || 'Idle';
   }
+  // The volume in the small island: the speaker, a bar that glides to the new level, and the percentage.
+  let volumeShown = null;
+  function drawVolume(icon, level, left, cy, right) {
+    const k = Math.max(0, Math.min(1, level / 100));
+    volumeShown = volumeShown == null ? k : volumeShown + (k - volumeShown) * 0.35;
+    text(icon, left + 4, cy + 4, 11.5, '#f2f5ed', 700, 'left');
+    const x = left + 30, w = Math.max(60, right - x - 46), h = 6, y = cy - h / 2;
+    ctx.save();
+    ctx.beginPath(); ctx.roundRect(x, y, w, h, h / 2); ctx.fillStyle = 'rgba(255,255,255,.16)'; ctx.fill();
+    if (volumeShown > 0.005) { ctx.beginPath(); ctx.roundRect(x, y, Math.max(h, w * volumeShown), h, h / 2); ctx.fillStyle = '#f2f5ed'; ctx.fill(); }
+    ctx.restore();
+    text(`${level}%`, right - 4, cy + 4, 11.5, '#f2f5ed', 700, 'right');
+  }
   drawSmall = function () {
     hit.musicTuck = null; if (mode !== 'compact') tuckBox = null;
     if (mode !== 'compact') { oldDrawSmall(); songLine(); return; }
@@ -776,7 +789,11 @@
     const icon = name => window.__twocodeIcon?.(name, left + cover / 2, cy, 17);
     const line = (s, colour = '#f2f5ed', x = mid0) => text(s, x, cy + 4, 11.5, colour, 700, 'left', mid1 - x);
 
-    if (message) { text(message, left + 4, cy + 4, 11.5, '#f2f5ed', 700, 'left', mid1 - left); return; }
+    if (message) {
+      const volume = /^(\S+) [▮▯]{10} (\d+)%$/u.exec(message); // the volume (extras-ui.js): a real bar instead of block characters
+      if (volume) { drawVolume(volume[1], Number(volume[2]), left, cy, mid1); return; }
+      text(message, left + 4, cy + 4, 11.5, '#f2f5ed', 700, 'left', mid1 - left); return;
+    }
     if (p && (needsYou || now < attentionUntil)) {
       ctx.save(); ctx.globalAlpha = 0.75 + 0.25 * Math.sin(now / 180);
       ctx.beginPath(); ctx.arc(left + cover / 2, cy, 5, 0, Math.PI * 2); ctx.fillStyle = colourOf(p.state); ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 10; ctx.fill(); ctx.restore();
@@ -1145,7 +1162,8 @@
   // Nothing going on: which AIs Robo is watching (or where to connect one).
   function drawIdleAi(tx, y, tw, h, live) {
     const watching = providers().filter(q => q.connected || q.hooksInstalled), last = state.history?.[0];
-    text('Rustig', tx, y + 30, 14, '#f2f5ef', 700, 'left', tw);
+    const hungry = window.__twocodeHomeTitle?.(); // "I'm hungry… finish a task 🍪" (twocode-fun.js) instead of "Idle"
+    text(hungry || 'Rustig', tx, y + 30, hungry ? 13 : 14, hungry ? '#ffc27a' : '#f2f5ef', 700, 'left', tw);
     if (last) { // the last job, so a quiet card still tells you something (click it for the whole list)
       const word = { done: '✓ Klaar', question: '● Vraag', error: '✕ Fout' }[last.result] || '', colour = { done: '#7ef0a4', question: '#ffc27a', error: '#ff9a9a' }[last.result] || '#aab2ad';
       const at = new Date(last.at).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });

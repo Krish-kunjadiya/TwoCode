@@ -140,7 +140,7 @@
     buddyDrop: () => ipcRenderer.send('buddy:drop'),
     buddyFrame: url => ipcRenderer.send('buddy:frame', url),
     // Robo's chat in the island (chat-ui.js)
-    buddyAsk: (kind, text, history) => ipcRenderer.invoke('buddy:ask', { kind, text, history }),
+    buddyAsk: (kind, text, history, lang) => ipcRenderer.invoke('buddy:ask', { kind, text, history, lang }),
     buddyApply: () => ipcRenderer.invoke('buddy:apply'),
     buddyForget: () => ipcRenderer.send('buddy:forget'),
     buddyAi: () => ipcRenderer.invoke('buddy:ai'),
@@ -150,6 +150,9 @@
     buddyCancelFix: () => ipcRenderer.send('buddy:cancel-fix'),
     onBuddyChat: callback => subscribe('buddy:chat', callback),
     settingsFrame: url => ipcRenderer.send('settings-app:frame', url), // the settings app's own Robo
+    // packs (license-main.cjs): which paid apps are open
+    licenseGet: () => ipcRenderer.invoke('license:get'),
+    onLicense: callback => subscribe('license:changed', callback),
     onBuddy: callback => {
       subscribe('buddy:home', () => callback('home'));
       subscribe('buddy:mood', data => callback('mood', data));

@@ -239,7 +239,7 @@
       const pct = Math.round(battery.level * 100);
       for (const at of [20, 10]) {
         if (pct <= at && !warned.has(at)) {
-          warned.add(at); flash(`🔋 Nog ${pct}% batterij. Sluit je lader aan!`, 4000);
+          warned.add(at); flash(`🪫 Nog ${pct}% batterij. Sluit je lader aan!`, 4000);
           say(`Batterij bijna leeg: ${pct}%`, 'Sluit je lader aan.'); window.__twocodeFeel?.('surprised', 1500);
         }
       }

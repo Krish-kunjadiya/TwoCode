@@ -3985,6 +3985,7 @@ function setAlbum(
 
 
 async function refreshSpotify() {
+  if (window.__twocodeLicense?.().locked.includes('spotify')) return; // the Music pack (license-main.cjs)
   try {
     const result =
       await window.twocode

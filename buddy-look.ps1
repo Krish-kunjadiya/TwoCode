@@ -50,7 +50,8 @@ if ($mode -eq 'word-fix') {
   Retry { $doc.TrackRevisions = $true }
   $done = 0
   foreach ($f in $fixes) {
-    if (-not $f.find -or $f.find.Length -gt 250 -or $f.find -eq $f.replace) { continue }
+    # -ceq: a fix that only changes a capital ("friday" → "Friday") is still a fix (-eq ignores case)
+    if (-not $f.find -or $f.find.Length -gt 250 -or $f.find -ceq $f.replace) { continue }
     # find the whole snippet, then change only the words that differ (pre/suf = characters that stay the same)
     $r = Retry { $doc.Content }
     # Execute(FindText, MatchCase, WholeWord, Wildcards, SoundsLike, AllForms, Forward, Wrap=stop)
