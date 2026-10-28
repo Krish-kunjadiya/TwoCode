@@ -97,6 +97,8 @@
     calendarNext: () => ipcRenderer.invoke('extras:calendar'),
     weatherNow: () => ipcRenderer.invoke('extras:weather'),
     onVolume: callback => subscribe('extras:volume', callback),
+    volumeSet: level => ipcRenderer.invoke('extras:volume-set', { level }),
+    volumeGet: () => ipcRenderer.invoke('extras:volume-get'),
     clipsGet: () => ipcRenderer.invoke('extras:clips-get'),
     clipsCopy: index => ipcRenderer.invoke('extras:clips-copy', { index }),
     clipsClear: () => ipcRenderer.invoke('extras:clips-clear'),

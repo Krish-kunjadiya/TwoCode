@@ -73,126 +73,227 @@
   const baseTone = tone;
   tone = function (from, to, duration, vol = 0.018, delay = 0) { if (volume <= 0) return; return baseTone(from, to, duration, vol * volume * 1.4, delay); };
 
-  // Volume: a glass pill that slides out of the speaker icon (springy), a gradient fill and a white knob.
-  let barOpen = false, barTouched = 0, dragging = false, barAnim = 0, shownVolume = volume, track = null;
-  const backOut = t => { const c = 1.6; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
-  const pillAnim = { x: null, shown: 0, v: 0, at: 0 }; // the sliding pill behind the page you are on
+  // ---- The frame of the big island, compact like a notch app: the page name left, Robo's eyes + date and time in the
+  // middle, ⋯ right. ‹ › on the sides go to the page before / after. At the bottom: Robo's chat left, the speaker right
+  // (point at it and it becomes a volume slider) and dots in the middle that turn into a row of tabs when you point at them. ----
+  const TITLES = { chat: ['Robo', 'Robo'], spotify: ['Muziek', 'Music'], monitor: ['Claude', 'Claude'], assistant: ['Claude', 'Claude'], focus: ['Focus', 'Focus'],
+    tray: ['Lade', 'Tray'], clips: ['Klembord', 'Clipboard'], note: ['Notitie', 'Note'], apps: ['Apps', 'Apps'], shortcuts: ['Snelknoppen', 'Quick buttons'],
+    settings: ['Instellingen', 'Settings'], mirror: ['Spiegel', 'Mirror'] };
+  const en = () => window.__twocodePrefs?.().lang === 'en';
+  const round = (x, y, r, fill) => { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = fill; ctx.fill(); };
+  const press = { key: null, at: 0 }; // what is pressed right now (it dims instantly, on pointer-down)
+  const pressed = key => press.key === key && performance.now() - press.at < 600;
+  let menuOpen = false, menuAt = 0, quitArmed = false, dragging = false;
+  const MENU = [['apps', 'grid', ['Alle apps', 'All apps']], ['settings', 'gear', ['Instellingen', 'Settings']], ['collapse', 'collapse', ['Inklappen', 'Fold in']], ['quit', 'power', ['Afsluiten', 'Quit']]];
+  window.__twocodePageTint = () => '#ffffff';
+  // the pages in a row (the tabs and ‹ ›); only the page you are on wears a colour
+  const PAGES = [
+    { view: 'home', icon: 'home', tint: '#ffffff', nl: 'Home', en: 'Home' },
+    { view: 'monitor', icon: 'claude', tint: '#d97757', nl: 'Claude', en: 'Claude' },
+    { view: 'spotify', icon: 'music', tint: () => window.__twocodeAlbumColour || '#ff375f', nl: 'Muziek', en: 'Music' },
+    { view: 'chat', icon: 'chat', tint: '#30d158', nl: 'Robo', en: 'Robo' },
+    { view: 'focus', icon: 'timer', tint: '#bf5af2', nl: 'Focus', en: 'Focus' },
+    { view: 'tray', icon: 'tray', tint: '#ffd60a', nl: 'Lade', en: 'Tray' },
+    { view: 'clips', icon: 'copy', tint: '#64d2ff', nl: 'Klembord', en: 'Clipboard' },
+    { view: 'note', icon: 'note', tint: '#ffd60a', nl: 'Notitie', en: 'Note' }
+  ];
+  const pageIndex = () => PAGES.findIndex(pg => pg.view === (currentView === 'assistant' ? 'monitor' : currentView));
+  function go(view) {
+    if (window.__twocodeHomeEditing?.()) window.__twocodeHomeEdit?.(false);
+    const from = pageIndex(), to = PAGES.findIndex(pg => pg.view === view);
+    window.__twocodeNavDir = from < 0 || to < 0 || from === to ? 0 : to > from ? 1 : -1; // the new page slides in from that side
+    if (view === 'monitor') { window.__twocodeMonitor?.open?.('claudecode'); return; }
+    setView(view); setMode('expanded');
+  }
+  const ease = (from, to, k) => from + (to - from) * k;
+  const claudeGlyph = (x, y, c, size) => { ctx.save(); ctx.strokeStyle = c; ctx.lineWidth = size * 0.13; ctx.lineCap = 'round'; const r = size * 0.42;
+    for (let i = 0; i < 4; i++) { const an = i * Math.PI / 4; ctx.beginPath(); ctx.moveTo(x - Math.cos(an) * r, y - Math.sin(an) * r); ctx.lineTo(x + Math.cos(an) * r, y + Math.sin(an) * r); ctx.stroke(); } ctx.restore(); };
+  const pageIcon = (pg, x, y, size, colour) => pg.icon === 'claude' ? claudeGlyph(x, y, colour, size) : icon(pg.icon, x, y, size, colour, null, 'rgba(0,0,0,0)');
+  const nav = { vol: 0, sliding: false, lastSet: 0, widths: null };
+  window.__twocodeNavGeometry = () => ({ top: 34, bottom: 38, side: 24 }); // contentRect (mascot.html) keeps out of this frame
+  // a small label above a tab you point at (HTML, so it lies above the pages)
+  const tip = document.createElement('div'); tip.id = 'twocode-tip'; document.body.appendChild(tip);
+  const tipStyle = document.createElement('style'); tipStyle.textContent = `#twocode-tip{position:absolute;z-index:95;pointer-events:none;padding:3px 8px;border-radius:7px;background:#2c2c2e;color:#fff;font:600 11px Inter,"Segoe UI",sans-serif;white-space:nowrap;transform:translate(-50%,-100%);opacity:0;transition:opacity .12s}#twocode-tip.on{opacity:1}`;
+  document.head.appendChild(tipStyle);
   drawHeader = function (alpha) {
-    const left = islandBounds.x, right = left + islandBounds.width;
+    const left = islandBounds.x, right = left + islandBounds.width, H = islandBounds.height, cy = 17, home = currentView === 'home';
     ctx.save(); ctx.globalAlpha = alpha;
-    ctx.strokeStyle = 'rgba(255,255,255,.055)'; ctx.beginPath(); ctx.moveTo(left + 12, 35); ctx.lineTo(right - 12, 35); ctx.stroke();
-    const homeX = left + 27, chatX = left + 61, appsX = left + 95, soundX = right - 138, settingsX = right - 102, collapseX = right - 66, powerX = right - 30;
-    // the page you are on gets a soft pill behind its icon; switching pages, the pill slides over (and stretches a little on the way)
-    const editing = window.__twocodeHomeEditing?.();
-    const target = currentView === 'home' && !editing ? homeX : currentView === 'chat' ? chatX : currentView === 'shortcuts' || (currentView === 'home' && editing) ? appsX : currentView === 'settings' ? settingsX : null;
-    const now = performance.now(), dt = Math.min(0.05, (now - (pillAnim.at || now)) / 1000); pillAnim.at = now;
-    if (target != null) {
-      if (pillAnim.x == null || pillAnim.shown < 0.05) pillAnim.x = target; // appears where it belongs
-      const before = pillAnim.x; pillAnim.x += (target - pillAnim.x) * Math.min(1, dt * 16); pillAnim.v = Math.abs(pillAnim.x - before) / Math.max(dt, 0.001);
+    // left: the page name
+    const t = TITLES[currentView];
+    // two-tone names, like "Focustimer": the first part white, the second in the page's colour
+    const TWO = { monitor: [['Claude ', 'Code'], ['Claude ', 'Code'], '#d97757'], spotify: [['Muziek', 'speler'], ['Music ', 'Player'], () => window.__twocodeAlbumColour || '#ff375f'],
+      focus: [['Focus', 'timer'], ['Focus ', 'Timer'], '#bf5af2'], tray: [['Bestanden', 'lade'], ['File ', 'Tray'], '#ffd60a'], clips: [['Klem', 'bord'], ['Clip', 'board'], '#64d2ff'],
+      note: [['Notitie', 'blok'], ['Note', 'pad'], '#ffd60a'], chat: [['Robo ', 'Chat'], ['Robo ', 'Chat'], '#30d158'], apps: [['Alle ', 'apps'], ['All ', 'apps'], '#8e8e93'],
+      settings: [['Instel', 'lingen'], ['Set', 'tings'], '#8e8e93'], mirror: [['Spie', 'gel'], ['Mir', 'ror'], '#8e8e93'] };
+    const two = TWO[currentView === 'assistant' ? 'monitor' : currentView];
+    if (!home && two) {
+      const [a, b] = en() ? two[1] : two[0], tint = typeof two[2] === 'function' ? two[2]() : two[2];
+      ctx.save(); ctx.font = '700 13px Inter, "Segoe UI", sans-serif'; const aw = ctx.measureText(a).width; ctx.restore();
+      text(a, left + 22, cy + 4.5, 13, '#ffffff', 700); text(b, left + 22 + aw, cy + 4.5, 13, tint, 700);
+    } else if (!home && t) text(en() ? t[1] : t[0], left + 22, cy + 4.5, 13, '#ffffff', 700);
+    hit.back = null;
+    // middle: Robo's eyes, then the date (grey) and the time (white, bold)
+    const d = new Date(), day = d.toLocaleDateString(en() ? 'en-GB' : 'nl-NL', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }).replace(/\./g, '').replace(/,/g, '').replace(/^./, c => c.toUpperCase());
+    const time = d.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+    ctx.save(); ctx.font = '500 12px Inter, "Segoe UI", sans-serif'; const dw = ctx.measureText(day + ' ').width; ctx.font = '700 12px Inter, "Segoe UI", sans-serif'; const tw = ctx.measureText(time).width; ctx.restore();
+    // (no little eyes while Robo stands big on the page himself; the little ones can be grabbed and dragged out too)
+    const eyesOn = !window.__twocodeRoboBig?.(), total = (eyesOn ? 22 : 0) + dw + tw, x0 = (left + right) / 2 - total / 2, tx = x0 + (eyesOn ? 22 : 0);
+    hit.headEyes = null;
+    if (eyesOn) { window.__twocodeIslandEyes?.(x0 + 8, cy, 0.62); hit.headEyes = { x: x0 - 8, y: 2, width: 32, height: 30 }; }
+    text(day, tx, cy + 4.5, 12, '#8e8e93', 500); text(time, tx + dw, cy + 4.5, 12, '#ffffff', 700);
+    // right: ⋯ (and, while music plays on another page, a small visualizer that takes you to it; on the tray: clear all)
+    const mx = right - 24, overM = inside(pointer.x, pointer.y, { x: mx - 16, y: 2, width: 32, height: 30 });
+    if (menuOpen || pressed('more') || overM) round(mx, cy, 12, '#2c2c2e');
+    for (const dx of [-5, 0, 5]) round(mx + dx, cy, 1.8, '#ffffff');
+    hit.more = { x: mx - 18, y: 0, width: 36, height: 34 };
+    hit.navMusic = null; hit.navClear = null;
+    if (currentView === 'tray' && (window.__twocodeTrayCount?.() || 0) > 0) {
+      const label = en() ? 'Clear all' : 'Wis alles'; ctx.save(); ctx.font = '600 11px Inter, "Segoe UI", sans-serif'; const w = ctx.measureText(label).width + 18; ctx.restore();
+      const b = { x: mx - 22 - w, y: cy - 10, width: w, height: 20 }, over = inside(pointer.x, pointer.y, b);
+      box(b.x, b.y, b.width, b.height, 10, over ? 'rgba(255,69,58,.3)' : 'rgba(255,69,58,.18)'); text(label, b.x + w / 2, cy + 4, 11, '#ff6961', 600, 'center'); hit.navClear = b;
+    } else if (currentView !== 'spotify' && spotifyConnected && spotifyState?.track && spotifyState.is_playing) {
+      const b = { x: mx - 42, y: cy - 10, width: 22, height: 20 };
+      window.__twocodeVisualizer?.('header', b.x + 2, cy, 16, 12, window.__twocodeAlbumColour || '#ffffff', 4); hit.navMusic = b;
     }
-    pillAnim.shown += ((target != null ? 1 : 0) - pillAnim.shown) * Math.min(1, dt * 14);
-    if (pillAnim.shown > 0.02 && pillAnim.x != null) {
-      const stretch = Math.min(18, pillAnim.v / 90);
-      ctx.save(); ctx.globalAlpha *= pillAnim.shown; ctx.beginPath(); ctx.roundRect(pillAnim.x - 17 - stretch / 2, 3, 34 + stretch, 30, 12); ctx.fillStyle = 'rgba(255,255,255,.1)'; ctx.fill(); ctx.restore();
+    hit.navPrev = null; hit.navNext = null; hit.navChat = null;
+    const i = pageIndex(), by = H - 19;
+    // bottom right: the speaker; point at it and it slides open into a volume slider
+    const sys = window.__twocodeSysVolume || { level: 50, muted: false }, level = sys.muted ? 0 : sys.level / 100;
+    const volZone = { x: right - 132, y: by - 15, width: 124, height: 30 };
+    nav.vol += ((nav.sliding || inside(pointer.x, pointer.y, nav.vol > 0.5 ? volZone : { x: right - 40, y: by - 15, width: 32, height: 30 }) ? 1 : 0) - nav.vol) * 0.25;
+    icon('speaker', right - 25, by, 16, nav.vol > 0.1 ? '#ffffff' : '#8e8e93', level, 'rgba(0,0,0,0)');
+    hit.navVol = null;
+    if (nav.vol > 0.02) {
+      const tw2 = 76 * nav.vol, tx = right - 40 - tw2, a = Math.min(1, nav.vol * 1.4);
+      ctx.save(); ctx.globalAlpha *= a; box(tx, by - 2, tw2, 4, 2, 'rgba(255,255,255,.2)'); box(tx, by - 2, Math.max(4, tw2 * level), 4, 2, '#ffffff');
+      if (nav.vol > 0.6) round(tx + tw2 * level, by, 5, '#ffffff'); ctx.restore();
+      hit.navVol = { x: tx - 6, y: by - 12, width: tw2 + 12, height: 24, track: { x: tx, width: tw2 } };
     }
-    icon('home', homeX, 18, 19); icon('chat', chatX, 18, 19); icon('plus', appsX, 18, 19); icon('speaker', soundX, 18, 19, LINE, volume); icon('gear', settingsX, 18, 18); icon('collapse', collapseX, 18, 19); drawPower(powerX, 18, inside(pointer.x, pointer.y, hit.power) || quitAsk > 0);
-    // editing the home widgets: a Klaar button (like iPhone) and a hint
-    if (currentView === 'home' && window.__twocodeHomeEditing?.() && !window.__twocodeGalleryOpen?.() && !barOpen) {
-      const b = { x: left + 88, y: 5, width: 62, height: 26 }, over = inside(pointer.x, pointer.y, b);
-      ctx.beginPath(); ctx.roundRect(b.x, b.y, b.width, b.height, 13); ctx.fillStyle = over ? '#d9f7b3' : '#c6e994'; ctx.fill();
-      text('Klaar', b.x + b.width / 2, b.y + 17, 11.5, '#10180c', 700, 'center');
-      text('Sleep om te verplaatsen  ·  + voor nieuwe widgets', b.x + b.width + 14, b.y + 17, 11, '#7f8a7a', 500);
-      hit.hmDone = b;
-    }
-    if (barOpen && performance.now() - barTouched > 3500 && !dragging) barOpen = false;
-    barAnim += ((barOpen ? 1 : 0) - barAnim) * (barOpen ? 0.2 : 0.3);
-    shownVolume += (volume - shownVolume) * 0.35;
-    if (barAnim > 0.01) {
-      const full = right - left - 286, w = Math.max(30, full * (barOpen ? backOut(Math.min(1, barAnim)) : barAnim)), pr = soundX + 16, px = pr - w, py = 5, ph = 26;
-      ctx.save();
-      ctx.beginPath(); ctx.roundRect(px, py, w, ph, 13); ctx.fillStyle = 'rgba(28,30,32,.96)'; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.stroke();
-      const inner = Math.max(0, Math.min(1, (barAnim - 0.45) / 0.4));
-      if (inner > 0) {
-        ctx.globalAlpha *= inner;
-        const tx = px + 16, tw = Math.max(10, w - 98), ty = py + ph / 2, v = shownVolume;
-        ctx.beginPath(); ctx.roundRect(tx, ty - 3, tw, 6, 3); ctx.fillStyle = 'rgba(255,255,255,.1)'; ctx.fill();
-        const g = ctx.createLinearGradient(tx, 0, tx + tw, 0); g.addColorStop(0, '#c6e994'); g.addColorStop(1, '#7fd8ff');
-        ctx.beginPath(); ctx.roundRect(tx, ty - 3, Math.max(6, tw * v), 6, 3); ctx.fillStyle = g; ctx.shadowColor = '#9fe0c0'; ctx.shadowBlur = 8; ctx.fill(); ctx.shadowBlur = 0;
-        const kx = tx + tw * v, kr = dragging ? 8.5 : 7;
-        ctx.beginPath(); ctx.arc(kx, ty, kr, 0, Math.PI * 2); ctx.fillStyle = '#ffffff'; ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 6; ctx.fill(); ctx.shadowBlur = 0;
-        text(Math.round(volume * 100) + '%', pr - 40, ty + 4, 11, '#e8eee4', 700, 'right');
-        track = { x: tx, width: tw };
-        hit.volumeBar = { x: tx - 14, y: 0, width: tw + 28, height: 34 };
-      }
-      ctx.restore();
-      icon('speaker', soundX, 18, 19, LINE, volume); // the speaker stays on top of the pill
-    }
-    if (alpha > 0.85) {
-      hit.home = { x: homeX - 16, y: 2, width: 32, height: 30 }; hit.chat = { x: chatX - 16, y: 2, width: 32, height: 30 }; hit.apps = { x: appsX - 16, y: 2, width: 32, height: 30 };
-      hit.sound = { x: soundX - 16, y: 1, width: 32, height: 31 }; hit.settings = { x: settingsX - 15, y: 2, width: 30, height: 30 }; hit.collapse = { x: collapseX - 15, y: 2, width: 30, height: 30 };
-      hit.power = { x: powerX - 15, y: 2, width: 30, height: 30 };
-    }
-    drawQuitAsk(left, right);
+    // bottom middle: the pages as icons, always visible; the page you are on shows its name in a soft capsule in its colour
+    const n = PAGES.length, label = pg => en() ? pg.en : pg.nl;
+    ctx.save(); ctx.font = '600 11px Inter, "Segoe UI", sans-serif';
+    const want = PAGES.map((pg, j) => 30 + (j === i ? ctx.measureText(label(pg)).width + 10 : 0)); ctx.restore();
+    if (!nav.widths || nav.widths.length !== n) nav.widths = want.slice();
+    nav.widths = nav.widths.map((w, j) => w + (want[j] - w) * 0.25); // the capsule glides to the new page
+    const rowW = nav.widths.reduce((sum, w) => sum + w, 0) + (n - 1) * 2, cx = (left + right) / 2 - 10;
+    let x = cx - rowW / 2, tipAt = null;
+    PAGES.forEach((pg, j) => {
+      const w = nav.widths[j], b = { x, y: by - 14, width: w, height: 28 }, over = inside(pointer.x, pointer.y, b), on = j === i;
+      const tint = typeof pg.tint === 'function' ? pg.tint() : pg.tint, ix = x + 15;
+      if (on) { ctx.save(); const n2 = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(tint); const hex = n2 ? null : parseInt(tint.slice(1), 16);
+        ctx.fillStyle = tint === '#ffffff' ? '#2c2c2e' : n2 ? `rgba(${n2[1]},${n2[2]},${n2[3]},.2)` : `rgba(${hex >> 16},${(hex >> 8) & 255},${hex & 255},.2)`;
+        ctx.beginPath(); ctx.roundRect(x, by - 13, w, 26, 13); ctx.fill(); ctx.restore(); }
+      else if (over) round(ix, by, 13, '#2c2c2e');
+      pageIcon(pg, ix, by, 15, on ? tint : over ? '#ffffff' : '#8e8e93');
+      if (on && w > 40) { ctx.save(); ctx.globalAlpha *= Math.min(1, (w - 40) / 20); text(label(pg), x + 28, by + 4, 11, tint, 600); ctx.restore(); }
+      if (over && !on) tipAt = { x: ix, label: label(pg) };
+      hit['navTab' + j] = b; x += w + 2;
+    });
+    for (let j = n; j < 10; j++) hit['navTab' + j] = null;
+    // the label above the tab you point at (where you will go)
+    if (tipAt && mode === 'expanded') { tip.textContent = tipAt.label; tip.style.left = `${tipAt.x}px`; tip.style.top = `${by - 18}px`; tip.classList.add('on'); }
+    else tip.classList.remove('on');
+    ['home', 'chat', 'apps', 'sound', 'settings', 'collapse', 'power'].forEach(key => { hit[key] = null; }); // the old toolbar is gone
     ctx.restore();
+    drawMenu(right);
   };
-  // The power button: a click asks "are you sure?" in the header first; Ja closes TwoCode (with the goodbye).
-  let quitAsk = 0, quitAskAt = 0;
-  function drawPower(x, y, hot) {
-    ctx.save(); ctx.lineCap = 'round'; ctx.lineWidth = 1.9; ctx.strokeStyle = hot ? '#ff8a8a' : '#dce4d9';
-    ctx.beginPath(); ctx.arc(x, y + 1, 7, -Math.PI / 2 + 0.75, Math.PI * 1.5 - 0.75); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x, y - 8); ctx.lineTo(x, y + 0.5); ctx.stroke(); ctx.restore();
-  }
-  function drawQuitAsk(left, right) {
-    const open = quitAsk > 0 && performance.now() - quitAskAt < 7000; // no answer: it goes away by itself
-    if (!open) { quitAsk = 0; hit.quitYes = hit.quitNo = null; return; }
-    const k = Math.min(1, (performance.now() - quitAskAt) / 220), e = 1 - Math.pow(1 - k, 3);
-    const w = 330 * e, x = right - 8 - w, y = 4, h = 28;
-    ctx.save(); ctx.globalAlpha *= Math.min(1, k * 1.5);
-    ctx.beginPath(); ctx.roundRect(x, y, w, h, 14); ctx.fillStyle = 'rgba(30,22,22,.98)'; ctx.fill(); ctx.strokeStyle = 'rgba(255,138,138,.35)'; ctx.stroke();
-    if (k > 0.6) {
-      text('TwoCode afsluiten?', x + 16, y + 18.5, 11.5, '#ffd6d6', 700);
-      const yes = { x: right - 8 - 4 - 150, y: y + 3, width: 96, height: 22 }, no = { x: right - 8 - 4 - 50, y: y + 3, width: 50, height: 22 };
-      const overYes = inside(pointer.x, pointer.y, yes), overNo = inside(pointer.x, pointer.y, no);
-      ctx.beginPath(); ctx.roundRect(yes.x, yes.y, yes.width, yes.height, 11); ctx.fillStyle = overYes ? '#ff9c9c' : '#ff7a7a'; ctx.fill();
-      text('Ja, afsluiten', yes.x + yes.width / 2, yes.y + 15, 10.5, '#2a0d0d', 700, 'center');
-      ctx.beginPath(); ctx.roundRect(no.x, no.y, no.width, no.height, 11); ctx.fillStyle = overNo ? 'rgba(255,255,255,.18)' : 'rgba(255,255,255,.1)'; ctx.fill();
-      text('Nee', no.x + no.width / 2, no.y + 15, 10.5, '#e8eee4', 700, 'center');
-      hit.quitYes = yes; hit.quitNo = no;
-    }
-    ctx.restore();
-  }
-  const volumeAt = x => track ? (x - track.x) / track.width : volume;
-  // Header buttons: home = all apps, + = your shortcuts, the last one folds the island in.
-  canvas.addEventListener('click', e => {
-    const stop = () => { e.preventDefault(); e.stopImmediatePropagation(); };
-    if (quitAsk && inside(e.clientX, e.clientY, hit.quitYes)) { stop(); quitAsk = 0; sound('click'); window.twocode?.close?.(); return; }
-    if (quitAsk && inside(e.clientX, e.clientY, hit.quitNo)) { stop(); quitAsk = 0; sound('click'); return; }
-    if (mode === 'expanded' && inside(e.clientX, e.clientY, hit.power)) { stop(); quitAsk = quitAsk ? 0 : 1; quitAskAt = performance.now(); sound('click'); return; }
-    if (quitAsk) { quitAsk = 0; } // a click anywhere else: never mind
-    // Home really goes home (your widgets). Already home? Then it shows all apps.
-    if (mode === 'expanded' && inside(e.clientX, e.clientY, hit.home)) {
-      stop(); const was = currentView;
-      if (was === 'monitor') window.__twocodeMonitor?.small?.();
-      if (window.__twocodeHomeEditing?.()) window.__twocodeHomeEdit?.(false);
-      setView(was === 'home' ? 'apps' : 'home'); setMode('expanded'); return;
-    }
-    if (mode === 'expanded' && inside(e.clientX, e.clientY, hit.chat)) { stop(); if (currentView === 'monitor') window.__twocodeMonitor?.small?.(); setView('chat'); setMode('expanded'); return; } // Robo's chat
-    if (mode === 'expanded' && inside(e.clientX, e.clientY, hit.apps)) {
-      stop();
-      if (currentView !== 'home') { setView('home'); window.__twocodeHomeEdit?.(true); }
-      else if (!window.__twocodeHomeEditing?.()) window.__twocodeHomeEdit?.(true);
-      else window.__twocodeGallery?.(); // already editing: + opens the widget menu
-      return;
-    }
-    if (mode === 'expanded' && inside(e.clientX, e.clientY, hit.hmDone)) { stop(); window.__twocodeHomeEdit?.(false); return; }
-    if (mode === 'expanded' && inside(e.clientX, e.clientY, hit.collapse)) { stop(); window.__twocodeMonitor?.small?.(); window.__twocodeHoldClosed?.(); setMode('rest'); return; }
-    if (inside(e.clientX, e.clientY, hit.sound)) { e.preventDefault(); e.stopImmediatePropagation(); barOpen = !barOpen; barTouched = performance.now(); return; }
-    if (barOpen && inside(e.clientX, e.clientY, hit.volumeBar)) { e.preventDefault(); e.stopImmediatePropagation(); }
-  }, true);
+  // the volume slider: press and slide (the island's own volume message stays quiet meanwhile)
+  const setSys = clientX => {
+    const b = hit.navVol; if (!b) return;
+    const level = Math.round(Math.max(0, Math.min(1, (clientX - b.track.x) / b.track.width)) * 100);
+    window.__twocodeVolumeQuietUntil = performance.now() + 1500;
+    window.__twocodeSysVolume = { level, muted: false };
+    const now = performance.now(); if (now - nav.lastSet > 50) { nav.lastSet = now; window.twocode?.volumeSet?.(level)?.catch?.(() => {}); }
+  };
   canvas.addEventListener('pointerdown', e => {
-    if (!barOpen || !inside(e.clientX, e.clientY, hit.volumeBar)) return;
-    dragging = true; barTouched = performance.now(); setVolume(volumeAt(e.clientX)); canvas.setPointerCapture?.(e.pointerId);
+    if (mode !== 'expanded' || !inside(e.clientX, e.clientY, hit.navVol)) return;
+    e.preventDefault(); e.stopImmediatePropagation(); nav.sliding = true; canvas.setPointerCapture?.(e.pointerId); setSys(e.clientX);
+  }, true);
+  canvas.addEventListener('pointermove', e => { if (nav.sliding) setSys(e.clientX); });
+  const endSlide = e => { if (!nav.sliding) return; nav.sliding = false; setSys(e.clientX); const lv = window.__twocodeSysVolume?.level; if (lv != null) window.twocode?.volumeSet?.(lv)?.catch?.(() => {}); };
+  canvas.addEventListener('pointerup', endSlide); canvas.addEventListener('pointercancel', endSlide);
+  // the frame's buttons
+  canvas.addEventListener('click', e => {
+    if (mode !== 'expanded') return;
+    const at = b => inside(e.clientX, e.clientY, b), stop = () => { e.preventDefault(); e.stopImmediatePropagation(); };
+    const i = pageIndex(), n = PAGES.length;
+    if (at(hit.navVol)) { stop(); return; }
+    for (let j = 0; j < n; j++) if (at(hit['navTab' + j])) { stop(); sound('click'); go(PAGES[j].view); return; }
+    if (at(hit.navMusic)) { stop(); sound('click'); go('spotify'); return; }
+    if (at(hit.navClear)) { stop(); sound('click'); window.__twocodeTrayClear?.(); return; }
+  }, true);
+  // The ⋯ menu (HTML, so it lies above every page): it grows out of its button (Apple: anchor to the source),
+  // TwoCode's sound on top, then four rows; Quit asks once more in the row itself.
+  const menu = document.createElement('div'); menu.id = 'twocode-menu'; document.body.appendChild(menu);
+  const menuStyle = document.createElement('style'); menuStyle.textContent = `
+#twocode-menu{position:absolute;z-index:90;width:236px;padding:6px;box-sizing:border-box;border-radius:12px;background:#1c1c1e;box-shadow:0 18px 44px rgba(0,0,0,.6);
+  font:500 15px Inter,"Segoe UI",sans-serif;color:#fff;transform-origin:calc(100% - 12px) -15px;opacity:0;transform:scale(.6);pointer-events:none;
+  transition:opacity .16s ease-out,transform .22s cubic-bezier(.2,.9,.3,1)}
+#twocode-menu.open{opacity:1;transform:none;pointer-events:auto}
+#twocode-menu .mn-vol{display:flex;align-items:center;gap:12px;height:44px;padding:0 12px}
+#twocode-menu .mn-track{flex:1;height:6px;border-radius:3px;background:#3a3a3c;position:relative;cursor:pointer}
+#twocode-menu .mn-track i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:#fff}
+#twocode-menu .mn-track::before{content:'';position:absolute;inset:-14px 0}
+#twocode-menu button{display:flex;align-items:center;gap:12px;width:100%;height:40px;padding:0 12px;border:0;border-top:1px solid #2c2c2e;border-radius:0;background:transparent;color:#fff;font:inherit;text-align:left;cursor:pointer}
+#twocode-menu button:hover{background:#2c2c2e;border-radius:8px;border-top-color:transparent}
+#twocode-menu button:active{transform:scale(.98);transition:transform .1s ease-out}
+#twocode-menu button.red{color:#ff4245}
+#twocode-menu svg{flex:none}`;
+  document.head.appendChild(menuStyle);
+  const SVG = {
+    speaker: '<path d="M4 9.5h4l4.5-4v13L8 14.5H4z" fill="currentColor"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/>',
+    grid: '<rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/>',
+    gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/>',
+    collapse: '<path d="m6 15 6-6 6 6"/>',
+    power: '<path d="M7.5 6.5a7 7 0 1 0 9 0"/><path d="M12 3v8"/>' };
+  const svg = (name, colour = 'currentColor') => `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="${colour}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SVG[name]}</svg>`;
+  function renderMenu() {
+    const words = (nl, en2) => en() ? en2 : nl;
+    menu.innerHTML = `<div class="mn-vol">${svg('speaker')}<div class="mn-track" role="slider" aria-label="${words('Geluid van TwoCode', 'TwoCode sounds')}"><i style="width:${Math.round((window.__twocodeVolume?.() ?? 0) * 100)}%"></i></div></div>`
+      + MENU.map(([key, g, label]) => `<button type="button" data-menu="${key}" class="${key === 'quit' ? 'red' : ''}">${svg(g)}${key === 'quit' && quitArmed ? words('Klik nog eens om af te sluiten', 'Click again to quit') : (en() ? label[1] : label[0])}</button>`).join('');
+  }
+  function openMenu(on) {
+    menuOpen = on; quitArmed = false;
+    if (on) { renderMenu(); menuAt = performance.now(); }
+    menu.classList.toggle('open', on);
+  }
+  function drawMenu(right) {
+    if (menuOpen && mode !== 'expanded') openMenu(false);
+    menu.style.left = `${right - 12 - 236}px`; menu.style.top = '32px';
+  }
+  const setFromTrack = clientX => { const t = menu.querySelector('.mn-track'); if (!t) return; const r = t.getBoundingClientRect(); setVolume((clientX - r.left) / r.width); menu.querySelector('.mn-track i').style.width = `${Math.round(volume * 100)}%`; };
+  menu.addEventListener('pointerdown', e => {
+    if (!e.target.closest('.mn-track')) return;
+    dragging = true; setFromTrack(e.clientX); menu.setPointerCapture?.(e.pointerId);
   });
-  canvas.addEventListener('pointermove', e => { if (dragging) { barTouched = performance.now(); setVolume(volumeAt(e.clientX)); } });
-  canvas.addEventListener('pointerup', () => { if (dragging) { dragging = false; sound('click'); } });
+  menu.addEventListener('pointermove', e => { if (dragging) setFromTrack(e.clientX); });
+  menu.addEventListener('pointerup', () => { if (dragging) { dragging = false; sound('click'); } });
+  menu.addEventListener('click', e => {
+    const b = e.target.closest('[data-menu]'); if (!b) return;
+    const choice = b.dataset.menu;
+    if (choice === 'quit') { if (quitArmed) { openMenu(false); sound('click'); window.twocode?.close?.(); } else { quitArmed = true; renderMenu(); sound('click'); } return; }
+    openMenu(false);
+    if (choice === 'apps') { setView('apps'); sound('click'); }
+    else if (choice === 'settings') { setView('settings'); sound('click'); }
+    else if (choice === 'collapse') { window.__twocodeMonitor?.small?.(); window.__twocodeHoldClosed?.(); setMode('rest'); }
+  });
+  // a press anywhere else closes it
+  document.addEventListener('pointerdown', e => { if (menuOpen && !menu.contains(e.target) && !inside(e.clientX, e.clientY, hit.more)) openMenu(false); }, true);
+  // feedback on pointer-down (instant), the action on click
+  canvas.addEventListener('pointerdown', e => {
+    for (const key of ['back', 'more']) if (inside(e.clientX, e.clientY, hit[key])) { press.key = key; press.at = performance.now(); }
+  }, true);
+  canvas.addEventListener('pointerup', () => { press.key = null; });
+  canvas.addEventListener('click', e => {
+    const at = b => inside(e.clientX, e.clientY, b), stop = () => { e.preventDefault(); e.stopImmediatePropagation(); };
+    if (mode !== 'expanded') return;
+    if (at(hit.more)) { stop(); openMenu(!menuOpen); sound('click'); return; }
+    if (at(hit.back)) {
+      stop(); if (currentView === 'monitor') window.__twocodeMonitor?.small?.();
+      if (window.__twocodeHomeEditing?.()) window.__twocodeHomeEdit?.(false);
+      setView('home'); setMode('expanded'); return;
+    }
+  }, true);
+  window.addEventListener('keydown', e => { if (e.key === 'Escape' && menuOpen) { openMenu(false); e.stopImmediatePropagation(); } }, true);
+  window.__twocodeMenuOpen = () => menuOpen;
 })();

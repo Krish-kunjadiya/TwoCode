@@ -14,46 +14,55 @@
   // ---------- DOM panel for the tray and mirror views (same place as the Claude Code screen) ----------
   const root = document.createElement('section'); root.id = 'twocode-extras'; document.body.appendChild(root);
   const style = document.createElement('style'); style.textContent = `
-#twocode-extras{position:absolute;z-index:60;display:none;color:#f4f7ef;font:12px/1.4 Arial,sans-serif;pointer-events:auto}
+#twocode-extras{position:absolute;z-index:60;display:none;color:#f4f7ef;font:12px/1.4 Inter, "Segoe UI", sans-serif;pointer-events:auto}
 #twocode-extras *{box-sizing:border-box}
-#twocode-extras button{border:1px solid #394333;border-radius:12px;padding:7px 11px;color:#eef3e8;background:#252c22;font:600 11px Arial,sans-serif;cursor:pointer}
-#twocode-extras button:hover{background:#343e2d}
-#twocode-extras .ex-hint{color:#aab4a5;font-size:11px}
-#twocode-extras .ex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;max-height:170px;padding:5px 3px 3px;margin:-5px -3px 0;overflow:auto;scrollbar-width:thin;border-radius:16px;transition:max-height .2s}
-#twocode-extras.dragging .ex-grid{max-height:78px}
-#twocode-extras .ex-file{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 6px 8px;border-radius:14px;background:#151a13;border:1px solid #262e23;cursor:grab;text-align:center;animation:ex-pop .35s cubic-bezier(.2,1.6,.4,1)}
-#twocode-extras .ex-file:hover{border-color:#c6e994;transform:translateY(-2px)}
-#twocode-extras .ex-file img{width:32px;height:32px;pointer-events:none}
-#twocode-extras .ex-file span{font-size:10px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#twocode-extras .ex-x{position:absolute;top:2px;right:2px;padding:0 6px;border:0;background:transparent;color:#8f998d;font-size:13px}
-#twocode-extras .ex-drop{border:2px dashed #3e4938;border-radius:16px;height:78px;display:flex;align-items:center;justify-content:center;gap:8px;color:#aab4a5;font-size:12px;transition:background .2s,border-color .2s,transform .2s}
-#twocode-extras .ex-drop .on{display:none}
-#twocode-extras.dragging .ex-drop{border-color:#c6e994;background:#1a2216;color:#e8f5d8;transform:scale(1.02)}
-#twocode-extras.dragging .ex-drop .on{display:inline}
-#twocode-extras.dragging .ex-drop .off{display:none}
-#twocode-extras .ex-empty{height:150px;border:1.5px dashed rgba(255,255,255,.12);background:radial-gradient(circle at 50% 35%,rgba(198,233,148,.06),transparent 70%)}
-#twocode-extras .ex-empty span{flex-direction:column;align-items:center;gap:6px;text-align:center}
-#twocode-extras .ex-empty .off{display:flex}
-#twocode-extras.dragging .ex-empty .on{display:flex}
-#twocode-extras .ex-empty b{color:#f2f5ed;font-size:13px;font-weight:600}
-#twocode-extras .ex-empty small{color:#8f998d;font-size:11px}
-#twocode-extras .ex-empty svg{animation:ex-float 3s ease-in-out infinite}
-@keyframes ex-float{50%{transform:translateY(-4px)}}
-#twocode-extras .ex-drop.extra{display:none;height:56px;margin-bottom:8px}
-#twocode-extras.dragging .ex-drop.extra{display:flex}
-@keyframes ex-pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}#twocode-extras video{width:100%;height:176px;object-fit:cover;border-radius:16px;transform:scaleX(-1);background:#0d100c}`;
+#twocode-extras{font-family:Inter,"Segoe UI",sans-serif;color:#fff}
+#twocode-extras button{border:0;cursor:pointer;font-family:inherit;color:#fff;background:transparent;padding:0}
+#twocode-extras .ex-hint{color:#8e8e93;font-size:13px}
+#twocode-extras .ex-row{display:flex;align-items:center;gap:2px;height:100%;overflow-x:auto;scrollbar-width:none}
+#twocode-extras .ex-file{position:relative;flex:none;width:78px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 2px;border-radius:10px;cursor:grab;text-align:center;animation:ex-in .3s cubic-bezier(.2,.9,.3,1) both;animation-delay:calc(var(--k) * 30ms)}
+#twocode-extras .ex-file:hover{background:#1c1c1e}
+#twocode-extras .ex-file:active{transform:scale(.97);transition:transform .1s ease-out}
+#twocode-extras .ex-file svg{flex:none;filter:drop-shadow(0 3px 8px rgba(0,0,0,.4))}
+#twocode-extras .ex-name{font-size:11px;line-height:14px;font-weight:600;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#twocode-extras .ex-size{margin-top:-3px;font-size:10px;color:#8e8e93}
+#twocode-extras .ex-x{position:absolute;top:2px;right:6px;width:18px;height:18px;border-radius:50%;background:#3a3a3c;color:#fff;font-size:9px;line-height:18px;opacity:0;transition:opacity .15s}
+#twocode-extras .ex-file:hover .ex-x{opacity:1}
+/* the drop zone: a dashed box, like a shelf you drop things on */
+#twocode-extras .ex-zone{height:100%;border:1.5px dashed #3a3a3c;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;transition:border-color .2s,background .2s}
+#twocode-extras .ex-zone svg{margin-bottom:4px}
+#twocode-extras .ex-zone b{font-size:13px;font-weight:600}
+#twocode-extras .ex-zone small{font-size:11px;color:#8e8e93}
+#twocode-extras.dragging .ex-zone{border-color:#fff;background:#1c1c1e}
+#twocode-extras .ex-slot{flex:none;width:58px;height:78px;margin-left:4px;border:1.5px dashed #3a3a3c;border-radius:10px;display:grid;place-items:center;transition:border-color .2s,background .2s}
+#twocode-extras.dragging .ex-slot{border-color:#fff;background:#1c1c1e}
+#twocode-extras .ex-catch{display:none}
+#twocode-extras.dragging .ex-catch{display:block}
+#twocode-extras.dragging .ex-zone .off{display:none}
+@keyframes ex-in{0%{opacity:0;transform:translateY(8px) scale(.96)}}
+@keyframes ex-pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}#twocode-extras video{width:100%;height:176px;object-fit:cover;border-radius:22px;transform:scaleX(-1);background:#0d0d10}`;
   document.head.appendChild(style);
 
   let trayFiles = [], trayError = '';
   async function loadTray() { const r = await api.trayGet(); if (r.ok) trayFiles = r.files; render(); }
   window.__twocodeTrayReload = loadTray;
+  window.__twocodeTrayClear = async () => { for (const f of [...trayFiles]) { const r = await api.trayRemove(f.path).catch(() => null); if (r?.ok) trayFiles = r.files; } render(); };
   window.__twocodeTrayCount = () => trayFiles.length;
   function render() {
     if (currentView === 'tray') {
-      root.innerHTML = `<div class="tc-page-head"><div><p class="tc-page-title">Lade</p><p class="tc-page-sub">${trayFiles.length ? 'Sleep een bestand eruit, of klik om het te openen' : 'Sleep bestanden op de island om ze even te bewaren'}</p></div></div>${
-        trayFiles.length ? `<div class="ex-drop extra"><span class="on">🧺 Laat los, ik vang hem!</span></div><div class="ex-grid">${trayFiles.map((f, i) => `<div class="ex-file" draggable="true" data-i="${i}" title="${esc(f.path)}">${f.icon ? `<img src="${f.icon}" alt="">` : '📄'}<span>${esc(f.name)}</span><button type="button" class="ex-x" data-x="${i}" aria-label="Haal ${esc(f.name)} uit de lade">×</button></div>`).join('')}</div>`
-          : '<div class="ex-drop ex-empty"><span class="off"><svg width="34" height="34" viewBox="0 0 24 24" fill="#000" stroke="#e8eee4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13 7 5h10l3 8v6H4z"/><path d="M4 13h5l1 2h4l1-2h5" fill="none"/></svg><b>Je lade is leeg</b><small>Sleep een bestand op TwoCode om het even te bewaren</small></span><span class="on"><svg width="34" height="34" viewBox="0 0 24 24" fill="#000" stroke="#e8eee4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13 7 5h10l3 8v6H4z"/><path d="M4 13h5l1 2h4l1-2h5" fill="none"/></svg><b>Laat los, ik vang hem!</b></span></div>'
-      }${trayError ? `<p class="ex-hint" style="color:#ffaba3">${esc(trayError)}</p>` : ''}`;
+      const n = trayFiles.length;
+      const ext = name => (/\.([a-z0-9]{1,5})$/i.exec(name)?.[1] || '').toUpperCase();
+      const size = b => !b ? '' : b < 1e6 ? Math.max(1, Math.round(b / 1e3)) + ' kB' : (b / 1e6).toFixed(b < 1e7 ? 1 : 0).replace('.', ',') + ' MB';
+      // a sheet of paper with a folded corner and its kind on a grey label (like a document icon in Finder)
+      const paper = e => { const w = Math.max(22, e.length * 5.4 + 8);
+        return `<svg width="38" height="48" viewBox="0 0 38 48" aria-hidden="true"><path d="M4 1h22l11 11v31a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V5a4 4 0 0 1 4-4z" fill="#fff"/><path d="M26 1v7a4 4 0 0 0 4 4h7z" fill="#d1d1d6"/><path d="M7 19h18M7 24h22M7 29h14" stroke="#e5e5ea" stroke-width="2" stroke-linecap="round"/>${e ? `<rect x="5" y="34" width="${w}" height="10" rx="3" fill="#3a3a3c"/><text x="${5 + w / 2}" y="41.5" text-anchor="middle" font-family="Inter, sans-serif" font-size="6.5" font-weight="700" fill="#fff">${esc(e)}</text>` : ''}</svg>`; };
+      const T = (nl, en) => window.__twocodePrefs?.().lang === 'en' ? en : nl;
+      const plus = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8e93" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>`;
+      const trayGlyph = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v9m-3.5-3.5L12 12l3.5-3.5"/><path d="M4 14l2-5h2M20 14l-2-5h-2M4 14v5h16v-5h-5l-1 2h-4l-1-2z"/></svg>`;
+      root.innerHTML = n
+        ? `<div class="ex-row">${trayFiles.map((f, i) => `<div class="ex-file" draggable="true" data-i="${i}" title="${esc(f.path)}" style="--k:${i}">${paper(ext(f.name))}<span class="ex-name">${esc(f.name.replace(/\.[^.]+$/, ''))}</span><span class="ex-size">${esc(size(f.size))}</span><button type="button" class="ex-x" data-x="${i}" title="Uit de lade halen" aria-label="Uit de lade halen">✕</button></div>`).join('')}<div class="ex-slot" title="${T('Sleep hierheen', 'Drop here')}">${plus}</div></div>`
+          + (trayError ? `<p class="ex-hint" style="color:#ff4245">${esc(trayError)}</p>` : '')
+        : `<div class="ex-zone">${trayGlyph}<b class="off">${T('Sleep bestanden hierheen', 'Drop files here')}</b><b class="ex-catch">${T('Laat los, ik vang hem!', 'Let go, I will catch it!')}</b><small>${T('Sleep ze er weer uit wanneer je wilt · klik om te openen', 'Drag them out any time · click to open')}</small></div>`;
       for (const el of root.querySelectorAll('.ex-file')) {
         const f = trayFiles[Number(el.dataset.i)];
         el.addEventListener('dragstart', e => { e.preventDefault(); api.trayDrag(f.path); });
@@ -64,7 +73,7 @@
       });
     } else if (currentView === 'mirror') {
       if (!root.querySelector('video')) {
-        root.innerHTML = `<div class="tc-page-head"><div><p class="tc-page-title">Spiegel</p><p class="tc-page-sub">Even checken voor je videogesprek · de camera stopt als je weggaat</p></div></div><video autoplay muted playsinline></video><p class="ex-hint" id="ex-cam"></p>`;
+        root.innerHTML = `<video autoplay muted playsinline></video><p class="ex-hint" id="ex-cam">Even checken voor je videogesprek · de camera stopt als je weggaat</p>`;
         startCamera();
       }
     } else root.innerHTML = '';
@@ -170,7 +179,7 @@
   }
   let shownView = null;
   function position() {
-    const show = VIEWS.includes(currentView) && mode === 'expanded' && visual.width > 600 && visual.height > 245;
+    const show = VIEWS.includes(currentView) && mode === 'expanded' && visual.width > 500 && visual.height > Math.min(targetHeight() - 30, 150);
     // While a file is dragged over the island, the whole island is the drop zone (canvas), so the page hides.
     const display = show && !(currentView === 'tray' && (basket.on || (incoming && performance.now() - basket.caughtAt < INCOMING_MS - 120))) ? 'block' : 'none';
     if (root.style.display !== display) root.style.display = display; // only write when it changes (runs every frame)
@@ -225,8 +234,9 @@
   // Volume bar: "🔊 ▮▮▮▮▮▮▯▯▯▯ 62%"
   let firstVolume = true;
   api.onVolume(({ level, muted }) => {
+    window.__twocodeSysVolume = { level, muted }; // the volume block on the home screen
     if (firstVolume) { firstVolume = false; return; } // the first report is just the starting value
-    if (prefs().volumeHud === false) return;
+    if (prefs().volumeHud === false || performance.now() < (window.__twocodeVolumeQuietUntil || 0)) return; // not while you slide it in the island
     const blocks = Math.round(level / 10);
     flash(muted ? '🔇 Geluid uit' : `${level > 60 ? '🔊' : level > 20 ? '🔉' : '🔈'} ${'▮'.repeat(blocks)}${'▯'.repeat(10 - blocks)} ${level}%`, 1400);
   });

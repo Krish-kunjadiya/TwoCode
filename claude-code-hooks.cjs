@@ -316,7 +316,13 @@ function createHub(options = {}) {
           const cut = text => String(text || '').split('\n').map(l => l.replace(/\t/g, '  ').slice(0, 90)).filter((l, i, all) => l.trim() || (i > 0 && i < all.length - 1));
           if (toolKind(event.tool_name) === 'edit' && file) {
             const removed = cut(edit.old_string).slice(0, 3).map(text => ({ t: '-', text })), added = cut(edit.new_string ?? edit.content ?? input.content).slice(0, removed.length ? 3 : 6).map(text => ({ t: '+', text }));
-            s.code = { file, lines: [...removed, ...added] };
+            // the line it starts on: find the old text in the file (small files only), a new file starts at line 1
+            let start = 1;
+            try {
+              const full = String(input.file_path);
+              if (edit.old_string && fs.statSync(full).size < 2e6) { const body = fs.readFileSync(full, 'utf8'), at = body.indexOf(String(edit.old_string)); if (at >= 0) start = body.slice(0, at).split(/\r?\n/).length; }
+            } catch {}
+            s.code = { file, start, lines: [...removed, ...added] };
           }
           if (toolKind(event.tool_name) === 'run' && input.command) s.run = { command: String(input.command).slice(0, 80), out: [] };
         }

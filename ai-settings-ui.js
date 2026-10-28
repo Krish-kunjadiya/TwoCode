@@ -39,7 +39,7 @@
       z-index:60;
       display:none;
       color:#edf2ea;
-      font-family:Arial,sans-serif;
+      font-family:Inter, "Segoe UI", sans-serif;
       pointer-events:auto;
       overflow:hidden;
     }

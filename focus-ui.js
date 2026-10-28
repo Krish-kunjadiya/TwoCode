@@ -4,102 +4,125 @@
 (function focusPage() {
   const root = document.createElement('section'); root.id = 'twocode-focus'; document.body.appendChild(root);
   const style = document.createElement('style'); style.textContent = `
-#twocode-focus{position:absolute;z-index:60;display:none;color:#f4f7ef;font:12px/1.4 Arial,sans-serif;pointer-events:auto;user-select:none}
+#twocode-focus{position:absolute;z-index:60;display:none;color:#fff;font:15px/1.4 Inter,"Segoe UI",sans-serif;pointer-events:auto;user-select:none}
 #twocode-focus *{box-sizing:border-box}
-#twocode-focus .fo-body{display:flex;align-items:center;gap:22px;height:calc(100% - 64px)}
-#twocode-focus .fo-dials{display:flex;align-items:center;gap:6px}
-#twocode-focus .fo-dial{display:flex;flex-direction:column;align-items:center;gap:2px;width:66px}
-#twocode-focus .fo-dial b{font:700 36px/1 Arial,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-1px}
-#twocode-focus .fo-dial small{color:#9aa596;font-size:10px;text-transform:uppercase;letter-spacing:.06em}
-#twocode-focus .fo-colon{font:700 30px/1 Arial,sans-serif;color:#5d6858;margin-bottom:22px}
-#twocode-focus button{border:1px solid rgba(255,255,255,.08);border-radius:12px;background:#121512;color:#e8eee4;cursor:pointer;font:600 11px Arial,sans-serif}
-#twocode-focus button:hover{background:#1d221d;border-color:rgba(255,255,255,.18)}
-#twocode-focus .fo-arrow{width:44px;height:24px;padding:0;display:grid;place-items:center;background:transparent;border-color:transparent;color:#8f998d}
-#twocode-focus .fo-arrow:hover{color:#fff;background:rgba(255,255,255,.06);border-color:transparent}
-#twocode-focus .fo-dials{background:linear-gradient(180deg,#121612,#0c0f0c);border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:6px 10px}
-#twocode-focus .fo-presets button.on{background:rgba(255,179,92,.14);border-color:rgba(255,179,92,.5);color:#ffd28a}
-#twocode-focus .fo-side{display:flex;flex-direction:column;gap:8px;flex:1;min-width:0}
-#twocode-focus .fo-presets{display:flex;gap:6px;flex-wrap:wrap}
-#twocode-focus .fo-presets button{padding:7px 11px}
-#twocode-focus .fo-start{padding:11px 16px;background:#c6e994;color:#11180d;border-color:#c6e994;font-size:13px}
-#twocode-focus .fo-start:hover{background:#d4f6a5}
-#twocode-focus .fo-big{font:700 54px/1 Arial,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-2px}
-#twocode-focus .fo-track{height:6px;border-radius:4px;background:#232a22;overflow:hidden}
-#twocode-focus .fo-fill{height:100%;background:#ffc93c;border-radius:4px;transition:width .5s linear}
-#twocode-focus .fo-row{display:flex;gap:8px}
-#twocode-focus .fo-row button{padding:9px 14px}
-#twocode-focus .fo-running{gap:28px}
-#twocode-focus .fo-ring{position:relative;width:150px;height:150px;flex:none}
-#twocode-focus .fo-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-#twocode-focus .fo-ring circle{fill:none;stroke-width:7}
-#twocode-focus .fo-ring-bg{stroke:rgba(255,255,255,.08)}
-#twocode-focus .fo-ring-fill{stroke:#ffb35c;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset .6s linear}
-#twocode-focus .fo-ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
-#twocode-focus .fo-ring-text b{font-weight:700;font-size:30px;letter-spacing:-1px;font-variant-numeric:tabular-nums}
-#twocode-focus .fo-ring-text small{color:#8f998d;font-size:11px}
-#twocode-focus .fo-kicker{margin:0;display:flex;align-items:center;gap:7px;color:#ffd28a;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-#twocode-focus .fo-dot{width:7px;height:7px;border-radius:50%;background:#ffb35c;box-shadow:0 0 8px #ffb35c;animation:fo-pulse 1.6s ease-in-out infinite}
-@keyframes fo-pulse{50%{opacity:.35}}
-#twocode-focus .fo-end{margin:2px 0 0;font-size:22px;font-weight:700;color:#fff}
-#twocode-focus .fo-note{margin:0 0 6px;color:#8f998d;font-size:11px}
-#twocode-focus .fo-stop{color:#ffaba3 !important;border-color:rgba(255,120,110,.25) !important}
-#twocode-focus .fo-stop:hover{background:rgba(255,90,80,.12) !important}`;
+#twocode-focus button{border:0;cursor:pointer;font-family:inherit;color:#fff;background:transparent;padding:0}
+#twocode-focus .fo-body{height:100%;display:flex;flex-direction:column}
+#twocode-focus .fo-row{flex:1;min-height:0;display:flex;align-items:center;justify-content:space-between;gap:16px}
+/* round buttons like the Clock app and the timer in the Dynamic Island: a tinted circle, the label in the colour */
+#twocode-focus .fo-round{flex:none;min-width:92px;height:44px;padding:0 16px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--b);color:var(--f);font-size:15px;font-weight:600}
+#twocode-focus .fo-round.sm{min-width:0;height:40px;padding:0 14px}
+#twocode-focus .fo-round:hover{filter:brightness(1.2)}
+#twocode-focus .fo-round.white:hover{filter:none;background:#e5e5ea}
+#twocode-focus .fo-round:active{transform:scale(.97);transition:transform .1s ease-out}
+#twocode-focus .fo-round:disabled{opacity:.4;cursor:default}
+#twocode-focus .grey{--b:#1c1c1e;--f:#ffffff}
+#twocode-focus .white{--b:#ffffff;--f:#000000}
+/* the picker wheel */
+#twocode-focus .fo-wheel{position:relative;flex:1;height:132px;display:flex;justify-content:center;overflow:hidden}
+#twocode-focus .fo-band{position:absolute;left:0;right:0;top:50%;height:40px;margin-top:-20px;border-radius:12px;background:#1c1c1e}
+#twocode-focus .fo-col{position:relative;width:50%;height:100%;cursor:ns-resize}
+#twocode-focus .fo-list{position:absolute;left:0;right:0;top:50%;transition:transform .3s cubic-bezier(.2,.9,.3,1)}
+#twocode-focus .fo-num{height:40px;display:flex;align-items:center;justify-content:flex-end;padding-right:54px;font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;color:#48484a;cursor:pointer}
+#twocode-focus .fo-num.on{color:#fff}
+#twocode-focus .fo-unit{position:absolute;left:calc(100% - 48px);top:50%;margin-top:-11px;font-size:17px;font-weight:600;pointer-events:none}
+#twocode-focus .fo-fade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#000 0%,rgba(0,0,0,0) 32%,rgba(0,0,0,0) 68%,#000 100%)}
+#twocode-focus .fo-foot{flex:none;height:34px;display:flex;align-items:center;gap:6px}
+#twocode-focus .fo-chip{height:30px;padding:0 13px;border-radius:8px;background:#1c1c1e;font-size:13px;font-weight:600;color:#fff}
+#twocode-focus .fo-chip:hover{background:#2c2c2e}
+#twocode-focus .fo-chip.on{background:#3a3a3c;color:#fff}
+#twocode-focus .fo-end{margin-left:auto;font-size:13px;font-weight:600;color:#8e8e93;font-variant-numeric:tabular-nums}
+/* running: like the timer in the iPhone's Dynamic Island, two round buttons left, big white digits right */
+#twocode-focus .fo-run{flex:1;display:flex;align-items:center;gap:12px}
+#twocode-focus .fo-big{margin-left:auto;text-align:right}
+#twocode-focus .fo-big small{display:block;font-size:15px;font-weight:600;color:#8e8e93;margin-bottom:-4px}
+#twocode-focus .fo-big b{display:block;font-size:76px;line-height:84px;font-weight:500;letter-spacing:-2px;color:#fff;font-variant-numeric:tabular-nums}
+#twocode-focus .fo-bar{flex:none;height:4px;border-radius:2px;background:#3a3a3c;overflow:hidden;margin:6px 0 10px}
+#twocode-focus .fo-bar i{display:block;height:100%;border-radius:2px;background:#fff;transition:width .6s linear}
+/* compact (notch-app size) */
+#twocode-focus .fo-row{gap:12px}
+#twocode-focus .fo-round{min-width:76px;height:34px;padding:0 12px;border-radius:9px;font-size:13px}
+#twocode-focus .fo-round.sm{height:30px;padding:0 12px;font-size:12px}
+#twocode-focus .fo-wheel{height:104px}
+#twocode-focus .fo-band{height:32px;margin-top:-16px;border-radius:9px}
+#twocode-focus .fo-num{height:32px;font-size:19px;padding-right:46px}
+#twocode-focus .fo-unit{left:calc(100% - 42px);margin-top:-9px;font-size:13px}
+#twocode-focus .fo-foot{height:28px;gap:5px}
+#twocode-focus .fo-chip{height:24px;padding:0 10px;border-radius:7px;font-size:11px}
+#twocode-focus .fo-end{font-size:11px}
+#twocode-focus .fo-big small{font-size:12px;margin-bottom:-2px}
+#twocode-focus .fo-big b{font-size:52px;line-height:58px;letter-spacing:-1.5px}
+#twocode-focus .fo-bar{height:3px;margin:4px 0 6px}
+#twocode-focus .fo-foot span{font-size:11px !important}`;
   document.head.appendChild(style);
 
   const F = () => window.__twocodeFocus;
+  const EN = () => window.__twocodePrefs?.().lang === 'en', T = (nl, en) => EN() ? en : nl;
+  const ROW = 32, HOURS = 6, MINUTES = 60;
   let lastKey = '';
-  const pad = n => String(n).padStart(2, '0');
+  const at = ms => new Date(ms).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+  function column(kind, value, count, unit) {
+    const nums = Array.from({ length: count }, (_, i) => `<div class="fo-num${i === value ? ' on' : ''}" data-pick="${kind}" data-v="${i}">${kind === 'm' ? String(i).padStart(2, '0') : i}</div>`).join('');
+    return `<div class="fo-col" data-col="${kind}"><div class="fo-list" style="transform:translateY(${-(value * ROW) - ROW / 2}px)">${nums}</div><span class="fo-unit">${unit}</span></div>`;
+  }
   function render() {
     const f = F(); if (!f) return;
     const running = f.active();
     const key = running ? 'run' : 'idle:' + f.chosen();
     if (key === lastKey) return update(); // only rebuild when something changed
     lastKey = key;
-    const sec = f.chosen(), h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
-    const dial = (unit, value, label) => `<div class="fo-dial"><button type="button" class="fo-arrow" data-add="${unit}" aria-label="${label} meer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg></button><b>${pad(value)}</b><small>${label}</small><button type="button" class="fo-arrow" data-add="${-unit}" aria-label="${label} minder"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button></div>`;
-    root.innerHTML = `<div class="tc-page-head"><div><p class="tc-page-title">Focus</p><p class="tc-page-sub">${running ? 'Je bent aan het focussen. TwoCode houdt de tijd bij.' : 'Kies hoe lang je wil focussen'}</p></div></div>${
-      running
-        ? `<div class="fo-body fo-running"><div class="fo-ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" class="fo-ring-bg"/><circle cx="60" cy="60" r="52" class="fo-ring-fill" id="fo-ring" pathLength="100"/></svg><div class="fo-ring-text"><b id="fo-left">${f.label()}</b><small id="fo-total"></small></div></div>
-           <div class="fo-side"><p class="fo-kicker"><span class="fo-dot"></span>Focus loopt</p><p class="fo-end" id="fo-end"></p><p class="fo-note">Muziek en Claude blijven gewoon zichtbaar in het kleine eiland.</p>
-           <div class="fo-row"><button type="button" data-plus="300">+5 min</button><button type="button" data-plus="900">+15 min</button><button type="button" class="fo-stop" data-stop="1">Stoppen</button></div></div></div>`
-        : `<div class="fo-body"><div class="fo-dials" id="fo-dials">${dial(3600, h, 'Uren')}<span class="fo-colon">:</span>${dial(60, m, 'Minuten')}<span class="fo-colon">:</span>${dial(1, s, 'Seconden')}</div>
-           <div class="fo-side"><div class="fo-presets">${[[15 * 60, '15 min'], [25 * 60, '25 min'], [45 * 60, '45 min'], [3600, '1 uur']].map(([v, l]) => `<button type="button" data-set="${v}"${v === sec ? ' class="on""' : ''}>${l}</button>`).join('')}</div>
-           <button type="button" class="fo-start" data-start="1">Start focus</button></div></div>`
-    }`;
+    const sec = f.chosen(), h = Math.min(HOURS - 1, Math.floor(sec / 3600)), m = Math.floor(sec % 3600 / 60);
+    const X = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+    const PRESETS = [5, 15, 25, 50];
+    const svgI = (d, fill) => `<svg width="13" height="13" viewBox="0 0 24 24" fill="${fill || 'none'}" stroke="${fill ? 'none' : 'currentColor'}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+    const IC = { play: svgI('<path d="M7 4.5v15l12.5-7.5z"/>', 'currentColor'), stop: `<svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3" fill="#ff453a"/></svg>`,
+      plus: svgI('<path d="M12 5v14M5 12h14"/>'), reset: svgI('<path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5"/>') };
+    root.innerHTML = running
+      ? `<div class="fo-body"><div class="fo-run"><button type="button" class="fo-round sm grey" data-stop="1">${IC.stop}${T('Stop', 'Stop')}</button>
+          <button type="button" class="fo-round sm grey" data-plus="300">${IC.plus}5 min</button>
+          <div class="fo-big"><small>Focus</small><b id="fo-left">${f.label()}</b></div></div>
+          <div class="fo-bar"><i id="fo-ring"></i></div>
+          <div class="fo-foot"><span style="font-size:13px;font-weight:600;color:#8e8e93">${T('Robo seint je als de tijd om is', 'Robo lets you know when time is up')}</span><span class="fo-end" id="fo-end"></span></div></div>`
+      : `<div class="fo-body"><div class="fo-row"><button type="button" class="fo-round grey" data-set="${25 * 60}">${IC.reset}${T('Herstel', 'Reset')}</button>
+          <div class="fo-wheel"><div class="fo-band"></div>${column('h', h, HOURS, T('uur', 'hr'))}${column('m', m, MINUTES, 'min')}<div class="fo-fade"></div></div>
+          <button type="button" class="fo-round white" data-start="1"${sec < 60 ? ' disabled' : ''}>${IC.play}Start</button></div>
+          <div class="fo-foot">${PRESETS.map(n => `<button type="button" class="fo-chip${sec === n * 60 ? ' on' : ''}" data-set="${n * 60}">${n} min</button>`).join('')}<span class="fo-end" id="fo-end"></span></div></div>`;
     update();
   }
   function update() {
-    const f = F(); if (!f?.active()) return;
-    const left = root.querySelector('#fo-left'), fill = root.querySelector('#fo-fill');
+    const f = F(); if (!f) return;
+    const end = root.querySelector('#fo-end');
+    if (!f.active()) { if (end) end.textContent = T('Klaar om ', 'Done at ') + at(Date.now() + f.chosen() * 1000); return; }
+    const left = root.querySelector('#fo-left'), ring = root.querySelector('#fo-ring');
     if (left) left.textContent = f.label();
-    if (fill) fill.style.width = `${100 * (1 - f.left() / f.length())}%`;
-    // The ring is full at the start and runs empty as time passes.
-    const ring = root.querySelector('#fo-ring'), end = root.querySelector('#fo-end'), total = root.querySelector('#fo-total');
-    if (ring) ring.style.strokeDashoffset = String(100 * (1 - f.left() / f.length()));
-    if (end) end.textContent = 'Klaar om ' + new Date(Date.now() + f.left()).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
-    if (total) total.textContent = 'van ' + Math.round(f.length() / 60000) + ' min';
+    if (ring) ring.style.width = (100 * f.left() / f.length()).toFixed(2) + '%'; // full at the start, runs empty
+    if (end) end.textContent = T('klaar om ', 'done at ') + at(Date.now() + f.left());
   }
+  const setPart = (kind, v) => { const f = F(), sec = f.chosen(), h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60);
+    const nh = kind === 'h' ? Math.max(0, Math.min(HOURS - 1, v)) : h, nm = kind === 'm' ? (v + MINUTES) % MINUTES : m;
+    f.choose(nh * 3600 + nm * 60); lastKey = ''; render(); };
   root.addEventListener('click', e => {
+    const num = e.target.closest('[data-pick]');
+    if (num) { setPart(num.dataset.pick, Number(num.dataset.v)); sound('click'); return; }
     const b = e.target.closest('button'), f = F(); if (!b || !f) return;
-    if (b.dataset.add) f.choose(f.chosen() + Number(b.dataset.add));
     if (b.dataset.set) f.choose(Number(b.dataset.set));
     if (b.dataset.start) f.start();
     if (b.dataset.plus) f.add(Number(b.dataset.plus));
     if (b.dataset.stop) f.stop();
     sound('click'); lastKey = ''; render();
   });
-  // Scroll on a number to change it quickly.
+  // Scroll on the wheel to turn it, one number per notch (like the iPhone).
   root.addEventListener('wheel', e => {
-    const dial = e.target.closest('.fo-dial'), f = F(); if (!dial || !f) return;
-    e.preventDefault(); const unit = Math.abs(Number(dial.querySelector('[data-add]').dataset.add));
-    f.choose(f.chosen() + (e.deltaY < 0 ? unit : -unit)); lastKey = ''; render();
+    const col = e.target.closest('[data-col]'), f = F(); if (!col || !f) return;
+    e.preventDefault(); const sec = f.chosen(), kind = col.dataset.col, now = kind === 'h' ? Math.floor(sec / 3600) : Math.floor(sec % 3600 / 60);
+    setPart(kind, now + (e.deltaY > 0 ? 1 : -1)); sound('click');
   }, { passive: false });
 
   const baseExpanded = drawExpanded;
   drawExpanded = function (alpha) { if (currentView !== 'focus') return baseExpanded(alpha); drawHeader(alpha); };
   let shown = false;
   (function position() {
-    const show = currentView === 'focus' && mode === 'expanded' && visual.width > 600 && visual.height > 245;
+    const show = currentView === 'focus' && mode === 'expanded' && visual.width > 500 && visual.height > Math.min(targetHeight() - 30, 150);
     const display = show ? 'block' : 'none'; if (root.style.display !== display) root.style.display = display;
     if (show) { window.__twocodePage.place(root, contentRect()); if (!shown) lastKey = ''; render(); }
     shown = show;

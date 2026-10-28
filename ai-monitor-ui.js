@@ -17,14 +17,14 @@
   const statusReader = document.createElement('div'); statusReader.id = 'twocode-ai-monitor-status';
   statusReader.setAttribute('role', 'status'); statusReader.setAttribute('aria-live', 'polite'); document.body.appendChild(statusReader);
   const style = document.createElement('style'); style.textContent = `
-#twocode-ai-monitor{position:absolute;z-index:60;display:none;color:#f4f7ef;font:12px/1.4 Arial,sans-serif;pointer-events:auto;user-select:text}
+#twocode-ai-monitor{position:absolute;z-index:60;display:none;color:#f4f7ef;font:12px/1.4 Inter, "Segoe UI", sans-serif;pointer-events:auto;user-select:text}
 #twocode-ai-monitor *{box-sizing:border-box}
 #twocode-ai-monitor-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);pointer-events:none}
 #twocode-ai-monitor .am-shell{height:100%;display:flex;flex-direction:column;gap:7px;min-height:0;padding-bottom:4px}
 #twocode-ai-monitor .am-head{display:flex;align-items:center;gap:8px;flex:none}
 #twocode-ai-monitor .am-head strong{font-size:17px;flex:1}
 #twocode-ai-monitor .am-hint{color:#c2ccbd;font-size:11px}
-#twocode-ai-monitor button{border:1px solid #394333;border-radius:12px;padding:7px 11px;color:#eef3e8;background:#252c22;font:600 11px Arial,sans-serif;cursor:pointer}
+#twocode-ai-monitor button{border:1px solid #394333;border-radius:12px;padding:7px 11px;color:#eef3e8;background:#252c22;font:600 11px Inter, "Segoe UI", sans-serif;cursor:pointer}
 #twocode-ai-monitor button:hover{background:#343e2d}
 #twocode-ai-monitor button:focus-visible,#twocode-ai-monitor textarea:focus-visible{outline:2px solid #c6e994;outline-offset:2px}
 #twocode-ai-monitor button:disabled{opacity:.5;cursor:default}
@@ -89,7 +89,7 @@
 #twocode-ai-monitor .am-option small{color:#aab4a5;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 #twocode-ai-monitor .am-option.on{background:#ff9a1f;color:#1a1206;border-color:#ff9a1f}
 #twocode-ai-monitor .am-option.on small{color:#3b2a0f}
-#twocode-ai-monitor .am-note{flex:1;min-width:0;border:1px solid #536046;border-radius:10px;padding:6px 9px;background:#141b11;color:#f5f8f1;font:12px Arial,sans-serif;width:100%}
+#twocode-ai-monitor .am-note{flex:1;min-width:0;border:1px solid #536046;border-radius:10px;padding:6px 9px;background:#141b11;color:#f5f8f1;font:12px Inter, "Segoe UI", sans-serif;width:100%}
 #twocode-ai-monitor .am-row .am-note{width:auto}
 #twocode-ai-monitor .am-plan{border-left:3px solid #4cc9f0;padding:2px 10px;font-size:12px}
 #twocode-ai-monitor .am-plan h4{margin:6px 0 2px;font-size:13px}
@@ -114,7 +114,7 @@
 #twocode-ai-monitor .am-body{flex:1;min-height:0;overflow:auto;scrollbar-width:thin;scrollbar-color:#536248 transparent}
 #twocode-ai-monitor .am-question{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;border-left:3px solid #ffa94b;padding:3px 10px}
 #twocode-ai-monitor .am-compose{display:flex;gap:8px;align-items:flex-end;flex:none}
-#twocode-ai-monitor textarea{resize:none;flex:1;min-width:0;height:52px;border:1px solid #536046;border-radius:12px;padding:9px;background:#141b11;color:#f5f8f1;font:12px/1.4 Arial,sans-serif;user-select:text}
+#twocode-ai-monitor textarea{resize:none;flex:1;min-width:0;height:52px;border:1px solid #536046;border-radius:12px;padding:9px;background:#141b11;color:#f5f8f1;font:12px/1.4 Inter, "Segoe UI", sans-serif;user-select:text}
 #twocode-ai-monitor .am-error{color:#ffaba3;font-size:11px;overflow-wrap:anywhere;max-height:44px;overflow:auto}
 #twocode-ai-monitor .am-track{height:4px;overflow:hidden;border-radius:6px;background:#35402d;flex:none}
 #twocode-ai-monitor .am-wave{width:35%;height:100%;background:#ffa94b;animation:am-travel 1.5s ease-in-out infinite}
@@ -255,7 +255,7 @@
 #twocode-ai-monitor .ch-model-menu p{margin:4px 8px 2px;font-size:10px;color:#7f8a7a}
 #twocode-ai-monitor .ch-model-menu code{font:10px Consolas,monospace;color:#ffd7ab}
 #twocode-ai-monitor .am-picks{display:flex;gap:4px;padding:3px;margin:0 0 8px;border-radius:12px;background:#111411;border:1px solid rgba(255,255,255,.07);width:max-content}
-#twocode-ai-monitor .am-pick{display:flex;align-items:center;gap:6px;border:0;background:transparent;color:#9aa596;padding:5px 11px;border-radius:9px;font:600 11px "Segoe UI",sans-serif;cursor:pointer}
+#twocode-ai-monitor .am-pick{display:flex;align-items:center;gap:6px;border:0;background:transparent;color:#9aa596;padding:5px 11px;border-radius:9px;font:600 11px Inter, "Segoe UI", sans-serif;cursor:pointer}
 #twocode-ai-monitor .am-pick:hover{color:#fff}
 #twocode-ai-monitor .am-pick.on{background:#262d24;color:#fff}
 #twocode-ai-monitor .am-pick i{width:7px;height:7px;border-radius:50%;background:var(--lamp);box-shadow:0 0 6px var(--lamp)}
@@ -263,7 +263,7 @@
 #twocode-ai-monitor.cc-stage .am-shell{padding:8px 14px 10px 96px;gap:8px}
 #twocode-ai-monitor.cc-stage .tc-page-head{align-items:center;margin:0;justify-content:space-between}
 #twocode-ai-monitor.cc-stage .tc-page-head > .cc-pill{flex:0 1 auto;margin-right:auto}
-#twocode-ai-monitor .cc-pill{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.1);font:600 12px "Segoe UI",sans-serif;color:#fff;max-width:340px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#twocode-ai-monitor .cc-pill{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.1);font:600 12px Inter, "Segoe UI", sans-serif;color:#fff;max-width:340px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #twocode-ai-monitor .cc-pill i{width:8px;height:8px;border-radius:50%;background:var(--lamp);box-shadow:0 0 8px var(--lamp);flex:none}
 #twocode-ai-monitor .cc-pill span{color:rgba(255,255,255,.55);font-weight:500}
 #twocode-ai-monitor.cc-stage .ch-head-right{margin-top:0}
@@ -275,7 +275,7 @@
 #twocode-ai-monitor.cc-stage .ch-chat{padding:0 6px 0 0}
 #twocode-ai-monitor.cc-stage .ch-inner{gap:10px}
 #twocode-ai-monitor.cc-stage .ch-avatar{display:none}
-#twocode-ai-monitor.cc-stage .ch-bubble{font:13.5px/1.5 "Segoe UI",sans-serif}
+#twocode-ai-monitor.cc-stage .ch-bubble{font:13.5px/1.5 Inter, "Segoe UI", sans-serif}
 #twocode-ai-monitor.cc-stage .ch-bubble:not(.me):not(.ask):not(.error):not(.wide){background:none;border:0;padding:0 2px;max-width:100%;color:#f6efe9}
 #twocode-ai-monitor.cc-stage .ch-bubble.me{background:rgba(255,255,255,.13);border:0;border-radius:14px;padding:7px 14px;font-weight:600;font-size:13px;max-width:75%}
 #twocode-ai-monitor.cc-stage .ch-bubble.ask{background:rgba(255,154,31,.13);border:1px solid rgba(255,179,92,.35);border-radius:14px}
@@ -303,37 +303,253 @@
 #twocode-ai-monitor .ch-bubble.md b{color:#fff}
 /* the model menu: one clean list, the current one with a check */
 #twocode-ai-monitor .ch-model-menu{top:40px;width:340px;padding:5px;border-radius:14px;background:#1c140f;border:1px solid rgba(255,190,150,.16);box-shadow:0 22px 50px rgba(0,0,0,.65);grid-template-columns:1fr;gap:2px}
-#twocode-ai-monitor .ch-model-head{padding:5px 10px 4px;font:700 11.5px "Segoe UI",sans-serif;flex-direction:column;align-items:flex-start;gap:1px}
+#twocode-ai-monitor .ch-model-head{padding:5px 10px 4px;font:700 11.5px Inter, "Segoe UI", sans-serif;flex-direction:column;align-items:flex-start;gap:1px}
 #twocode-ai-monitor .ch-model-head small{color:rgba(255,236,226,.5)}
-#twocode-ai-monitor .ch-model-menu button{flex-direction:row;align-items:center;gap:10px;padding:6px 30px 6px 10px;border-radius:10px;font-family:"Segoe UI",sans-serif}
+#twocode-ai-monitor .ch-model-menu button{flex-direction:row;align-items:center;gap:10px;padding:6px 30px 6px 10px;border-radius:10px;font-family:Inter, "Segoe UI", sans-serif}
 #twocode-ai-monitor .ch-model-menu button b{font-size:12.5px;min-width:70px;color:#fff}
 #twocode-ai-monitor .ch-model-menu button small{font-size:11px;color:rgba(255,236,226,.55);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 #twocode-ai-monitor .ch-model-menu button:hover{background:rgba(255,255,255,.07)}
 #twocode-ai-monitor .ch-model-menu button.on{background:rgba(255,160,100,.16);border-color:transparent}
 #twocode-ai-monitor .ch-model-menu button i{color:#ffb07a;font-size:13px}
-#twocode-ai-monitor .ch-model-menu p{margin:2px 10px 3px;padding-top:5px;border-top:1px solid rgba(255,255,255,.07);font:10.5px "Segoe UI",sans-serif;color:rgba(255,236,226,.45)}
+#twocode-ai-monitor .ch-model-menu p{margin:2px 10px 3px;padding-top:5px;border-top:1px solid rgba(255,255,255,.07);font:10.5px Inter, "Segoe UI", sans-serif;color:rgba(255,236,226,.45)}
 /* the reply box: like the chat's */
 #twocode-ai-monitor .ch-compose{align-items:center;border-radius:14px;padding:4px 5px 4px 6px}
-#twocode-ai-monitor .ch-compose textarea{height:32px;padding:7px 8px;font:13px "Segoe UI",sans-serif;caret-color:#ffc29a}
+#twocode-ai-monitor .ch-compose textarea{height:32px;padding:7px 8px;font:13px Inter, "Segoe UI", sans-serif;caret-color:#ffc29a}
 #twocode-ai-monitor .ch-compose:focus-within{box-shadow:inset 0 0 0 1px rgba(255,176,122,.5)}
-#twocode-ai-monitor .ch-compose #am-send{width:30px;height:30px;padding:0;border-radius:50%;background:#fff;color:#1a1310;border:0;font:700 15px "Segoe UI",sans-serif;flex:none}
+#twocode-ai-monitor .ch-compose #am-send{width:30px;height:30px;padding:0;border-radius:50%;background:#fff;color:#1a1310;border:0;font:700 15px Inter, "Segoe UI", sans-serif;flex:none}
 #twocode-ai-monitor .ch-compose #am-send:disabled{opacity:.4}
 #twocode-ai-monitor.cc-codex .ch-typing i,#twocode-ai-monitor.cc-codex .am-primary{background:#7fb6ff;border-color:#7fb6ff;color:#06182e}
 #twocode-ai-monitor.cc-codex .ch-bubble.ask{background:rgba(59,130,246,.14);border-color:rgba(127,182,255,.4)}
 #twocode-ai-monitor.cc-codex .ch-compose:focus-within{box-shadow:inset 0 0 0 1px rgba(127,182,255,.55)}
 #twocode-ai-monitor.cc-codex .ch-bubble.md code{color:#dbeaff}
-#twocode-ai-monitor .ch-hist-title{font:700 10.5px "Segoe UI",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,236,226,.5);margin:2px 2px 0}
+#twocode-ai-monitor .ch-hist-title{font:700 10.5px Inter, "Segoe UI", sans-serif;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,236,226,.5);margin:2px 2px 0}
 #twocode-ai-monitor .ch-hist{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.05);min-width:0}
 #twocode-ai-monitor .ch-hist:hover{background:rgba(255,255,255,.09)}
 #twocode-ai-monitor .ch-hist div{flex:1;min-width:0;display:flex;flex-direction:column}
-#twocode-ai-monitor .ch-hist b{font:600 12.5px "Segoe UI",sans-serif;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#twocode-ai-monitor .ch-hist small{font:11px "Segoe UI",sans-serif;color:rgba(255,236,226,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#twocode-ai-monitor .ch-hist b{font:600 12.5px Inter, "Segoe UI", sans-serif;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#twocode-ai-monitor .ch-hist small{font:11px Inter, "Segoe UI", sans-serif;color:rgba(255,236,226,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #twocode-ai-monitor .ch-hist-mark{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;background:rgba(255,255,255,.08);color:#fff}
 #twocode-ai-monitor .ch-hist-mark.done{background:rgba(94,232,138,.16);color:#7ef0a4}
 #twocode-ai-monitor .ch-hist-mark.question{background:rgba(255,179,92,.18);color:#ffc27a}
 #twocode-ai-monitor .ch-hist-mark.error{background:rgba(255,92,92,.16);color:#ff9a9a}
-#twocode-ai-monitor .ch-hist i{flex:none;font:600 11px "Segoe UI",sans-serif;font-style:normal;color:rgba(255,236,226,.55)}
+#twocode-ai-monitor .ch-hist i{flex:none;font:600 11px Inter, "Segoe UI", sans-serif;font-style:normal;color:rgba(255,236,226,.55)}
 #twocode-ai-monitor .ch-hist i.done{color:#7ef0a4}#twocode-ai-monitor .ch-hist i.question{color:#ffc27a}#twocode-ai-monitor .ch-hist i.error{color:#ff9a9a}
+/* ---- the Claude page as a Live Activity: right on the black, no cards (Claude orange, Codex blue) ---- */
+#twocode-ai-monitor.cl-new{--acc:#ff9230;--ok:#30d158;--bad:#ff4245;--ask:#ffd600;--g:#8e8e93;--g1:#1c1c1e;--g2:#2c2c2e;--g3:#3a3a3c;font-family:Inter,"Segoe UI",sans-serif;color:#fff}
+#twocode-ai-monitor.cl-new.cc-codex{--acc:#0091ff}
+#twocode-ai-monitor.cl-new .am-shell{padding:0 16px 10px;gap:0}
+#twocode-ai-monitor .lv-top{display:flex;align-items:center;gap:8px;height:22px;font-size:15px;font-weight:600;color:var(--tone,var(--acc))}
+#twocode-ai-monitor .lv-hero{display:flex;align-items:center;gap:18px;margin-top:2px}
+#twocode-ai-monitor .lv-ring{position:relative;flex:none;width:76px;height:76px}
+#twocode-ai-monitor .lv-ring > svg{position:absolute;left:0;top:0;width:100%;height:100%;transform:rotate(-90deg)}
+#twocode-ai-monitor .lv-ring circle{fill:none;stroke-width:8;stroke-linecap:round}
+#twocode-ai-monitor .lv-ring i{position:absolute;inset:0;display:grid;place-items:center;color:var(--tone)}
+#twocode-ai-monitor .lv-hero > div:not(.lv-ring){flex:1;min-width:0}
+#twocode-ai-monitor .lv-who{font-size:15px;font-weight:600;color:var(--tone);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#twocode-ai-monitor .lv-hero .lv-title{font-size:26px;line-height:30px;font-weight:700}
+#twocode-ai-monitor .lv-hero .lv-sub{margin-top:2px}
+#twocode-ai-monitor .lv-clock{flex:none;align-self:flex-start;margin-top:2px;font-size:20px;font-weight:700;color:var(--tone);font-variant-numeric:tabular-nums}
+#twocode-ai-monitor .lv-top svg{flex:none}
+#twocode-ai-monitor .lv-top .lv-time{margin-left:auto;font-variant-numeric:tabular-nums}
+#twocode-ai-monitor .lv-main{display:flex;align-items:flex-end;gap:16px;margin-top:10px}
+#twocode-ai-monitor .lv-main > div{flex:1;min-width:0}
+#twocode-ai-monitor .lv-title{margin:0;font-size:28px;line-height:32px;font-weight:650;letter-spacing:-.35px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#twocode-ai-monitor .lv-sub{margin:3px 0 0;font-size:15px;line-height:20px;color:var(--g);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#twocode-ai-monitor .lv-sub code,#twocode-ai-monitor .lv-mono{font:500 13px "Cascadia Mono",Consolas,monospace}
+#twocode-ai-monitor .lv-btns{flex:none;display:flex;gap:8px}
+#twocode-ai-monitor.cl-new button{border:0;border-radius:22px;height:36px;padding:0 14px;background:var(--g2);color:#fff;font:600 13px Inter,"Segoe UI",sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+#twocode-ai-monitor.cl-new button:hover{background:var(--g3)}
+#twocode-ai-monitor.cl-new button:active{transform:scale(.97);transition:transform .1s ease-out}
+#twocode-ai-monitor.cl-new .am-primary{background:#fff;color:#000}
+#twocode-ai-monitor.cl-new .am-primary:hover{background:#e5e5ea}
+#twocode-ai-monitor .lv-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-top:14px}
+#twocode-ai-monitor .lv-steps i{display:block;height:6px;border-radius:3px;background:var(--g3);overflow:hidden}
+#twocode-ai-monitor .lv-steps i.d{background:#fff}#twocode-ai-monitor .lv-steps.done i{background:var(--ok)}
+#twocode-ai-monitor .lv-steps i.n s{display:block;height:100%;width:40%;border-radius:3px;background:var(--tone,var(--acc));animation:lv-run 1.6s ease-in-out infinite}
+@keyframes lv-run{50%{width:80%}}
+#twocode-ai-monitor .lv-steps span{font-size:12px;font-weight:600;color:var(--g);margin-top:7px}
+#twocode-ai-monitor .lv-steps span.n{color:#fff}
+#twocode-ai-monitor .lv-list{flex:1;min-height:0;overflow:auto;margin-top:12px;scrollbar-width:none}
+#twocode-ai-monitor .lv-cap{font-size:13px;font-weight:600;color:var(--g);margin:2px 0 2px}
+#twocode-ai-monitor .lv-row{display:flex;align-items:center;gap:12px;height:36px;border-bottom:1px solid var(--g2)}
+#twocode-ai-monitor .lv-row:last-child{border-bottom:0}
+#twocode-ai-monitor .lv-ic{flex:none;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;background:var(--g2);color:#fff}
+#twocode-ai-monitor .lv-row b{flex:1;min-width:0;font:500 13px "Cascadia Mono",Consolas,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#twocode-ai-monitor .lv-row em{font-style:normal;font-size:13px;color:var(--g)}
+#twocode-ai-monitor .lv-row em.run{color:var(--acc)}#twocode-ai-monitor .lv-row em.bad{color:var(--bad)}
+#twocode-ai-monitor .lv-answer{font-size:15px;line-height:22px;color:#fff;white-space:normal}
+#twocode-ai-monitor .lv-answer p{margin:0 0 8px}#twocode-ai-monitor .lv-answer p:last-child{margin:0}
+#twocode-ai-monitor .lv-answer code{font:13px "Cascadia Mono",Consolas,monospace;background:var(--g2);border-radius:6px;padding:1px 6px}
+#twocode-ai-monitor .lv-answer pre{margin:4px 0 8px;padding:10px 12px;border-radius:12px;background:var(--g1);font:12.5px/1.5 "Cascadia Mono",Consolas,monospace;white-space:pre-wrap}
+#twocode-ai-monitor .lv-limit{flex:none;display:flex;align-items:center;gap:10px;height:26px;font-size:12px;font-weight:600;color:var(--g)}
+#twocode-ai-monitor .lv-limit i{flex:1;max-width:220px;height:4px;border-radius:2px;background:var(--g3);overflow:hidden}
+#twocode-ai-monitor .lv-limit s{display:block;height:100%;background:#fff}
+#twocode-ai-monitor .lv-limit .ch-compose{flex:1}
+/* Claude needs you: a question, a plan or a permission, with two same-size buttons */
+#twocode-ai-monitor .lv-ask{flex:1;min-height:0;display:flex;flex-direction:column;margin-top:8px}
+#twocode-ai-monitor .lv-ask h3{margin:0;font-size:22px;line-height:28px;font-weight:650;letter-spacing:-.3px}
+#twocode-ai-monitor .lv-cmd{margin-top:10px;min-height:44px;border-radius:14px;background:var(--g1);display:flex;align-items:center;gap:10px;padding:10px 16px;font:500 14px "Cascadia Mono",Consolas,monospace;white-space:pre-wrap;word-break:break-all;max-height:84px;overflow:auto}
+#twocode-ai-monitor .lv-two{margin-top:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding-top:12px}
+#twocode-ai-monitor.cl-new .lv-two button{height:44px;font-size:15px;justify-content:center;border-radius:22px}
+#twocode-ai-monitor .lv-scroll{flex:1;min-height:0;overflow:auto;margin-top:8px;font-size:14px;line-height:21px;scrollbar-width:none}
+#twocode-ai-monitor.cl-new .am-option{display:flex;flex-direction:column;align-items:flex-start;height:auto;min-height:44px;width:100%;padding:8px 14px;border-radius:14px;background:var(--g1);text-align:left;margin-top:6px}
+#twocode-ai-monitor.cl-new .am-option.on{background:#fff;color:#000}
+#twocode-ai-monitor.cl-new .am-option small{font-weight:500;color:var(--g)}#twocode-ai-monitor.cl-new .am-option.on small{color:#3a3a3c}
+#twocode-ai-monitor.cl-new .am-note{height:40px;border:0;border-radius:20px;background:var(--g1);color:#fff;padding:0 16px;font:15px Inter,"Segoe UI",sans-serif;outline:none;flex:1}
+#twocode-ai-monitor.cl-new .ch-compose{display:flex;align-items:center;gap:8px;height:40px;border-radius:20px;background:var(--g1);padding:0 4px 0 16px}
+#twocode-ai-monitor.cl-new .ch-compose textarea{flex:1;height:22px;border:0;background:transparent;color:#fff;font:15px Inter,"Segoe UI",sans-serif;resize:none;outline:none;padding:0}
+#twocode-ai-monitor.cl-new .ch-compose #am-send{width:32px;height:32px;padding:0;justify-content:center;border-radius:50%;background:#fff;color:#000}
+#twocode-ai-monitor.cl-new .ch-model-menu{top:auto;bottom:34px;right:0;background:var(--g1);border:0;border-radius:16px;box-shadow:0 18px 44px rgba(0,0,0,.6)}
+#twocode-ai-monitor.cl-new .ch-model-menu button{height:auto;border-radius:12px;background:transparent}
+#twocode-ai-monitor.cl-new .ch-model-menu button:hover{background:var(--g2)}
+#twocode-ai-monitor.cl-new .ch-model-menu button.on{background:var(--g2)}
+#twocode-ai-monitor.cl-new .ch-model-menu button i{color:var(--acc)}
+#twocode-ai-monitor.cl-new .ch-model{height:26px;padding:0 10px;background:transparent;color:var(--g)}
+#twocode-ai-monitor.cl-new .ch-model:hover{background:var(--g2);color:#fff}
+/* v3, calm like Apple Music: white and grey, Claude's colour only on its cover, rounded rectangles instead of pills */
+#twocode-ai-monitor.cl-new{--acc:#ffffff;--ask:#ffffff}
+#twocode-ai-monitor .lv-ring{width:76px;height:76px;border-radius:10px;background:linear-gradient(135deg,#e08a6c,#9c4126);box-shadow:0 6px 18px rgba(0,0,0,.45)}
+#twocode-ai-monitor.cc-codex .lv-ring{background:linear-gradient(135deg,#3a3a3c,#141416)}
+#twocode-ai-monitor .lv-ring i{color:#fff}
+#twocode-ai-monitor .lv-who{font-size:12px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--g)}
+#twocode-ai-monitor .lv-hero .lv-title{font-size:24px;line-height:30px;font-weight:700;letter-spacing:-.3px}
+#twocode-ai-monitor .lv-clock{font-size:13px;font-weight:600;color:var(--g)}
+#twocode-ai-monitor .lv-prog{height:4px;border-radius:2px;background:var(--g3);margin-top:9px;overflow:hidden}
+#twocode-ai-monitor .lv-prog s{display:block;height:100%;border-radius:2px;background:#fff;transition:width .4s ease-out}
+#twocode-ai-monitor .lv-prog.live s{animation:lv-breathe 1.6s ease-in-out infinite}
+@keyframes lv-breathe{50%{opacity:.6}}
+#twocode-ai-monitor .lv-ic{border-radius:6px;background:var(--g2);color:#fff}
+#twocode-ai-monitor .lv-row em.run{color:#fff}
+#twocode-ai-monitor.cl-new button{border-radius:10px}
+#twocode-ai-monitor.cl-new .lv-two button{border-radius:10px}
+#twocode-ai-monitor.cl-new .lv-two .lv-no{background:var(--g2);color:#fff}
+#twocode-ai-monitor.cl-new .lv-two .lv-no:hover{background:var(--g3)}
+#twocode-ai-monitor.cl-new .lv-two .lv-yes{background:#fff;color:#000}
+#twocode-ai-monitor.cl-new .lv-two .lv-yes:hover{background:#e5e5ea}
+#twocode-ai-monitor .lv-cmd{border-radius:10px}
+#twocode-ai-monitor.cl-new .am-option,#twocode-ai-monitor.cl-new .am-note,#twocode-ai-monitor.cl-new .ch-compose{border-radius:10px}
+#twocode-ai-monitor.cl-new .ch-compose #am-send{border-radius:8px}
+#twocode-ai-monitor.cl-new .ch-model-menu{border-radius:12px}
+#twocode-ai-monitor.cl-new .ch-model-menu button{border-radius:8px}
+/* code live: on black, the changed lines red / green, line numbers, Xcode's dark syntax colours */
+#twocode-ai-monitor .lv-ring{width:60px;height:60px;border-radius:9px}
+#twocode-ai-monitor .lv-ring svg{width:28px;height:28px}
+#twocode-ai-monitor .lv-hero{gap:16px}
+#twocode-ai-monitor .lv-hero .lv-title{font-size:21px;line-height:26px}
+#twocode-ai-monitor .lv-hero .lv-sub{font-size:14px;line-height:18px}
+#twocode-ai-monitor .lv-code{font:500 12.5px/20px "Cascadia Mono",Consolas,monospace;color:#e5e5ea}
+#twocode-ai-monitor .lv-file{display:flex;align-items:center;gap:8px;height:24px;margin-bottom:4px;font:600 13px Inter,"Segoe UI",sans-serif;color:#fff}
+#twocode-ai-monitor .lv-file span{height:16px;padding:0 5px;border-radius:4px;background:#2c2c2e;font:700 9.5px/16px Inter,"Segoe UI",sans-serif;color:#aeaeb2;letter-spacing:.3px}
+#twocode-ai-monitor .lv-file em{margin-left:auto;font-style:normal;font-weight:500;font-size:12px;color:var(--g)}
+#twocode-ai-monitor .lv-ln{display:flex;align-items:center;height:20px;border-radius:4px;white-space:pre;overflow:hidden;animation:lv-line .35s cubic-bezier(.2,.8,.2,1) both}
+#twocode-ai-monitor .lv-ln:nth-child(3){animation-delay:.05s}#twocode-ai-monitor .lv-ln:nth-child(4){animation-delay:.1s}#twocode-ai-monitor .lv-ln:nth-child(5){animation-delay:.15s}#twocode-ai-monitor .lv-ln:nth-child(6){animation-delay:.2s}#twocode-ai-monitor .lv-ln:nth-child(7){animation-delay:.25s}
+@keyframes lv-line{from{opacity:0;transform:translateX(-6px)}}
+#twocode-ai-monitor .lv-ln i{flex:none;width:30px;padding-right:8px;text-align:right;font-style:normal;color:#636366}
+#twocode-ai-monitor .lv-ln b{flex:none;width:14px;font-weight:600}
+#twocode-ai-monitor .lv-ln code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;font:inherit}
+#twocode-ai-monitor .lv-ln.del{background:rgba(255,69,58,.13)}#twocode-ai-monitor .lv-ln.del b{color:#ff6961}#twocode-ai-monitor .lv-ln.del code{opacity:.75}
+#twocode-ai-monitor .lv-ln.add{background:rgba(50,215,75,.12)}#twocode-ai-monitor .lv-ln.add b{color:#32d74b}
+#twocode-ai-monitor .sx-k{color:#ff7ab2;font-weight:600}#twocode-ai-monitor .sx-s{color:#ff8170}#twocode-ai-monitor .sx-n{color:#d9c97c}#twocode-ai-monitor .sx-c{color:#7f8c98}#twocode-ai-monitor .sx-t{color:#5dd8ff}
+#twocode-ai-monitor .lv-term .lv-file span{background:transparent;padding:0;font:600 13px "Cascadia Mono",Consolas,monospace;color:#32d74b}
+#twocode-ai-monitor .lv-term .lv-file{font:600 13px "Cascadia Mono",Consolas,monospace}
+#twocode-ai-monitor .lv-out{height:20px;white-space:pre;overflow:hidden;text-overflow:ellipsis;color:#aeaeb2;animation:lv-line .3s ease-out both}
+#twocode-ai-monitor .lv-out.bad{color:#ff6961}#twocode-ai-monitor .lv-out.dim{color:#636366}
+/* compact (notch-app size) */
+#twocode-ai-monitor .lv-ring{width:48px;height:48px;border-radius:9px}
+#twocode-ai-monitor .lv-ring svg{width:22px;height:22px}
+#twocode-ai-monitor .lv-hero{gap:12px}
+#twocode-ai-monitor .lv-who{font-size:10px}
+#twocode-ai-monitor .lv-hero .lv-title{font-size:15px;line-height:19px;font-weight:600;letter-spacing:0}
+#twocode-ai-monitor .lv-hero .lv-sub{font-size:12px;line-height:16px}
+#twocode-ai-monitor .lv-clock{font-size:11px}
+#twocode-ai-monitor .lv-prog{height:3px;margin-top:6px}
+#twocode-ai-monitor .lv-list{margin-top:8px}
+#twocode-ai-monitor .lv-row{height:30px;gap:10px}
+#twocode-ai-monitor .lv-ic{width:20px;height:20px;border-radius:5px}
+#twocode-ai-monitor .lv-row b{font-size:12px}
+#twocode-ai-monitor .lv-row em,#twocode-ai-monitor .lv-cap{font-size:11px}
+#twocode-ai-monitor .lv-answer{font-size:13px;line-height:19px}
+#twocode-ai-monitor .lv-code{font-size:11.5px;line-height:18px}
+#twocode-ai-monitor .lv-file{height:20px;font-size:12px;margin-bottom:2px}
+#twocode-ai-monitor .lv-ln{height:18px}
+#twocode-ai-monitor .lv-out{height:18px}
+#twocode-ai-monitor .lv-limit{height:22px;font-size:11px}
+#twocode-ai-monitor .lv-cmd{margin-top:8px;min-height:34px;padding:7px 12px;font-size:12px;border-radius:9px}
+#twocode-ai-monitor .lv-two{gap:8px;padding-top:8px}
+#twocode-ai-monitor.cl-new .lv-two button{height:32px;font-size:13px;border-radius:9px}
+#twocode-ai-monitor.cl-new button{height:28px;font-size:12px}
+#twocode-ai-monitor.cl-new .am-shell{padding:0 16px 4px}
+/* v10: the glow (black at the top, the state's colour rising from the bottom), a big number left, a frosted card right */
+@keyframes cp-turn{to{transform:rotate(360deg)}}
+@keyframes cp-in{from{opacity:0;transform:translateY(4px)}}
+@keyframes cp-run{to{transform:translateX(122%)}}
+@keyframes cp-shine{from{background-position:100% 0}to{background-position:-100% 0}}
+#twocode-ai-monitor.cl-new .gl-main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:20px;align-items:center;margin-top:2px}
+#twocode-ai-monitor.cl-new .gl-l{min-width:0}
+#twocode-ai-monitor.cl-new .gl-tile{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px;font-weight:600;color:rgba(255,255,255,.82);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#twocode-ai-monitor.cl-new .gl-tile span{flex:none;width:22px;height:22px;border-radius:6px;display:grid;place-items:center;color:#fff;background:linear-gradient(150deg,#eba184,#b54e2c);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+#twocode-ai-monitor.cc-codex .gl-tile span{background:linear-gradient(150deg,#6b9bff,#1d4fd8)}
+#twocode-ai-monitor.cl-new .gl-tile span.live svg{animation:cp-turn 7s linear infinite}
+#twocode-ai-monitor.cl-new .gl-big{margin:0;font-size:56px;line-height:52px;font-weight:700;letter-spacing:-2.6px;font-variant-numeric:tabular-nums;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#twocode-ai-monitor.cl-new .gl-big.word{font-size:38px;line-height:42px;letter-spacing:-1.4px}
+#twocode-ai-monitor.cl-new .gl-sub{margin:6px 0 0;font-size:13px;line-height:17px;color:rgba(255,255,255,.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#twocode-ai-monitor.cl-new .gl-card{min-width:0;max-height:136px;overflow:hidden;box-sizing:border-box;border-radius:14px;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);backdrop-filter:blur(14px);padding:10px 12px;display:flex;flex-direction:column;animation:cp-in .3s cubic-bezier(.2,.8,.2,1) both}
+#twocode-ai-monitor.cl-new .gl-cap{margin:0 0 2px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(255,255,255,.55)}
+#twocode-ai-monitor.cl-new .gl-row{display:flex;align-items:center;gap:9px;height:26px;min-width:0;flex:none}
+#twocode-ai-monitor.cl-new .gl-row b{flex:none;font-size:12.5px;font-weight:600;color:#fff}
+#twocode-ai-monitor.cl-new .gl-row code{flex:1;min-width:0;font:500 11.5px "Cascadia Mono",Consolas,monospace;color:rgba(255,255,255,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#twocode-ai-monitor.cl-new .gl-row.d b{color:rgba(255,255,255,.62)}
+#twocode-ai-monitor.cl-new .gl-row .ic{flex:none;width:20px;height:20px;border-radius:6px;display:grid;place-items:center;background:rgba(255,255,255,.12);color:#fff;font-style:normal}
+#twocode-ai-monitor.cl-new .gl-spin{flex:none;width:13px;height:13px;box-sizing:border-box;border-radius:50%;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;animation:cp-turn .8s linear infinite}
+#twocode-ai-monitor.cl-new .gl-ok{flex:none;display:grid;color:rgba(255,255,255,.55)}
+#twocode-ai-monitor.cl-new .gl-row.h b{flex:1;min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#twocode-ai-monitor.cl-new .gl-row.h em{flex:none;font-style:normal;font-size:11px;color:rgba(255,255,255,.6);font-variant-numeric:tabular-nums}
+#twocode-ai-monitor.cl-new .gl-dot{flex:none;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:9px;font-weight:800;background:rgba(255,255,255,.15);color:#fff}
+#twocode-ai-monitor.cl-new .gl-dot.ok{background:#30d158;color:#000}#twocode-ai-monitor.cl-new .gl-dot.bad{background:#ff453a;color:#000}#twocode-ai-monitor.cl-new .gl-dot.ask{background:#ffd60a;color:#000}
+#twocode-ai-monitor.cl-new .gl-md{min-height:0;overflow:auto;scrollbar-width:none;font-size:12.5px;line-height:18px;color:#fff}
+#twocode-ai-monitor.cl-new .gl-md p{margin:0 0 6px}#twocode-ai-monitor.cl-new .gl-md p:last-child{margin:0}#twocode-ai-monitor.cl-new .gl-md ul,#twocode-ai-monitor.cl-new .gl-md ol{margin:0 0 6px;padding-left:18px}
+#twocode-ai-monitor.cl-new .gl-md code{font:11.5px "Cascadia Mono",Consolas,monospace;background:rgba(255,255,255,.14);border-radius:5px;padding:1px 5px}
+#twocode-ai-monitor.cl-new .gl-md pre{margin:4px 0 6px;padding:8px 10px;border-radius:8px;background:rgba(0,0,0,.35);font:11.5px/1.5 "Cascadia Mono",Consolas,monospace;white-space:pre-wrap}
+#twocode-ai-monitor.cl-new .gl-think p{margin:0;font-size:13px;line-height:18px;color:#fff;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#twocode-ai-monitor.cl-new .gl-think span{display:inline-block;align-self:flex-start;margin-top:6px;font-size:12px;font-weight:600;background:linear-gradient(90deg,rgba(255,255,255,.4) 20%,#fff 50%,rgba(255,255,255,.4) 80%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:cp-shine 1.8s linear infinite}
+#twocode-ai-monitor.cl-new .gl-empty{font-size:12.5px;line-height:18px;color:rgba(255,255,255,.8)}
+#twocode-ai-monitor.cl-new .gl-cmd{max-height:100%;overflow:auto;scrollbar-width:none;font:500 12px/18px "Cascadia Mono",Consolas,monospace;color:#fff;white-space:pre-wrap;word-break:break-all}
+#twocode-ai-monitor.cl-new .gl-cmd span{color:#7dffa0;margin-right:8px}
+#twocode-ai-monitor.cl-new .gl-card .lv-file{color:#fff;margin-bottom:4px}#twocode-ai-monitor.cl-new .gl-card .lv-file em{color:rgba(255,255,255,.6)}#twocode-ai-monitor.cl-new .gl-card .lv-file span{background:rgba(255,255,255,.14);color:#fff}
+#twocode-ai-monitor.cl-new .gl-card .lv-ln i{color:rgba(255,255,255,.45)}#twocode-ai-monitor.cl-new .gl-card .lv-out{color:rgba(255,255,255,.75)}#twocode-ai-monitor.cl-new .gl-card .lv-out.dim{color:rgba(255,255,255,.5)}
+#twocode-ai-monitor.cl-new .gl-foot{flex:none;position:relative;display:flex;align-items:center;gap:12px;height:32px;margin-top:10px}
+#twocode-ai-monitor.cl-new .gl-tools{margin-left:auto;flex:none;display:flex;gap:6px}
+#twocode-ai-monitor.cl-new .gl-steps{flex:1;min-width:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+#twocode-ai-monitor.cl-new .gl-steps i{position:relative;display:block;height:4px;border-radius:2px;background:rgba(255,255,255,.2);overflow:hidden}
+#twocode-ai-monitor.cl-new .gl-steps .d i{background:#fff}
+#twocode-ai-monitor.cl-new .gl-steps .n i::after{content:"";position:absolute;left:0;top:0;bottom:0;width:45%;border-radius:2px;background:#fff;animation:cp-run 1.3s ease-in-out infinite alternate}
+#twocode-ai-monitor.cl-new .gl-steps span{display:block;margin-top:5px;font-size:11px;line-height:13px;font-weight:500;color:rgba(255,255,255,.5)}
+#twocode-ai-monitor.cl-new .gl-steps .d span{color:rgba(255,255,255,.72)}#twocode-ai-monitor.cl-new .gl-steps .n span{color:#fff;font-weight:600}
+#twocode-ai-monitor.cl-new .gl-steps.done div:last-child span{color:#fff;font-weight:600}
+#twocode-ai-monitor.cl-new .gl-steps.bad .n i{background:#fff}#twocode-ai-monitor.cl-new .gl-steps.bad .n i::after{display:none}
+#twocode-ai-monitor.cl-new .gl-chip{height:26px;padding:0 10px;border:0;border-radius:8px;background:rgba(255,255,255,.13);color:#fff;font:600 11.5px Inter,"Segoe UI",sans-serif;display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+#twocode-ai-monitor.cl-new .gl-chip:hover{background:rgba(255,255,255,.22)}
+#twocode-ai-monitor.cl-new .gl-chip em,#twocode-ai-monitor.cl-new .gl-chip span{font-style:normal;font-weight:500;color:rgba(255,255,255,.65)}
+#twocode-ai-monitor.cl-new .gl-limit{flex:1;min-width:0;display:flex;align-items:center;gap:10px;font-size:11.5px;font-weight:600;color:rgba(255,255,255,.75)}
+#twocode-ai-monitor.cl-new .gl-limit i{flex:1;max-width:200px;height:4px;border-radius:2px;background:rgba(255,255,255,.2);overflow:hidden}
+#twocode-ai-monitor.cl-new .gl-limit s{display:block;height:100%;border-radius:2px;background:#fff}
+#twocode-ai-monitor.cl-new .gl-limit b{color:#fff;font-variant-numeric:tabular-nums}
+#twocode-ai-monitor.cl-new .gl-compose{flex:1;height:32px;padding:0 3px 0 12px;border-radius:10px;background:rgba(255,255,255,.13)}
+#twocode-ai-monitor.cl-new .gl-compose textarea{height:18px;font-size:13px;color:#fff}
+#twocode-ai-monitor.cl-new .gl-compose textarea::placeholder{color:rgba(255,255,255,.55)}
+#twocode-ai-monitor.cl-new .gl-compose #am-send{width:26px;height:26px;border-radius:7px;background:#fff;color:#000}
+#twocode-ai-monitor.cl-new .gl-two{flex:none;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+#twocode-ai-monitor.cl-new .gl-two button{height:34px;border:0;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:6px;font:600 13px Inter,"Segoe UI",sans-serif;cursor:pointer}
+#twocode-ai-monitor.cl-new .gl-two .gl-no{background:rgba(255,255,255,.14);color:#fff}#twocode-ai-monitor.cl-new .gl-two .gl-no:hover{background:rgba(255,255,255,.22)}
+#twocode-ai-monitor.cl-new .gl-two .gl-yes{background:#fff;color:#000}#twocode-ai-monitor.cl-new .gl-two .gl-yes:hover{background:#e5e5ea}
+#twocode-ai-monitor.cl-new .gl-two button:active{transform:scale(.98)}
+#twocode-ai-monitor.cl-new .gl-col{flex:1;min-height:0;display:flex;flex-direction:column}
+#twocode-ai-monitor.cl-new .gl-col .gl-tile{margin:4px 0 4px}
+#twocode-ai-monitor.cl-new .gl-title{margin:0 0 8px;font-size:20px;line-height:24px;font-weight:700;letter-spacing:-.4px;color:#fff}
+#twocode-ai-monitor.cl-new .gl-col .gl-card{max-height:none}
+#twocode-ai-monitor.cl-new .gl-scroll{flex:1;min-height:0;overflow:auto;scrollbar-width:none}
+#twocode-ai-monitor.cl-new .gl-note{flex:none;margin-top:8px;height:32px;border:0;border-radius:10px;background:rgba(255,255,255,.13);color:#fff;padding:0 12px;font:13px Inter,"Segoe UI",sans-serif;outline:none}
+@media(prefers-reduced-motion:reduce){#twocode-ai-monitor.cl-new .gl-tile span.live svg,#twocode-ai-monitor.cl-new .gl-steps .n i::after,#twocode-ai-monitor.cl-new .gl-think span,#twocode-ai-monitor.cl-new .gl-card{animation:none}}
 @media(prefers-reduced-motion:reduce){#twocode-ai-monitor .ch-typing i{animation:none}#twocode-ai-monitor .cx-light i.blink,#twocode-ai-monitor .am-blink,#twocode-ai-monitor .am-wave{animation:none}}
 `; document.head.appendChild(style);
   const escape = text => String(text || '').replace(/[&<>"']/g, x => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[x]));
@@ -458,7 +674,7 @@
   const NOW_EN = { read: 'Reading', edit: 'Editing', run: 'Running', search: 'Searching', web: 'Searching the web', agent: 'Helper working', other: 'Working' };
   const PAST_EN = { read: 'Read', edit: 'Edited', run: 'Ran', search: 'Searched', web: 'Searched the web', agent: 'Helper done', other: 'Done' };
   const NOW = new Proxy({}, { get: (_, k) => (EN() ? NOW_EN : NOW_NL)[k] }), PAST = new Proxy({}, { get: (_, k) => (EN() ? PAST_EN : PAST_NL)[k] });
-  const clock = sec => sec < 60 ? `${sec}s` : `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+  const clock = sec => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; // 0:42, 2:07 (like a timer)
   const shortWhat = (kind, what) => !what ? '' : ['read', 'edit'].includes(kind) ? what.split(/[\\/]/).pop() : what.replace(/\s+/g, ' ');
   // Live timer: the page is only rebuilt on events, so this ticks the seconds in between.
   setInterval(() => {
@@ -471,14 +687,42 @@
   let modelMenu = false;
   function modelPicker(p) {
     const current = p.model || 'default', label = (current === 'default' ? T('Standaard', 'Default') : null) || MODEL_INFO[current]?.[0] || String(current).replace(/^custom:/, '');
-    const button = `<button type="button" class="ch-model" id="am-model" aria-expanded="${modelMenu}" title="Kies welk Claude-model Claude Code gebruikt">${svg('agent', 12)}${escape(label)}<span>▾</span></button>`;
+    const button = `<button type="button" class="ch-model gl-chip" id="am-model" aria-expanded="${modelMenu}" title="Kies welk Claude-model Claude Code gebruikt"><em>Model</em>${escape(label)}<span>▾</span></button>`;
     const menu = !modelMenu ? '' : `<div class="ch-model-menu" role="menu"><div class="ch-model-head">Welk model gebruikt Claude?${p.modelNow ? `<small>Nu in gebruik: ${escape(p.modelNow)}</small>` : ''}</div>${
       Object.entries(MODEL_INFO).map(([key, [name, info]]) => `<button type="button" role="menuitemradio" aria-checked="${key === current}" class="${key === current ? 'on' : ''}" data-model="${key}"><b>${name}</b><small>${info}</small>${key === current ? '<i>✓</i>' : ''}</button>`).join('')
     }<p>Voor nieuwe sessies · in een lopend gesprek: <code>/model</code></p></div>`;
     return { button, menu };
   }
 
+  // Code live (like an editor): the lines Claude changes, red out / green in, with line numbers and Xcode's dark colours.
+  const KEYWORDS = /^(const|let|var|function|return|import|export|from|default|if|else|for|while|of|in|class|new|async|await|try|catch|throw|def|self|elif|None|True|False|true|false|null|undefined|this|type|interface|public|private|static|void|int|string|bool)$/;
+  function syntax(line) {
+    const out = [], re = /(\/\/.*$|#\s.*$)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_$][\w$]*)/g;
+    let last = 0, m;
+    while ((m = re.exec(line))) {
+      out.push(escape(line.slice(last, m.index)));
+      const [all, comment, str, num, word] = m;
+      out.push(comment ? `<span class="sx-c">${escape(all)}</span>` : str ? `<span class="sx-s">${escape(all)}</span>` : num ? `<span class="sx-n">${escape(all)}</span>`
+        : KEYWORDS.test(word) ? `<span class="sx-k">${escape(all)}</span>` : /^[A-Z]/.test(word) ? `<span class="sx-t">${escape(all)}</span>` : escape(all));
+      last = m.index + all.length;
+    }
+    out.push(escape(line.slice(last)));
+    return out.join('');
+  }
+  function codePanel(code, max = 6) {
+    let del = code.start || 1, add = code.start || 1;
+    const rows = (code.lines || []).slice(0, max).map(l => { const n = l.t === '-' ? del++ : add++;
+      return `<div class="lv-ln ${l.t === '-' ? 'del' : 'add'}"><i>${n}</i><b>${l.t === '-' ? '−' : '+'}</b><code>${syntax(l.text)}</code></div>`; }).join('');
+    const ext = (/\.([a-z0-9]{1,4})$/i.exec(code.file || '')?.[1] || '').toUpperCase();
+    return `<div class="lv-code"><div class="lv-file">${ext ? `<span>${escape(ext)}</span>` : ''}${escape(code.file || '')}<em>${T('wordt aangepast', 'being edited')}</em></div>${rows}</div>`;
+  }
+  function termPanel(run) {
+    const out = (run.out || []).slice(-3).map((l, i, all) => `<div class="lv-out${run.failed && i === all.length - 1 ? ' bad' : ''}">${escape(l)}</div>`).join('') || `<div class="lv-out dim">${T('Bezig…', 'Running…')}</div>`;
+    return `<div class="lv-code lv-term"><div class="lv-file"><span>$</span>${escape(run.command)}</div>${out}</div>`;
+  }
+  let claudeTall = false; // the page grows a little while it shows code or the terminal
   function hooksPage(p) {
+    claudeTall = false;
     const off = pending ? 'disabled' : '';
     const st = p.permission ? 'question' : p.state;
     const project = p.source?.title && p.source.title !== 'Geen actieve sessie' ? p.source.title : '';
@@ -500,47 +744,67 @@
           : `<button type="button" class="am-primary" id="am-open-connect">Koppelen in TwoCode</button><p class="am-hint">Eén schakelaar in TwoCode → Verbindingen. Daarna doet TwoCode de rest.</p>`}</div>`;
     }
 
-    // ---- the conversation, like the Claude app: you on the right, Claude on the left ----
-    const msgs = [];
-    if (p.prompt) msgs.push(`<div class="ch-row me"><div class="ch-bubble me">${escape(p.prompt)}</div></div>`);
-    const steps = (p.steps || []).slice(-6);
-    if (steps.length) msgs.push(`<div class="ch-steps">${steps.map(s => `<div class="ch-step ${s.state}"><span class="ch-ico">${svg(s.kind, 12)}</span><em>${(s.state === 'running' ? NOW : PAST)[s.kind] || PAST.other}</em><small>${escape(shortWhat(s.kind, s.what))}</small>${s.state === 'running' ? '<b class="cc-spin"></b>' : s.state === 'failed' ? '<b class="cx-bad">✕</b>' : '<b class="cx-ok">✓</b>'}</div>`).join('')}</div>`);
-    const claude = (inner, cls = '') => `<div class="ch-row"><span class="ch-avatar">${svg('run', 13)}</span><div class="ch-bubble ${cls}">${inner}</div></div>`;
-    if (p.ask) msgs.push(claude(askForm(p), 'wide'));
-    else if (p.plan) msgs.push(claude(`<div class="ch-label">Plan</div><div class="am-plan">${planHtml(p.plan)}</div><div class="cc-actions"><button type="button" class="am-primary" id="am-plan-ok" ${off}>Goedkeuren</button><input id="am-plan-note" class="am-note" maxlength="4000" placeholder="Wat moet er anders?"><button type="button" id="am-plan-no" ${off}>Aanpassen</button></div>`, 'wide'));
-    else if (p.permission) msgs.push(claude(`<div class="ch-label">${T('Mag ik dit doen?', 'May I do this?')}</div><b>${escape(p.permission.tool)}</b>${p.permission.what ? `<code class="cx-code">${escape(p.permission.what)}</code>` : ''}<div class="cc-actions"><button type="button" class="am-primary" id="am-allow" ${off}>${T('Toestaan', 'Allow')}</button><button type="button" id="am-deny" ${off}>${T('Weigeren', 'Deny')}</button></div>`, 'wide'));
-    else if (st === 'question') msgs.push(claude(md(p.question || p.lastMessage || 'Claude heeft je nodig in de terminal.'), 'ask md'));
-    else if (st === 'done' && p.lastMessage) msgs.push(claude(md(p.lastMessage), 'md'));
-    else if (st === 'error' || st === 'stopped') msgs.push(claude(`<b>${escape(p.detail || 'Er ging iets mis')}</b><br><span class="ch-dim">Kijk in de terminal wat er misging.</span>`, 'error'));
-    else if (busy(p)) msgs.push(claude(`<span class="ch-typing"><i></i><i></i><i></i></span><span class="ch-dim">${escape(EN() ? ((s => s ? `${NOW[s.kind] || 'Working'} ${shortWhat(s.kind, s.what)}` : 'Claude is working')((p.steps || []).filter(x => x.state === 'running').pop())) : (p.detail || 'Claude is bezig'))}</span>`, 'typing'));
-    // ---- always a summary at the end: what Claude did, which files changed ----
-    if (['done', 'error', 'stopped'].includes(st) || (st === 'question' && !p.ask && !p.plan && !p.permission)) {
-      const n = p.stats || {}, chip = (icon, count, one, many) => count ? `<span>${svg(icon, 12)}${count} ${count === 1 ? one : many}</span>` : '';
-      const chips = EN() ? [chip('edit', n.edit, 'file edited', 'files edited'), chip('read', n.read, 'file read', 'files read'), chip('run', n.run, 'command', 'commands'), chip('search', (n.search || 0) + (n.web || 0), 'search', 'searches')].join('')
-        : [chip('edit', n.edit, 'bestand bewerkt', 'bestanden bewerkt'), chip('read', n.read, 'bestand gelezen', 'bestanden gelezen'),
-        chip('run', n.run, 'opdracht', 'opdrachten'), chip('search', (n.search || 0) + (n.web || 0), 'keer gezocht', 'keer gezocht')].join('');
-      const head = st === 'done' ? `<b class="ok">✓ ${T('Klaar', 'Done')}</b>` : st === 'question' ? `<b class="ask">● ${T('Wacht op jou', 'Waiting for you')}</b>` : `<b class="bad">✕ ${T('Gestopt met een fout', 'Stopped with an error')}</b>`;
-      const files = (p.files || []).length ? `<div class="ch-sum-files"><small>${T('Gewijzigd', 'Changed')}</small>${p.files.map(f => `<code>${escape(f)}</code>`).join('')}</div>` : '';
-      msgs.push(`<div class="ch-summary"><div class="ch-sum-head"><span class="ch-sum-title">${T('Samenvatting', 'Summary')}</span>${head}</div>${chips ? `<div class="ch-sum-chips">${chips}</div>` : `<div class="ch-sum-chips"><span>${T('Geen bestanden aangeraakt', 'No files touched')}</span></div>`}${files}</div>`);
+    // ---- the glow, like the music page: black at the top, the colour of what happens rising from the bottom (glowOf, drawn
+    // on the island). Left one big thing (the time, or how many jobs today), right a frosted card with what happens now
+    // (the code, the terminal, the steps, his answer, his question); at the bottom how far he is. ----
+    const steps = p.steps || [], working = busy(p), failed = ['error', 'stopped'].includes(st);
+    const idle = !working && !p.prompt && !['done', 'question', 'error', 'stopped'].includes(st);
+    const MARK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 4v16M4 12h16M6.3 6.3l11.4 11.4M17.7 6.3 6.3 17.7"/></svg>';
+    const CHECK = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7"/></svg>';
+    const CROSS = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+    const where = escape(project || p.name);
+    const tile = `<div class="gl-tile"><span class="${working ? 'live' : ''}">${MARK}</span>${where}</div>`;
+    const two = (noId, noLabel, yesId, yesLabel) => `<div class="gl-two"><button type="button" class="gl-no" id="${noId}" ${off}>${noLabel}</button><button type="button" class="gl-yes" id="${yesId}" ${off}>${yesLabel}</button></div>`;
+    // Claude needs you: the question big on the left, what he wants to do in the card, two same-size buttons
+    if (p.permission || p.ask || p.plan) {
+      const lastAsk = steps[steps.length - 1], editAsk = p.permission && p.code && lastAsk?.kind === 'edit' && lastAsk.state === 'running';
+      claudeTall = Boolean(editAsk || p.plan || p.ask);
+      if (p.permission && !p.ask && !p.plan) return `<div class="gl-main"><div class="gl-l">${tile}<p class="gl-big word">${T('Mag dit?', 'May I?')}</p><p class="gl-sub">${escape(p.permission.tool || T('Claude wil iets doen', 'Claude wants to do something'))}</p></div>`
+        + `<div class="gl-card">${editAsk ? codePanel(p.code, 6) : `<div class="gl-cmd"><span>$</span>${escape(p.permission.what || p.permission.tool)}</div>`}</div></div>`
+        + two('am-deny', CROSS + T('Weigeren', 'Deny'), 'am-allow', CHECK + T('Toestaan', 'Allow'));
+      if (p.plan) return `<div class="gl-col">${tile}<p class="gl-title">${T('Claude heeft een plan', 'Claude has a plan')}</p><div class="gl-card gl-scroll am-plan">${planHtml(p.plan)}</div>`
+        + `<input id="am-plan-note" class="gl-note" maxlength="4000" placeholder="${T('Wat moet er anders? (mag leeg)', 'What should change? (optional)')}">${two('am-plan-no', T('Aanpassen', 'Change it'), 'am-plan-ok', T('Goedkeuren', 'Approve'))}</div>`;
+      return `<div class="gl-col">${tile}<p class="gl-title">${T('Claude vraagt iets', 'Claude asks something')}</p><div class="gl-card gl-scroll">${askForm(p)}</div></div>`;
     }
-    const past = (state.history || []).filter(h => (h.agent || 'claude') === (p.agent || 'claude')).slice(0, 8);
-    if (!msgs.length && past.length) {
-      const when = at => { const d = new Date(at), today = new Date().toDateString() === d.toDateString(); return (today ? '' : d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' }) + ' · ') + d.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }); };
-      const RES = { done: ['✓', 'Klaar'], question: ['●', 'Vraag'], error: ['✕', 'Fout'] };
-      msgs.push(`<div class="ch-hist-title">Wat ${escape(p.name)} laatst voor je deed</div>` + past.slice().reverse().map(h => { // oldest first: the newest sits at the bottom, in view
-        const [mark, word] = RES[h.result] || ['•', ''], extra = [h.project, h.files ? `${h.files} bestand${h.files === 1 ? '' : 'en'}` : '', h.seconds ? (h.seconds >= 60 ? Math.round(h.seconds / 60) + ' min' : h.seconds + ' s') : ''].filter(Boolean).join(' · ');
-        return `<div class="ch-hist"><span class="ch-hist-mark ${escape(h.result)}">${mark}</span><div><b>${escape(h.prompt)}</b><small>${escape(when(h.at))}${extra ? ' · ' + escape(extra) : ''}</small></div><i class="${escape(h.result)}">${word}</i></div>`;
-      }).join(''));
+    const phase = st === 'done' ? 3 : steps.reduce((m, x) => Math.max(m, x.kind === 'edit' ? 1 : x.kind === 'run' ? 2 : 0), 0);
+    const doing = !steps.length ? T('Denkt na', 'Thinking') : [T('Code lezen', 'Reading code'), T('Aanpassen', 'Making changes'), T('Tests draaien', 'Running tests')][Math.min(2, phase)];
+    const past = (state.history || []).filter(h => (h.agent || 'claude') === (p.agent || 'claude'));
+    const today = past.filter(h => new Date(h.at).toDateString() === new Date().toDateString() && h.result === 'done').length;
+    const five = p.usage?.fiveHour, lastStep = steps[steps.length - 1];
+    const RES = { done: ['ok', CHECK], question: ['ask', '?'], error: ['bad', '!'], stopped: ['bad', '!'] };
+    let big, word = false, sub, card;
+    if (idle) {
+      big = String(today); sub = T(today === 1 ? 'klus gedaan vandaag' : 'klussen gedaan vandaag', today === 1 ? 'job done today' : 'jobs done today');
+      card = past.length ? `<p class="gl-cap">${T('Laatst gedaan', 'Recently')}</p>` + past.slice(0, 3).map(h => { const [cls, g] = RES[h.result] || ['', '•'];
+        return `<div class="gl-row h"><i class="gl-dot ${cls}">${g}</i><b>${escape(h.prompt)}</b><em>${escape(new Date(h.at).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }))}</em></div>`; }).join('')
+        : `<div class="gl-empty">${T(`Geef ${escape(p.name)} een klus in je terminal. Hier zie je dan live wat hij doet: de code, de tests en zijn antwoord.`, `Give ${escape(p.name)} a job in your terminal. You'll see what it does here, live: the code, the tests and its answer.`)}</div>`;
+    } else if (st === 'question') {
+      big = T('Jouw beurt', 'Your turn'); word = true; sub = T('Claude wacht op je antwoord', 'Claude is waiting for you');
+      card = `<div class="gl-md md">${md(p.question || p.lastMessage || T('Claude heeft je nodig in de terminal.', 'Claude needs you in the terminal.'))}</div>`;
+    } else if (st === 'done') {
+      big = p.elapsed ? clock(p.elapsed) : T('Klaar', 'Done'); word = !p.elapsed; sub = T('Klaar · alle stappen gedaan', 'Done · every step');
+      card = `<div class="gl-md md">${p.lastMessage ? md(p.lastMessage) : T('Klaar. Zijn antwoord staat in de terminal.', 'Done. The answer is in the terminal.')}</div>`;
+    } else if (failed) {
+      big = T('Gestopt', 'Stopped'); word = true; sub = escape(p.detail || T('Er ging iets mis', 'Something went wrong'));
+      card = `<div class="gl-md"><b>${escape(p.detail || T('Er ging iets mis', 'Something went wrong'))}</b><br>${T('Kijk in de terminal wat er misging.', 'Check the terminal to see what went wrong.')}</div>`;
+    } else {
+      big = `<span class="cx-timer" data-live="1" data-base="${p.elapsed || 0}" data-at="${Date.now()}">${clock(p.elapsed || 0)}</span>`;
+      sub = `${doing} · ${T(`stap ${Math.min(4, phase + 1)} van 4`, `step ${Math.min(4, phase + 1)} of 4`)}`;
+      card = lastStep?.kind === 'edit' && p.code ? codePanel(p.code, 3)
+        : lastStep?.kind === 'run' && p.run ? termPanel(p.run)
+        : !steps.length ? `<div class="gl-think">${p.prompt ? `<p>“${escape(p.prompt)}”</p>` : ''}<span>${T('Claude denkt na…', 'Claude is thinking…')}</span></div>`
+        : steps.slice(-3).map(x => { const now = x.state === 'running';
+          return `<div class="gl-row${now ? '' : ' d'}"><i class="ic">${svg(x.kind, 12)}</i><b>${(now ? NOW : PAST)[x.kind] || ''}</b><code>${escape(shortWhat(x.kind, x.what))}</code>${now ? '<span class="gl-spin"></span>' : `<span class="gl-ok">${CHECK}</span>`}</div>`; }).join('');
     }
-    if (!msgs.length) msgs.push(`<div class="ch-empty">${svg('run', 26)}<b>Nog geen gesprek</b><span>Typ iets in ${escape(p.name)}. Hier zie je het gesprek live meelopen.</span></div>`);
-
-    // ---- bottom: reply box (when Claude waits for you) or a small limit line ----
-    const u = p.usage?.fiveHour;
-    const limit = u ? `<span class="ch-limit">5-uurslimiet <b>${u.used}%</b><i><s style="width:${Math.min(100, u.used)}%;background:${ringColour(u.used)}"></s></i></span>` : '';
-    const footer = p.canReply && !p.ask && !p.plan && !p.permission
-      ? `<div class="ch-compose"><textarea id="am-answer" maxlength="5000" placeholder="${st === 'question' ? T('Jouw antwoord…', 'Your answer…') : T('Typ iets voor Claude…', 'Type something for Claude…')}" aria-label="Bericht aan Claude Code"></textarea><button type="button" class="am-primary" id="am-send" aria-label="Stuur" title="Stuur (Enter)">↑</button></div>`
-      : `<div class="ch-foot"><span>${busy(p) ? T('Claude werkt. Je krijgt een seintje als hij klaar is.', 'Claude is working. You get a ping when he is done.') : st === 'done' ? T('Verder praten? Typ in je terminal.', 'Keep going? Type in your terminal.') : ''}</span>${limit}</div>`;
-    return head + `<div class="ch-chat"><div class="ch-inner">${msgs.join('')}</div></div>${footer}`; // column-reverse: always shows the newest message
+    const PH = [T('Lezen', 'Read'), T('Aanpassen', 'Edit'), T('Testen', 'Test'), T('Klaar', 'Done')];
+    const stepBar = `<div class="gl-steps${st === 'done' ? ' done' : failed ? ' bad' : ''}">${PH.map((label, i) => {
+      const cls = st === 'done' || i < phase ? 'd' : i === phase && (working || failed) ? 'n' : ''; return `<div class="${cls}"><i></i><span>${label}</span></div>`; }).join('')}</div>`;
+    const compose = p.canReply && !p.ask && !p.plan && !p.permission
+      ? `<div class="ch-compose gl-compose"><textarea id="am-answer" maxlength="5000" placeholder="${st === 'question' ? T('Jouw antwoord…', 'Your answer…') : T('Typ iets voor Claude…', 'Type something for Claude…')}" aria-label="${T('Bericht aan Claude Code', 'Message to Claude Code')}"></textarea><button type="button" id="am-send" aria-label="${T('Stuur', 'Send')}" title="${T('Stuur (Enter)', 'Send (Enter)')}">↑</button></div>` : '';
+    const limit = five ? `<div class="gl-limit">${T('5-uurslimiet', '5-hour limit')}<i><s style="width:${Math.min(100, five.used)}%"></s></i><b>${five.used}%</b></div>` : '<span></span>';
+    const term = p.canJump ? `<button type="button" class="gl-chip" id="am-jump" title="${T('Breng de terminal naar voren', 'Bring the terminal to the front')}">Terminal<em>↗</em></button>` : '';
+    const foot = `<div class="gl-foot">${idle ? limit : compose || stepBar}<span class="gl-tools">${idle ? picker.button : ''}${term}</span>${idle ? picker.menu : ''}</div>`;
+    return `<div class="gl-main"><div class="gl-l">${tile}<p class="gl-big${word ? ' word' : ''}">${big}</p><p class="gl-sub">${sub}</p></div><div class="gl-card">${card}</div></div>${foot}`;
   }
   // "Gelezen 3 · bewerkt 2 · opdrachten 1" for this turn.
   function statsLine(stats = {}) {
@@ -553,9 +817,9 @@
   function askForm(p) {
     const keyNow = p.sessionId + JSON.stringify(p.ask);
     if (keyNow !== askKey) { askKey = keyNow; askPick = {}; askOther = {}; }
-    return p.ask.map((q, qi) => `<div class="am-ask"><div class="am-said">${q.header ? `<span class="am-tag">${escape(q.header)}</span>` : ''}${escape(q.question)}${q.multiSelect ? ' <i>(kies er meer)</i>' : ''}</div><div class="am-options">${
+    return p.ask.map((q, qi) => `<div class="am-ask"><div class="am-said">${q.header ? `<span class="am-tag">${escape(q.header)}</span>` : ''}${escape(q.question)}${q.multiSelect ? ` <i>(${T('kies er meer', 'pick one or more')})</i>` : ''}</div><div class="am-options">${
       q.options.map((o, oi) => `<button type="button" class="am-option ${(askPick[qi] || []).includes(o.label) ? 'on' : ''}" data-q="${qi}" data-o="${oi}" title="${escape(o.description)}"><b>${escape(o.label)}</b>${o.description ? `<small>${escape(o.description)}</small>` : ''}</button>`).join('')
-    }</div><div class="cc-inline"><input class="am-note" data-other="${qi}" maxlength="2000" placeholder="Of typ je eigen antwoord…" value="${escape(askOther[qi] || '')}">${qi === p.ask.length - 1 ? `<button type="button" class="am-primary" id="am-ask-send" ${pending ? 'disabled' : ''}>Stuur</button>` : ''}</div></div>`).join('');
+    }</div><div class="cc-inline"><input class="am-note" data-other="${qi}" maxlength="2000" placeholder="${T('Of typ je eigen antwoord…', 'Or type your own answer…')}" value="${escape(askOther[qi] || '')}">${qi === p.ask.length - 1 ? `<button type="button" class="am-primary" id="am-ask-send" ${pending ? 'disabled' : ''}>${T('Stuur', 'Send')}</button>` : ''}</div></div>`).join('');
   }
   function bindAsk(p) {
     for (const b of root.querySelectorAll('[data-q]')) b.addEventListener('click', () => {
@@ -620,10 +884,24 @@
       if (result.ok) drafts.delete(draftKey); else error = result.error;
     } catch (failure) { error = failure.message; } finally { pending = false; render(); }
   }
+  let stateAt = Date.now(); // when the last state arrived (the clock on Home counts on from there)
+  // Done: a steady blue until you look at it (open the Claude page), then green that slowly fades away.
+  let doneKey = '', doneSeenAt = 0;
+  const DONE_BLUE = '#0a84ff', DONE_FADE = 2800;
+  const claudeHooks = () => providers().find(q => q.kind === 'hooks' && q.agent !== 'codex' && q.connected) || providers().find(q => q.kind === 'hooks' && q.connected);
+  window.__twocodeDoneLook = p => { // null, or { colour, k } (k: how strong the glow is, 0..1)
+    if (!p || p.state !== 'done' || p.permission) return null;
+    if (!doneSeenAt) return { colour: DONE_BLUE, k: 1, fresh: true };
+    const k = 1 - (performance.now() - doneSeenAt) / DONE_FADE;
+    return k > 0 ? { colour: '#30d158', k: k * k * (3 - 2 * k) } : null;
+  };
   function update(next) {
+    stateAt = Date.now();
+    { const q = next?.providers?.find?.(x => x.kind === 'hooks' && x.state === 'done'), key = q ? `${q.sessionId}:${q.elapsed}:${q.prompt}` : '';
+      if (key && key !== doneKey) { doneKey = key; doneSeenAt = 0; } if (!key) doneKey = ''; }
     if (!next?.ok || !Array.isArray(next.providers)) return;
     state = next; window.__twocodeMonitorIndicator = providers();
-    try { askSize(); } catch {}
+    try { askSize(); settleSize(); } catch {} // a task that starts or ends changes the small island right away
     // Ignore ticking clocks when deciding to re-render; they are updated in place below.
     const signature = JSON.stringify(providers().map(p => ({ ...p, elapsed: 0, list: p.list?.map(s => ({ ...s, elapsed: 0 })) }))) + (state.history?.[0]?.at || 0);
     if (signature !== lastSignature) {
@@ -659,12 +937,13 @@
   const needsAnswer = () => { const p = top(); return Boolean(p && (p.permission || p.state === 'question')); };
   // While music plays the island shows it at medium size. The little button on it tucks the music away
   // (the island stays small, the line under it still shows how far the song is); hover the island and press it again to bring it back.
-  let musicTucked = false; try { musicTucked = localStorage.getItem('twocode:music-tucked') === '1'; } catch {}
+  let musicTucked = false; try { localStorage.removeItem('twocode:music-tucked'); } catch {}
   function tuckMusic(on) {
     musicTucked = on; try { localStorage.setItem('twocode:music-tucked', on ? '1' : '0'); } catch {}
     window.__twocodeChime?.('pop'); oldSetMode(on ? 'rest' : 'compact', false); if (on) holdClosed = true;
   }
-  const medium = () => (music() && !musicTucked) || Boolean(window.__twocodeFocus?.active()) || Boolean(window.__twocodeCompactMessage?.()) || needsAnswer();
+  const claudeWorking = () => { const p = top(); return Boolean(p && busy(p)); }; // a running task is a Live Activity: it stays in view, small
+  const medium = () => (music() && !musicTucked) || Boolean(window.__twocodeFocus?.active()) || Boolean(window.__twocodeCompactMessage?.()) || needsAnswer() || claudeWorking();
   window.__twocodeStatus = () => top();
   let holdClosed = false;
   window.__twocodeHoldClosed = () => { holdClosed = true; };
@@ -678,7 +957,7 @@
     else if (!want && mode === 'compact') { oldSetMode('compact', false); settleSize(); }
   }
   const oldTargetHeight = targetHeight, oldSetMode = setMode, oldDrawExpanded = drawExpanded, oldDrawSmall = drawSmall, oldHover = updateHover;
-  targetHeight = function () { return ['monitor', 'assistant'].includes(currentView) ? 300 : oldTargetHeight(); };
+  targetHeight = function () { return ['monitor', 'assistant'].includes(currentView) ? (claudeTall ? 318 : 270) : oldTargetHeight(); };
   // While music plays, the island rests at medium size so the sound wave stays visible.
   setMode = function (next, playSound = true) { return oldSetMode(next === 'rest' && medium() ? 'compact' : next, playSound); };
   function settleSize() {
@@ -688,14 +967,17 @@
   }
   window.__twocodeSettleSize = settleSize;
   setInterval(async () => { await refreshSpotify(); settleSize(); }, 4000);
+  // the Claude page's glow, only while something happens: Claude's own colour while he works, green when he is done
+  // (quiet, waiting for you or stopped: plain black)
+  const glowOf = p => { if (!p?.connected || p.kind !== 'hooks' || p.permission) return null;
+    if (busy(p)) return { colour: p.agent === 'codex' ? '#3b82f6' : '#d97757', k: 1 };
+    return window.__twocodeDoneLook(p); };
   drawExpanded = function (alpha) {
     if (currentView === 'shortcuts') { drawHeader(alpha); drawShortcuts(contentRect()); return; }
     if (!['monitor', 'assistant'].includes(currentView)) return oldDrawExpanded(alpha);
+    const glow = glowOf(current()); if (glow) { window.__twocodeTintIsland = glow.colour; window.__twocodeTintStrength = glow.k; window.__twocodeTintAt = performance.now(); }
     drawHeader(alpha); // the Claude page uses the full width (no TwoCode, usage is shown in the page itself)
-    // Claude Code / Codex: Robo's stage, warm orange for Claude, violet for Codex (like the chat, chat-ui.js)
-    // ...and it glows in your traffic-light colour of the moment: busy, a question, done or an error
-    const p = current(), st = p?.permission ? 'question' : p?.state;
-    if (p?.kind === 'hooks' && p.connected) window.__twocodeRoboStage?.(contentRect(), p.agent === 'codex' ? 'codex' : 'claude', busy(p), ['running', 'sending', 'question', 'done', 'error', 'stopped'].includes(st) ? window.__twocodeStateColour?.(st) : null);
+    // Claude Code / Codex: the page itself (DOM) draws its cards on the black glass
   };
   function drawLamp(p, x, y) {
     const colour = colourOf(p.state);
@@ -737,15 +1019,7 @@
   window.__twocodeBars = bars; // also used by the big Spotify player
   // Medium island (36 px high): [album cover] [real sound wave] [TwoCode], like the iPhone's Dynamic Island.
   // While Spotify plays (here or on your phone): a thin line along the bottom of the small island shows how far the song is.
-  function songLine() {
-    if (!music() || !spotifyState.duration_ms) return;
-    const pos = Math.min(spotifyState.duration_ms, (spotifyState.progress_ms || 0) + (spotifyState.is_playing ? performance.now() - spotifySyncAt : 0));
-    const ib = islandBounds, inset = Math.min(14, ib.width * 0.18), x0 = ib.x + inset, w = ib.width - inset * 2, y = ib.height - 3;
-    ctx.save();
-    ctx.fillStyle = 'rgba(255,255,255,.14)'; ctx.beginPath(); ctx.roundRect(x0, y, w, 2, 1); ctx.fill();
-    ctx.fillStyle = window.__twocodeAlbumColour || '#1ed760'; ctx.beginPath(); ctx.roundRect(x0, y, Math.max(2, w * pos / spotifyState.duration_ms), 2, 1); ctx.fill();
-    ctx.restore();
-  }
+  function songLine() {} // no progress line under the island anymore: the Dynamic Island keeps its edge clean
   // the music button on the medium island: caught on pointerdown (window, capture), before the island reacts to the press
   let swallowTuckClick = false, tuckBox = null; // where the button is (kept between frames)
   window.addEventListener('pointerdown', e => {
@@ -764,92 +1038,133 @@
   function drawVolume(icon, level, left, cy, right) {
     const k = Math.max(0, Math.min(1, level / 100));
     volumeShown = volumeShown == null ? k : volumeShown + (k - volumeShown) * 0.35;
-    text(icon, left + 4, cy + 4, 11.5, '#f2f5ed', 700, 'left');
-    const x = left + 30, w = Math.max(60, right - x - 46), h = 6, y = cy - h / 2;
+    window.__twocodeIcon?.('speaker', left + 10, cy, 18, '#ffffff', level / 100, '#ffffff');
+    const x = left + 34, w = Math.max(60, right - x - 2), h = 8, y = cy - h / 2;
     ctx.save();
-    ctx.beginPath(); ctx.roundRect(x, y, w, h, h / 2); ctx.fillStyle = 'rgba(255,255,255,.16)'; ctx.fill();
-    if (volumeShown > 0.005) { ctx.beginPath(); ctx.roundRect(x, y, Math.max(h, w * volumeShown), h, h / 2); ctx.fillStyle = '#f2f5ed'; ctx.fill(); }
+    ctx.beginPath(); ctx.roundRect(x, y, w, h, h / 2); ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fill();
+    if (volumeShown > 0.005) { ctx.beginPath(); ctx.roundRect(x, y, Math.max(h, w * volumeShown), h, h / 2); ctx.fillStyle = '#ffffff'; ctx.fill(); }
     ctx.restore();
-    text(`${level}%`, right - 4, cy + 4, 11.5, '#f2f5ed', 700, 'right');
   }
   drawSmall = function () {
-    hit.musicTuck = null; if (mode !== 'compact') tuckBox = null;
+    hit.musicTuck = null; tuckBox = null;
     if (mode !== 'compact') { oldDrawSmall(); songLine(); return; }
     songLine();
-    const H = islandBounds.height, cy = H / 2, right = islandBounds.x + islandBounds.width, left = islandBounds.x + 12;
-    const cover = Math.max(16, H - 12), mid0 = left + cover + 12;
+    // Like the iPhone's Dynamic Island: Robo's eyes in the middle (the camera), the leading and trailing parts snug
+    // against them, in one colour for one activity (Apple: design leading + trailing as one unit).
+    const H = islandBounds.height, cy = H / 2, right = islandBounds.x + islandBounds.width - 14, left = islandBounds.x + 14, mid = islandBounds.x + islandBounds.width / 2;
     const p = top(), focus = window.__twocodeFocus, now = performance.now();
     const message = window.__twocodeCompactMessage?.(), needsYou = p && (p.state === 'question' || p.permission);
-    // While music plays the island belongs to the music: no TwoCode, Claude's traffic light becomes a small dot.
-    const musicOnly = music() && !message && !(p && (needsYou || now < attentionUntil));
-    const mid1 = musicOnly ? right - (p ? 34 : 16) : right - 52;
-    if (!musicOnly) { drawGhost(right - 26, cy + 3, Math.min(22, H - 12)); hit.ghost = { x: right - 48, y: 0, width: 44, height: H }; } else hit.ghost = null;
-    if (p && p.state !== attentionState) { attentionState = p.state; if (['question', 'done', 'error'].includes(p.state)) attentionUntil = now + 4000; }
+    if (p && p.state !== attentionState) { attentionState = p.state; attentionUntil = ['question', 'done', 'error'].includes(p.state) ? now + 4000 : 0; } // answered: back to work, not "Error"
     if (!p) attentionState = '';
-    const icon = name => window.__twocodeIcon?.(name, left + cover / 2, cy, 17);
-    const line = (s, colour = '#f2f5ed', x = mid0) => text(s, x, cy + 4, 11.5, colour, 700, 'left', mid1 - x);
+    const focusOn = Boolean(focus?.active()), musicOn = Boolean(music()), claudeOn = Boolean(p && (needsYou || now < attentionUntil || busy(p)));
+    const primary = claudeOn ? 'claude' : focusOn ? 'focus' : musicOn ? 'music' : null;
+    window.__twocodeBubbles = message ? [] : [focusOn && primary !== 'focus' ? 'focus' : null, musicOn && primary !== 'music' ? 'music' : null].filter(Boolean);
+    const eyes = () => { (window.__twocodeIslandEyes || drawGhost)(mid, cy + 0.5); hit.ghost = { x: mid - 22, y: 0, width: 44, height: H }; };
+    hit.ghost = null;
+    const mmss = sec => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+    const lead = (s, colour, x = left, maxW = mid - 26 - left) => text(s, x, cy + 5, 14, colour, 600, 'left', maxW);
+    const trail = (s, colour) => text(s, right, cy + 5, 14, colour, 600, 'right', right - mid - 26);
+    const mark = () => { ctx.save(); ctx.strokeStyle = '#d97757'; ctx.lineWidth = 2.4; ctx.lineCap = 'round'; for (let i = 0; i < 4; i++) { const an = i * Math.PI / 4; ctx.beginPath(); ctx.moveTo(left + 7 - Math.cos(an) * 6.5, cy - Math.sin(an) * 6.5); ctx.lineTo(left + 7 + Math.cos(an) * 6.5, cy + Math.sin(an) * 6.5); ctx.stroke(); } ctx.restore(); };
+    const colourFor = () => '#ffffff'; // calm: the words are white, Robo's eyes carry the state's colour
 
     if (message) {
       const volume = /^(\S+) [▮▯]{10} (\d+)%$/u.exec(message); // the volume (extras-ui.js): a real bar instead of block characters
-      if (volume) { drawVolume(volume[1], Number(volume[2]), left, cy, mid1); return; }
-      text(message, left + 4, cy + 4, 11.5, '#f2f5ed', 700, 'left', mid1 - left); return;
+      if (volume) { drawVolume(volume[1], Number(volume[2]), left, cy, right); return; }
+      text(message, left + 2, cy + 5, 14, '#ffffff', 600, 'left', right - left); return;
     }
     if (p && (needsYou || now < attentionUntil)) {
-      ctx.save(); ctx.globalAlpha = 0.75 + 0.25 * Math.sin(now / 180);
-      ctx.beginPath(); ctx.arc(left + cover / 2, cy, 5, 0, Math.PI * 2); ctx.fillStyle = colourOf(p.state); ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 10; ctx.fill(); ctx.restore();
-      // Claude asks permission: answer right here, without opening the island.
+      const colour = colourFor(p.permission ? 'question' : p.state);
+      mark(colour);
+      // Claude asks permission: answer right here, two same-size buttons, the likely one in white
       if (p.permission && !p.ask && !p.plan && p.permission.kind === 'tool') {
-        const yesW = 70, noW = 74, bh = 24, by = cy - bh / 2, noX = mid1 - noW, yesX = noX - yesW - 6;
-        line(`${T('Mag ik', 'Allow')}: ${p.permission.what ? p.permission.what.split(/[\\/]/).pop() : p.permission.tool}?`, '#f2f5ed', mid0); // the real command / file, so you know what you allow
-        const btn = (x, w, label, key, primary) => { const over = inside(pointer.x, pointer.y, { x, y: by, width: w, height: bh });
-          ctx.save(); ctx.beginPath(); ctx.roundRect(x, by, w, bh, bh / 2); ctx.fillStyle = primary ? (over ? '#d9f7b3' : '#c6e994') : (over ? '#3a2b29' : '#2a2321'); ctx.fill(); ctx.restore();
-          text(label, x + w / 2, by + 16, 11, primary ? '#10180c' : '#ffb3a8', 700, 'center'); hit[key] = { x, y: by, width: w, height: bh }; };
-        // keep the question text clear of the buttons
-        ctx.save(); ctx.fillStyle = '#000'; ctx.fillRect(yesX - 30, 2, mid1 - yesX + 30, H - 4); ctx.restore();
-        btn(yesX, yesW, T('Toestaan', 'Allow'), 'cAllow', true); btn(noX, noW, T('Weigeren', 'Deny'), 'cDeny', false);
+        const bw = 78, bh = 28, by = cy - bh / 2, yesX = right - bw, noX = yesX - bw - 8;
+        lead(`${p.permission.what ? p.permission.what.split(/[\\/]/).pop() : p.permission.tool}`, '#ffffff', left + 22, noX - 12 - (left + 22));
+        const btn = (x, label, key, primary) => { const over = inside(pointer.x, pointer.y, { x, y: by, width: bw, height: bh });
+          ctx.save(); ctx.beginPath(); ctx.roundRect(x, by, bw, bh, 8); ctx.fillStyle = primary ? (over ? '#e5e5ea' : '#ffffff') : (over ? '#3a3a3c' : '#2c2c2e'); ctx.fill(); ctx.restore();
+          text(label, x + bw / 2, by + 19, 13, primary ? '#000000' : '#ffffff', 600, 'center'); hit[key] = { x, y: by, width: bw, height: bh }; };
+        btn(noX, T('Weiger', 'Deny'), 'cDeny', false); btn(yesX, T('Sta toe', 'Allow'), 'cAllow', true);
         return;
       }
-      if (p.state === 'question' && !p.permission && !p.ask && !p.plan) return line(T('Claude heeft een vraag voor je', 'Claude has a question for you')); // hover or click opens it
       if (p.ask || p.plan) {
-        line(p.ask ? T('Claude vraagt iets', 'Claude asks something') : T('Plan klaar: goedkeuren?', 'Plan ready: approve?'), '#f2f5ed', mid0);
-        const w = 64, bh = 24, x = mid1 - w, over = inside(pointer.x, pointer.y, { x, y: cy - bh / 2, width: w, height: bh });
-        ctx.save(); ctx.beginPath(); ctx.roundRect(x, cy - bh / 2, w, bh, bh / 2); ctx.fillStyle = over ? '#d9f7b3' : '#c6e994'; ctx.fill(); ctx.restore();
-        text('Bekijk', x + w / 2, cy + 4, 11, '#10180c', 700, 'center'); hit.cOpen = { x, y: cy - bh / 2, width: w, height: bh };
+        lead(p.ask ? T('Claude vraagt iets', 'Claude asks') : T('Plan klaar', 'Plan ready'), colour, left + 22, right - 90 - left);
+        const w = 70, bh = 28, x = right - w, over = inside(pointer.x, pointer.y, { x, y: cy - bh / 2, width: w, height: bh });
+        ctx.save(); ctx.beginPath(); ctx.roundRect(x, cy - bh / 2, w, bh, 8); ctx.fillStyle = over ? '#e5e5ea' : '#ffffff'; ctx.fill(); ctx.restore();
+        text(T('Bekijk', 'View'), x + w / 2, cy + 5, 13, '#000000', 600, 'center'); hit.cOpen = { x, y: cy - bh / 2, width: w, height: bh };
         return;
       }
-      return line(`Claude · ${smallStatus(p)}`);
-    }
-    if (music()) {
-      if (albumImage?.complete && albumImage.naturalWidth) {
-        ctx.save(); ctx.beginPath(); ctx.roundRect(left, cy - cover / 2, cover, cover, 7); ctx.clip(); ctx.drawImage(albumImage, left, cy - cover / 2, cover, cover); ctx.restore();
-      } else { box(left, cy - cover / 2, cover, cover, 7, '#1b211a'); icon('music'); }
-      // the song, not a fake sound wave (the wave could never follow the real beat)
-      const tr = spotifyState.track || {}, timer = (focus?.active() ? 60 : 0) + 26;
-      text(tr.name || 'Spotify', mid0, cy + 4, 11.5, '#f2f5ed', 700, 'left', Math.max(40, (mid1 - mid0 - timer) * 0.62));
-      const nameW = Math.min((mid1 - mid0 - timer) * 0.62, (ctx.measureText ? (ctx.font = '700 11.5px "Segoe UI"', ctx.measureText(tr.name || 'Spotify').width) : 80));
-      if (tr.artist) text(tr.artist, mid0 + nameW + 8, cy + 4, 11, 'rgba(235,240,230,.5)', 600, 'left', Math.max(0, mid1 - timer - mid0 - nameW - 8));
-      if (focus?.active()) text(focus.label(), mid1 - 26, cy + 4, 11.5, '#ffd28a', 700, 'right');
-      if (p) drawLamp(p, right - 20, cy);
-      // a small chevron: up = make it small, down = keep showing the music
-      const tx = right - (p ? 40 : 18), over = inside(pointer.x, pointer.y, { x: tx - 11, y: cy - 11, width: 22, height: 22 });
-      ctx.save(); if (over) { ctx.beginPath(); ctx.arc(tx, cy, 10, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fill(); }
-      ctx.strokeStyle = over ? '#fff' : 'rgba(235,240,230,.55)'; ctx.lineWidth = 1.8; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath();
-      const d = musicTucked ? 1 : -1; ctx.moveTo(tx - 4, cy - d * 2); ctx.lineTo(tx, cy + d * 2); ctx.lineTo(tx + 4, cy - d * 2); ctx.stroke(); ctx.restore();
-      hit.musicTuck = tuckBox = { x: tx - 12, y: 0, width: 24, height: H };
+      eyes();
+      lead(p.state === 'question' ? T('Vraag', 'Question') : p.state === 'done' ? T('Klaar', 'Done') : T('Fout', 'Error'), colour, left + 22);
+      if (p.elapsed && p.state === 'done') trail(mmss(p.elapsed), colour);
       return;
     }
-    if (focus?.active()) {
-      // Timer: a small progress ring + the time left
-      const r = cover / 2 - 2, done = 1 - focus.left() / focus.length();
-      ctx.save(); ctx.lineWidth = 2.5; ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.arc(left + cover / 2, cy, r, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(255,255,255,.12)'; ctx.stroke();
-      ctx.beginPath(); ctx.arc(left + cover / 2, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * done); ctx.strokeStyle = '#ffb35c'; ctx.stroke(); ctx.restore();
-      line(focus.label(), '#ffd28a');
-      if (p?.state === 'running') text(T('Claude bezig', 'Claude working'), mid1, cy + 4, 10, '#8f998d', 600, 'right');
+    if (primary === 'claude' && p) {
+      const steps = p.steps || [], phase = steps.reduce((m, x) => Math.max(m, x.kind === 'edit' ? 1 : x.kind === 'run' ? 2 : 0), 0);
+      mark(); eyes();
+      lead(busy(p) ? (steps.length ? [T('Lezen', 'Reading'), T('Aanpassen', 'Editing'), T('Testen', 'Testing')][phase] : T('Denkt na', 'Thinking')) : smallStatus(p), '#ffffff', left + 22);
+      if (busy(p)) trail(mmss((p.elapsed || 0) + Math.floor((Date.now() - stateAt) / 1000)), '#8e8e93');
       return;
     }
-    if (p) { icon('terminal'); line(smallStatus(p)); }
-  };  updateHover = function (now) {
+    if (primary === 'focus') { // the timer: a ring that runs empty, the time on the right
+      const r = 8, done = 1 - focus.left() / focus.length();
+      ctx.save(); ctx.lineWidth = 3; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.arc(left + 8, cy, r, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(191,90,242,.3)'; ctx.stroke();
+      ctx.beginPath(); ctx.arc(left + 8, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (1 - done)); ctx.strokeStyle = '#bf5af2'; ctx.stroke(); ctx.restore();
+      eyes();
+      text(focus.label(), right, cy + 5, 15, '#bf5af2', 600, 'right');
+      return;
+    }
+    if (primary === 'music') { // the cover left, the visualizer in its colour right
+      const cs = H - 12;
+      if (albumImage?.complete && albumImage.naturalWidth) { ctx.save(); ctx.beginPath(); ctx.roundRect(left - 6, cy - cs / 2, cs, cs, 7); ctx.clip(); ctx.drawImage(albumImage, left - 6, cy - cs / 2, cs, cs); ctx.restore(); }
+      else { box(left - 6, cy - cs / 2, cs, cs, 7, '#1c1c1e'); window.__twocodeIcon?.('music', left - 6 + cs / 2, cy, 14, '#8e8e93', null, 'rgba(0,0,0,0)'); }
+      eyes();
+      window.__twocodeVisualizer?.('compact', right - 36, cy, 36, 18, window.__twocodeAlbumColour || '#ffffff', 6);
+      return;
+    }
+    if (p) { mark(); eyes(); lead(smallStatus(p), '#ffffff', left + 22); return; }
+    eyes();
+  };
+  // The second activity in its own little island to the right (like the iPhone's split Dynamic Island): it grows out of
+  // the edge, and a click opens that page. Music shows its cover, the timer a ring that runs empty.
+  const bubbleK = { focus: 0, music: 0 };
+  const baseIslandShape = drawIsland;
+  drawIsland = function (...args) {
+    const result = baseIslandShape.apply(this, args);
+    const list = mode === 'compact' && visual.height < 60 && !transition ? (window.__twocodeBubbles || []) : [];
+    let x = islandBounds.x + islandBounds.width + 8;
+    hit.bubbleFocus = null; hit.bubbleMusic = null;
+    for (const kind of ['focus', 'music']) {
+      const on = list.includes(kind);
+      bubbleK[kind] += ((on ? 1 : 0) - bubbleK[kind]) * (on ? 0.18 : 0.3);
+      if (bubbleK[kind] < 0.02) continue;
+      const d = UI.BAR_H + 4, e = 1 - Math.pow(1 - bubbleK[kind], 3), w = d * e, h = d * e;
+      ctx.save(); islandPath(x, 0, w, h, h / 2); ctx.fillStyle = '#000'; ctx.fill(); ctx.restore();
+      if (e > 0.6) {
+        const cx = x + w / 2, cy = h / 2;
+        ctx.save(); ctx.globalAlpha *= (e - 0.6) / 0.4;
+        if (kind === 'music') {
+          if (albumImage?.complete && albumImage.naturalWidth) { ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, d / 2 - 6, 0, Math.PI * 2); ctx.clip(); ctx.drawImage(albumImage, cx - d / 2 + 6, cy - d / 2 + 6, d - 12, d - 12); ctx.restore(); }
+          else window.__twocodeIcon?.('music', cx, cy, 15, '#ffffff', null, 'rgba(0,0,0,0)');
+        } else {
+          const f = window.__twocodeFocus, left = f?.active() ? f.left() / f.length() : 0;
+          ctx.lineWidth = 3; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.arc(cx, cy, d / 2 - 9, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(191,90,242,.3)'; ctx.stroke();
+          ctx.beginPath(); ctx.arc(cx, cy, d / 2 - 9, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * left); ctx.strokeStyle = '#bf5af2'; ctx.stroke();
+        }
+        ctx.restore();
+      }
+      hit[kind === 'music' ? 'bubbleMusic' : 'bubbleFocus'] = { x, y: 0, width: d, height: d };
+      x += w + 6;
+    }
+    return result;
+  };
+  canvas.addEventListener('click', e => {
+    const kind = inside(e.clientX, e.clientY, hit.bubbleMusic) ? 'spotify' : inside(e.clientX, e.clientY, hit.bubbleFocus) ? 'focus' : null;
+    if (!kind) return;
+    e.preventDefault(); e.stopImmediatePropagation(); sound('click');
+    setView(kind); setMode('expanded');
+  }, true);
+  updateHover = function (now) {
     if (['monitor', 'assistant'].includes(currentView)) {
       if (mode !== 'expanded') return;
       // Only stay open while you are really typing here (window focused), or while a reply is being sent.
@@ -871,7 +1186,7 @@
   };
   // ---- Home: a small dashboard. TwoCode on the left, three live widgets: music, Claude, focus ----
   const baseHomeHeight = targetHeight;
-  targetHeight = function () { return currentView === 'home' ? (window.__twocodeGalleryOpen?.() ? 300 : 200) : currentView === 'shortcuts' ? (editShortcuts ? 286 : 248) : baseHomeHeight(); };
+  targetHeight = function () { return currentView === 'home' ? (window.__twocodeGalleryOpen?.() ? 300 : homeEdit ? 200 : 236) : currentView === 'shortcuts' ? 248 : baseHomeHeight(); };
   // A widget card: soft gradient, thin rim, lifts a little on hover. Returns whether the pointer is on it.
   function card(x, y, w, h, key, glow) {
     const bounds = { x, y, width: w, height: h }, over = inside(pointer.x, pointer.y, bounds);
@@ -1095,7 +1410,7 @@
     if (live) hit[key] = b;
   }
   function wrapLines(str, maxW, size, max) {
-    ctx.save(); ctx.font = `500 ${size}px "Segoe UI Variable Text", "Segoe UI", Arial, sans-serif`;
+    ctx.save(); ctx.font = `500 ${size}px Inter, "Segoe UI", sans-serif`;
     const out = [];
     for (const para of String(str || '').split('\n')) {
       let line = '';
@@ -1435,8 +1750,168 @@
     if (other) { const swapped = arrange(list.map(w => w.id === me.id ? { ...w, c, r } : w.id === other.id ? { ...w, c: me.c, r: me.r } : w), me.id); if (swapped.ok) return swapped; }
     return null;
   }
+  // ---- Home, like an expanded Dynamic Island: everything right on the black, no cards. Left what Claude does now
+  // (with a 4-step progress bar), right your music and a focus timer, at the bottom a row of apps. ----
+  const C = { purple: '#bf5af2', orange: '#ff9230', yellow: '#ffd600', green: '#30d158', red: '#ff4245', blue: '#0091ff', teal: '#00d2e0', grey: '#8e8e93', g2: '#2c2c2e', g3: '#3a3a3c', g1: '#1c1c1e' };
+  function big(str, x, y, size, colour, weight = 600, maxW = 0, align = 'left') { // display text: Inter, tighter as it grows
+    ctx.save(); ctx.font = `${weight} ${size}px Inter, "Segoe UI", sans-serif`; ctx.fillStyle = colour; ctx.textAlign = align; ctx.textBaseline = 'alphabetic';
+    if (size >= 20) ctx.letterSpacing = `${(-0.012 * size).toFixed(2)}px`;
+    let t = String(window.__twocodeTr?.(String(str || '')) ?? str ?? ''); if (maxW) while (t.length > 1 && ctx.measureText(t).width > maxW) t = t.slice(0, -2) + '…';
+    ctx.fillText(t, x, y); ctx.restore();
+  }
+  const dot = (x, y, r, fill) => { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = fill; ctx.fill(); };
+  function claudeMark(x, y, colour, size = 16) { // a simple star mark, no container (Apple: logo marks without a container)
+    ctx.save(); ctx.strokeStyle = colour; ctx.lineWidth = size * 0.16; ctx.lineCap = 'round'; const r = size * 0.4;
+    for (let i = 0; i < 4; i++) { const a = i * Math.PI / 4; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * r, y - Math.sin(a) * r); ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); ctx.stroke(); }
+    ctx.restore();
+  }
+  const phaseOf = steps => steps.reduce((m, s) => Math.max(m, s.kind === 'edit' ? 1 : s.kind === 'run' ? 2 : 0), 0);
+  // the 4-step bar (Lezen → Aanpassen → Testen → Klaar): done white, the current step in the state's colour
+  function steps4(x, y, w, phase, colour, done) {
+    const gap = 4, sw = (w - gap * 3) / 4, labels = [T('Lezen', 'Read'), T('Aanpassen', 'Edit'), T('Testen', 'Test'), T('Klaar', 'Done')];
+    for (let i = 0; i < 4; i++) {
+      const sx = x + i * (sw + gap), full = done || i < phase, now = !done && i === phase;
+      box(sx, y, sw, 6, 3, C.g3);
+      if (full) box(sx, y, sw, 6, 3, done ? C.green : '#ffffff');
+      if (now) { const t = (performance.now() / 1600) % 1; box(sx, y, Math.max(6, sw * (0.35 + 0.45 * (0.5 - 0.5 * Math.cos(t * Math.PI * 2)))), 6, 3, colour); }
+      text(labels[i], i === 0 ? sx : i === 3 ? sx + sw : sx + sw / 2, y + 24, 12, (now || (done && i === 3)) ? '#ffffff' : C.grey, 600, i === 0 ? 'left' : i === 3 ? 'right' : 'center');
+    }
+  }
+  // ---- Home, like Apple Music: calm black, white and grey; colour only comes from a cover (the album, Claude's tile).
+  // One "now playing" row on top (Claude's job, your music, or all quiet) and a tab bar of apps underneath. ----
+  const alpha = (c, a) => { const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c); if (m) return `rgba(${m[1]},${m[2]},${m[3]},${a})`; const n = parseInt(String(c).replace('#', '').slice(0, 6), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
+  window.__twocodeClaudeCover = (x, y, s, r, agent) => { // a square cover like an album, Claude's own colour, the mark in the middle
+    ctx.save(); ctx.beginPath(); ctx.roundRect(x, y, s, s, r); const g = ctx.createLinearGradient(x, y, x + s, y + s);
+    if (agent === 'codex') { g.addColorStop(0, '#3a3a3c'); g.addColorStop(1, '#141416'); } else { g.addColorStop(0, '#e08a6c'); g.addColorStop(1, '#9c4126'); }
+    ctx.fillStyle = g; ctx.fill(); ctx.restore();
+    claudeMark(x + s / 2, y + s / 2, '#ffffff', s * 0.42);
+  };
+  function scrub(x, y, w, part, live) { // a thin progress line like the music scrubber
+    box(x, y, w, 4, 2, C.g3);
+    if (part > 0) box(x, y, Math.max(4, w * Math.min(1, part)), 4, 2, '#ffffff');
+    if (live) { const t = (performance.now() / 1400) % 1, sx = x + w * Math.min(1, part); ctx.save(); ctx.globalAlpha = 0.5 * (1 - t); box(sx, y, Math.min(w - (sx - x), 40 * t + 4), 4, 2, '#ffffff'); ctx.restore(); }
+  }
+  const caps = (str, x, y, colour = C.grey, maxW = 0, align = 'left') => { ctx.save(); ctx.letterSpacing = '0.4px'; text(String(window.__twocodeTr?.(str) ?? str).toUpperCase(), x, y, 12, colour, 600, align, maxW); ctx.restore(); };
+  // Home, compact like a notch app: small sharp type, one thing at a time (Claude's job, your music, or all quiet).
+  // The pages themselves are one hover away in the tabs at the bottom of the island (icons-ui.js).
+  const tiny = (str, x, y, size, colour, weight = 500, align = 'left', maxW = 0) => text(str, x, y, size, colour, weight, align, maxW);
+  const clockText = p => { const sec = (p.elapsed || 0) + Math.floor((Date.now() - stateAt) / 1000); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`; };
+  // ---- Home: three glowing tiles, like the Claude page: black with a thin edge, each one glowing from the bottom in its
+  // own colour (Claude's orange, your cover's colour, focus purple). When something happens in a tile it comes alive:
+  // the glow breathes and a soft light drifts along the bottom. Each tile opens its page. ----
+  const WHITE = 'rgba(255,255,255,.18)';
+  function widget(x, y, s, key, colour, live, under = null) {
+    const b = { x, y, width: s, height: s }, over = inside(pointer.x, pointer.y, b), t = performance.now() / 1000;
+    ctx.save(); ctx.beginPath(); ctx.roundRect(x, y, s, s, 22); ctx.fillStyle = '#000'; ctx.fill(); ctx.clip();
+    const k = live ? 0.82 + 0.3 * (0.5 + 0.5 * Math.sin(t * Math.PI * 2 / 2.6)) : 1; // breathing while something happens
+    const glow = (c, a) => { const g = ctx.createLinearGradient(0, y + s * 0.18, 0, y + s);
+      g.addColorStop(0, alpha(c, 0)); g.addColorStop(0.58, alpha(c, 0.3 * a)); g.addColorStop(1, alpha(c, Math.min(0.92, 0.72 * a)));
+      ctx.fillStyle = g; ctx.fillRect(x, y, s, s); };
+    if (under) glow(under.colour, under.k);          // e.g. Claude's own orange coming back
+    glow(colour, k * (under ? 1 - under.k : 1));     // ...while the green of "done" fades away
+    if (live) { // a soft light drifting along the bottom
+      const lx = x + s * (0.5 + 0.38 * Math.sin(t / 1.6)), ly = y + s * 1.02, light = ctx.createRadialGradient(lx, ly, 0, lx, ly, s * 0.62);
+      light.addColorStop(0, 'rgba(255,255,255,.22)'); light.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = light; ctx.fillRect(x, y, s, s);
+    }
+    if (over) { ctx.fillStyle = 'rgba(255,255,255,.05)'; ctx.fillRect(x, y, s, s); }
+    ctx.restore();
+    ctx.save(); ctx.beginPath(); ctx.roundRect(x + 0.5, y + 0.5, s - 1, s - 1, 21.5); ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.lineWidth = 1; ctx.stroke(); ctx.restore();
+    if (key) hit[key] = b; return over;
+  }
+  function ring(cx, cy, r, part, colour, track, lw = 5) {
+    ctx.save(); ctx.lineWidth = lw; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.strokeStyle = track; ctx.stroke();
+    if (part > 0.001) { ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.min(1, part)); ctx.strokeStyle = colour; ctx.stroke(); }
+    ctx.restore();
+  }
+  const label = (str, x, y) => tiny(str, x, y, 11, 'rgba(255,255,255,.65)', 600);
+  const lower = (str, x, y, w) => tiny(str, x, y, 12, 'rgba(255,255,255,.8)', 500, 'left', w);
+  function claudeWidget(x, y, s) {
+    const info = claudeInfo(), p = info.p || providers().find(q => q.kind === 'hooks' && q.connected) || providers().find(q => q.kind === 'hooks'), st = info.p ? info.st : (p?.state || 'ready');
+    const pad = 14, rx = x + s - pad - 20, ry = y + pad + 20, key = 'monitor_' + (p?.provider || 'claudecode');
+    if (!p?.connected) {
+      widget(x, y, s, key, '#d97757', false);
+      label(p?.agent === 'codex' ? 'Codex' : 'Claude Code', x + pad, y + pad + 11);
+      ring(rx, ry, 18, 0, '#ffffff', WHITE); claudeMark(rx, ry, '#ffffff', 16);
+      big(T('Koppel', 'Connect'), x + pad, y + s - 34, 26, '#ffffff', 700, s - pad * 2); lower(T('in Instellingen', 'in Settings'), x + pad, y + s - 15, s - pad * 2);
+      return;
+    }
+    const working = busy(p), failed = ['error', 'stopped'].includes(st), steps = p.steps || [], phase = phaseOf(steps);
+    const doneLook = window.__twocodeDoneLook(st === 'done' ? p : null), recent = Boolean(doneLook), five = p.usage?.fiveHour;
+    const past = (state.history || []).filter(h => (h.agent || 'claude') === (p.agent || 'claude'));
+    const today = past.filter(h => new Date(h.at).toDateString() === new Date().toDateString() && h.result === 'done').length;
+    let colour = p.agent === 'codex' ? '#3b82f6' : '#d97757', live = false, part, head, line;
+    if (working) { live = true; part = (phase + 0.5) / 4; head = clockText(p); line = (!steps.length ? T('Denkt na', 'Thinking') : [T('Lezen', 'Reading'), T('Aanpassen', 'Editing'), T('Testen', 'Testing')][phase]) + (p.code?.file && steps[steps.length - 1]?.kind === 'edit' ? ' · ' + p.code.file : ''); }
+    else if (st === 'question') { live = true; colour = '#ff9f0a'; part = 1; head = p.permission ? T('Mag dit?', 'May I?') : T('Jouw beurt', 'Your turn'); line = T('Claude wacht op jou', 'Claude is waiting'); }
+    else if (doneLook) { colour = doneLook.colour; part = 1; head = T('Klaar', 'Done'); line = p.prompt || T('Alle stappen gedaan', 'Every step done'); }
+    else if (failed) { colour = C.red; part = 1; head = T('Gestopt', 'Stopped'); line = p.detail || ''; }
+    else { part = five ? five.used / 100 : 0; head = String(today); line = T(today === 1 ? 'klus vandaag' : 'klussen vandaag', today === 1 ? 'job today' : 'jobs today'); }
+    // done and looked at: the green fades and Claude's own orange comes back underneath
+    widget(x, y, s, key, colour, live, doneLook && !doneLook.fresh ? { colour: p.agent === 'codex' ? '#3b82f6' : '#d97757', k: 1 - doneLook.k } : null);
+    label(p.agent === 'codex' ? 'Codex' : 'Claude Code', x + pad, y + pad + 11);
+    ring(rx, ry, 18, part, '#ffffff', WHITE);
+    if (working) { ctx.save(); ctx.translate(rx, ry); ctx.rotate(performance.now() / 1100); claudeMark(0, 0, '#ffffff', 16); ctx.restore(); }
+    else if (!recent && st !== 'question' && !failed && five) text(five.used + '%', rx, ry + 3.5, 10, '#ffffff', 700, 'center');
+    else claudeMark(rx, ry, '#ffffff', 16);
+    big(head, x + pad, y + s - 34, head.length > 6 ? 22 : 28, '#ffffff', 700, s - pad * 2);
+    lower(line, x + pad, y + s - 15, s - pad * 2);
+  }
+  function musicWidget(x, y, s) {
+    const pad = 14, track = spotifyState?.track, art = track && albumImage?.complete && albumImage.naturalWidth, playing = Boolean(spotifyConnected && spotifyState?.is_playing && track);
+    const colour = (track && window.__twocodeAlbumColour) || '#ff375f', cs = 44, cx0 = x + s - pad - cs, cy0 = y + pad;
+    widget(x, y, s, 'spotifyApp', colour, playing);
+    label(T('Muziek', 'Music'), x + pad, y + pad + 11);
+    if (!spotifyConnected || !track) {
+      ctx.save(); ctx.beginPath(); ctx.arc(cx0 + cs / 2, cy0 + cs / 2, 20, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,.14)'; ctx.fill(); ctx.restore();
+      window.__twocodeIcon?.('music', cx0 + cs / 2, cy0 + cs / 2, 20, '#ffffff', null, 'rgba(0,0,0,0)');
+      big(spotifyConnected ? T('Stil', 'Quiet') : 'Spotify', x + pad, y + s - 34, 28, '#ffffff', 700, s - pad * 2);
+      lower(spotifyConnected ? T('Er speelt niks', 'Nothing playing') : T('Koppel je muziek', 'Connect your music'), x + pad, y + s - 15, s - pad * 2);
+      return;
+    }
+    // the cover top right (glowing in its own colour), the song bottom left, a round white play button
+    ctx.save(); ctx.shadowColor = alpha(colour, 0.6); ctx.shadowBlur = 18; ctx.shadowOffsetY = 5; box(cx0, cy0, cs, cs, 10, '#1c1c1e'); ctx.restore();
+    if (art) { ctx.save(); ctx.beginPath(); ctx.roundRect(cx0, cy0, cs, cs, 10); ctx.clip(); ctx.drawImage(albumImage, cx0, cy0, cs, cs); ctx.restore(); }
+    if (playing) window.__twocodeVisualizer?.('homeTile', x + pad, y + pad + 30, 18, 12, '#ffffff', 4);
+    big(track.name || 'Spotify', x + pad, y + s - 32, 16, '#ffffff', 700, s - pad * 2 - 34);
+    lower(playing ? (track.artist || '') : T('gepauzeerd', 'paused'), x + pad, y + s - 15, s - pad * 2 - 34);
+    const pb = { x: x + s - 12 - 30, y: y + s - 12 - 30, width: 30, height: 30 }, over = inside(pointer.x, pointer.y, pb);
+    ctx.save(); ctx.beginPath(); ctx.arc(pb.x + 15, pb.y + 15, 15, 0, Math.PI * 2); ctx.fillStyle = over ? '#e5e5ea' : '#ffffff'; ctx.fill(); ctx.restore();
+    window.__twocodeMediaIcon?.(playing ? 'pause' : 'play', pb.x + 15 + (playing ? 0 : 1), pb.y + 15, 11, '#000000');
+    hit.homePlay = pb;
+  }
+  function focusWidget(x, y, s) {
+    const f = window.__twocodeFocus, on = Boolean(f?.active()), pad = 14, rx = x + s - pad - 20, ry = y + pad + 20;
+    widget(x, y, s, 'focusApp', C.purple, on);
+    label(T('Focus', 'Focus'), x + pad, y + pad + 11);
+    const qb = { x: rx - 20, y: ry - 20, width: 40, height: 40 }, over = inside(pointer.x, pointer.y, qb);
+    if (on) { // the ring runs empty, a stop button in it
+      ring(rx, ry, 18, f.left() / f.length(), '#ffffff', WHITE);
+      box(rx - 5, ry - 5, 10, 10, 2.5, over ? 'rgba(255,255,255,.7)' : '#ffffff');
+    } else { // ready: a round white start button
+      ctx.save(); ctx.beginPath(); ctx.arc(rx, ry, 20, 0, Math.PI * 2); ctx.fillStyle = over ? '#e5e5ea' : '#ffffff'; ctx.fill(); ctx.restore();
+      window.__twocodeMediaIcon?.('play', rx + 1.5, ry, 13, C.purple);
+    }
+    hit.focusQuick = qb;
+    const chosen = (f?.chosen?.() || 1500), mmss = sec => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`, mins = Math.max(1, Math.ceil((f?.left() || 0) / 60000));
+    big(on ? f.label() : mmss(chosen), x + pad, y + s - 34, 28, '#ffffff', 700, s - pad * 2);
+    lower(on ? T(`nog ${mins} min`, `${mins} min left`) : T('Klaar om te starten', 'Ready to start'), x + pad, y + s - 15, s - pad * 2);
+  }
+  function drawBlocks(area) {
+    for (const key of ['hmPrev', 'hmNext', 'homePlay', 'focusQuick', 'hmVol', 'focusApp', 'spotifyApp', 'ghost', 'chatApp']) delete hit[key];
+    for (const key of Object.keys(hit)) if (key.startsWith('monitor_')) delete hit[key];
+    const gap = 10, s = Math.min((area.width - gap * 2) / 3, area.height - 6), y = area.y + 2, x0 = area.x + (area.width - (s * 3 + gap * 2)) / 2;
+    claudeWidget(x0, y, s); musicWidget(x0 + s + gap, y, s); focusWidget(x0 + (s + gap) * 2, y, s);
+  }
+  canvas.addEventListener('click', e => { // "Alle apps" on Home
+    if (currentView !== 'home' || mode !== 'expanded' || !inside(e.clientX, e.clientY, hit.allApps)) return;
+    e.preventDefault(); e.stopImmediatePropagation(); setView('apps'); sound('click');
+  }, true);
+  window.__twocodeEditQuick = () => { editShortcuts = true; setView('shortcuts'); setMode('expanded'); sound('click'); }; // the + button: choose your quick buttons
+
   drawHome = function (area) {
     if (gallery) { drawGallery(area); return; }
+    if (!homeEdit) { drawBlocks(area); return; } // the widget grid only while editing it
     const g = gridGeo(area);
     cell = { w: g.cw, h: g.ch, gap: g.gap };
     const plan = drag?.moved ? dragPlan(g) : null;
@@ -1620,33 +2095,56 @@
     text(status, x + 66, y + h / 2 + 15, 10.5, '#8f998d', 500, 'left', w - 80);
     if (over) text('›', x + w - 18, y + h / 2 + 6, 18, 'rgba(255,255,255,.55)', 400, 'center');
   }
+  // All apps, like the iPhone home screen: coloured app icons with their name under them, nothing else.
+  const HOME_ICONS = [
+    { id: 'spotify', key: 'spotifyApp', icon: 'music', nl: 'Muziek', en: 'Music', c: '#ffffff' },
+    { id: 'chat', key: 'chatApp', icon: 'robo', nl: 'Robo', en: 'Robo', c: '#ffffff' },
+    { id: 'claude', key: 'monitor_claudecode', icon: 'terminal', nl: 'Claude', en: 'Claude', c: '#ffffff' },
+    { id: 'focus', key: 'focusApp', icon: 'timer', nl: 'Focus', en: 'Focus', c: '#ffffff' },
+    { id: 'tray', key: 'trayApp', icon: 'tray', nl: 'Lade', en: 'Tray', c: '#ffffff' },
+    { id: 'clips', key: 'clipsApp', icon: 'copy', nl: 'Klembord', en: 'Clipboard', c: '#ffffff' },
+    { id: 'note', key: 'noteApp', icon: 'note', nl: 'Notitie', en: 'Note', c: '#ffffff' },
+    { id: 'mirror', key: 'mirrorApp', icon: 'camera', nl: 'Spiegel', en: 'Mirror', c: '#ffffff' },
+    { id: 'settings', key: 'settingsApp', icon: 'gear', nl: 'Instellingen', en: 'Settings', c: '#ffffff' }
+  ];
+  const iconHover = {};
+  function homeIcon(cx, cy, s, app) {
+    const b = { x: cx - s / 2 - 10, y: cy - s / 2 - 6, width: s + 20, height: s + 34 }, over = inside(pointer.x, pointer.y, b);
+    iconHover[app.id] = (iconHover[app.id] || 0) + ((over ? 1 : 0) - (iconHover[app.id] || 0)) * 0.3;
+    const k = iconHover[app.id], r = s * 0.27;
+    ctx.save(); ctx.beginPath(); ctx.roundRect(cx - s / 2, cy - s / 2, s, s, s * 0.22); ctx.fillStyle = k > 0.5 ? '#2c2c2e' : '#1c1c1e'; ctx.fill(); ctx.restore(); // a calm grey tile
+    if (app.icon === 'robo') { // Robo's two eyes
+      for (const side of [-1, 1]) { ctx.save(); ctx.beginPath(); ctx.ellipse(cx + side * s * 0.12, cy, s * 0.06, s * 0.095, 0, 0, Math.PI * 2); ctx.fillStyle = app.c; ctx.fill(); ctx.restore(); }
+    } else if (app.icon === 'camera') {
+      ctx.save(); ctx.strokeStyle = app.c; ctx.lineWidth = 2.2; ctx.lineJoin = 'round';
+      ctx.beginPath(); ctx.roundRect(cx - s * 0.25, cy - s * 0.15, s * 0.36, s * 0.3, 5); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx + s * 0.13, cy - s * 0.04); ctx.lineTo(cx + s * 0.26, cy - s * 0.12); ctx.lineTo(cx + s * 0.26, cy + s * 0.12); ctx.lineTo(cx + s * 0.13, cy + s * 0.04); ctx.closePath(); ctx.stroke(); ctx.restore();
+    } else window.__twocodeIcon?.(app.icon, cx, cy, s * 0.46, app.c, null, 'rgba(0,0,0,0)');
+    return { b, over };
+  }
   drawApps = function (area) {
-    const PAGE = window.__twocodePage, focus = window.__twocodeFocus, p = top();
-    PAGE.title(area, 'Apps', 'Alles wat TwoCode voor je kan doen · Ctrl+Alt+1–6 = sneltoets');
-    const cols = 4, x = area.x + PAGE.contentX, gap = 10, w = Math.floor((area.width - PAGE.contentX * 2 - gap * (cols - 1)) / cols);
-    const y = area.y + PAGE.bodyY, h = Math.min(84, Math.floor((area.height - PAGE.bodyY - gap - 4) / 2));
-    const tray = window.__twocodeTrayCount?.() || 0;
-    const tiles = [
-      ['music', 'Spotify', spotifyState.track ? short(spotifyState.track.name, 22) : spotifyConnected ? 'Niks aan het spelen' : 'Nog niet gekoppeld', 'spotifyApp', window.__twocodeAlbumColour || TILE_TINT.music],
-      ['terminal', 'AI', p ? p.name + ' · ' + (p.detail || labels[p.state]) : 'Claude, ChatGPT, Codex', 'monitor_claudecode', p ? colourOf(p.state) : TILE_TINT.terminal],
-      ['timer', 'Focus', focus?.active() ? `Nog ${focus.label()}` : `${focus?.minutes?.() || 25} min`, 'focusApp', TILE_TINT.timer],
-      ['tray', 'Lade', tray ? `${tray} bestand${tray === 1 ? '' : 'en'}` : 'Leeg', 'trayApp', TILE_TINT.tray],
-      ['copy', 'Klembord', 'Je laatste kopieën', 'clipsApp', '#5ad1c4'],
-      ['note', 'Notitie', 'Snel iets opschrijven', 'noteApp', '#ffd166'],
-      ['gear', 'Instellingen', 'Kleuren, geluid en meer', 'settingsApp', TILE_TINT.gear]
-    ];
-    // apps you removed in TwoCode Instellingen → Apps are not here (Instellingen itself always is)
-    const off = window.__twocodeAppsOff?.() || new Set(), shown = tiles.filter(t => !off.has(APP_OF_KEY[t[3]]));
-    for (const t of tiles) if (!shown.includes(t)) delete hit[t[3]];
-    shown.forEach(([icon, name, status, key, tint], i) => tile(x + (i % cols) * (w + gap), y + Math.floor(i / cols) * (h + gap), w, h, icon, name, status, key, tint));
-    // next free spot: the Robo tip
-    const tipAt = Math.min(shown.length, cols * 2 - 1), tx = x + (tipAt % cols) * (w + gap), ty = y + Math.floor(tipAt / cols) * (h + gap);
-    ctx.save(); ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.roundRect(tx + 0.5, ty + 0.5, w - 1, h - 1, 15.5); ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.stroke(); ctx.restore();
-    text('TIP', tx + 16, ty + h / 2 - 16, 9.5, '#c6e994', 700);
-    text('Ctrl + Alt + T', tx + 16, ty + h / 2 + 2, 13, '#fff', 700, 'left', w - 32);
-    text('opent TwoCode overal', tx + 16, ty + h / 2 + 18, 10.5, '#8f998d', 500, 'left', w - 32);
+    const focus = window.__twocodeFocus, p = top(), tray = window.__twocodeTrayCount?.() || 0, en = EN();
+    const off = window.__twocodeAppsOff?.() || new Set(), shown = HOME_ICONS.filter(a => !off.has(a.id));
+    for (const a of HOME_ICONS) if (!shown.includes(a)) delete hit[a.key];
+    const cols = 5, rows = Math.ceil(shown.length / cols), s = 44, colW = area.width / cols, rowH = 82;
+    const y0 = area.y + Math.max(8, (area.height - rows * rowH) / 2) + s / 2;
+    shown.forEach((app, i) => {
+      const cx = area.x + colW * (i % cols) + colW / 2, cy = y0 + Math.floor(i / cols) * rowH;
+      const { b } = homeIcon(cx, cy, s, app);
+      const label = app.id === 'focus' && focus?.active() ? focus.label() : en ? app.en : app.nl;
+      text(label, cx, cy + s / 2 + 16, 11, '#ffffff', 500, 'center', colW - 8);
+      // little red badges, like on the iPhone: files in the tray, Claude waiting for you
+      const count = app.id === 'tray' ? tray : app.id === 'claude' && p && (p.permission || p.state === 'question') ? 1 : 0;
+      if (count) { ctx.save(); ctx.beginPath(); ctx.arc(cx + s / 2 - 4, cy - s / 2 + 4, 10, 0, Math.PI * 2); ctx.fillStyle = '#ff4245'; ctx.fill(); ctx.restore(); text(String(count), cx + s / 2 - 4, cy - s / 2 + 8, 11, '#fff', 700, 'center'); }
+      if (app.id === 'claude' && p && busy(p)) { ctx.save(); ctx.globalAlpha = 0.55 + 0.45 * Math.sin(performance.now() / 260); ctx.beginPath(); ctx.arc(cx + s / 2 - 4, cy - s / 2 + 4, 6, 0, Math.PI * 2); ctx.fillStyle = '#ff9230'; ctx.fill(); ctx.restore(); }
+      hit[app.key] = b;
+    });
     delete hit.todayApp; delete hit.assistantApp; delete hit.projectApp;
   };
+  canvas.addEventListener('click', e => { // Robo's app opens the chat
+    if (!['apps', 'home'].includes(currentView) || mode !== 'expanded' || !inside(e.clientX, e.clientY, hit.chatApp)) return;
+    e.preventDefault(); e.stopImmediatePropagation(); setView('chat'); setMode('expanded');
+  }, true);
   // ---- Your shortcuts (the + button): you choose which apps are here (max 4). The same apps are on the home card. ----
   const APPS = {
     spotify: { icon: 'music', label: 'Spotify', key: 'spotifyApp', tint: () => window.__twocodeAlbumColour || '#1ed760' },
@@ -1656,7 +2154,8 @@
     clips: { icon: 'copy', label: 'Klembord', key: 'clipsApp', tint: () => '#5ad1c4' },
     note: { icon: 'note', label: 'Notitie', key: 'noteApp', tint: () => '#ffd166' },
     settings: { icon: 'gear', label: 'Instellingen', key: 'settingsApp', tint: () => '#b98cff' },
-    clock: { icon: 'clock', label: 'Klok', key: 'clockApp', tint: () => '#8ab4ff' }
+    clock: { icon: 'clock', label: 'Klok', key: 'clockApp', tint: () => '#8ab4ff' },
+    chat: { icon: 'chat', label: 'Robo', key: 'chatApp', tint: () => '#e3ffd4' }
   };
   const APP_OF_KEY = Object.fromEntries(Object.entries(APPS).map(([id, a]) => [a.key, id]));
   const MAX_SHORTCUTS = 4, DEFAULT_SHORTCUTS = ['spotify', 'focus', 'tray', 'settings'];
@@ -1676,52 +2175,42 @@
     if (id === 'clock') return new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
     return 'Kleuren, geluid';
   }
+  // The + page: pick the four quick buttons on your home screen (tap an app to put it on or take it off).
+  const QUICK_CHOICES = ['focus', 'tray', 'clips', 'note', 'chat', 'settings'];
   function drawShortcuts(area) {
-    const PAGE = window.__twocodePage, list = shortcuts();
-    PAGE.title(area, 'Snelkoppelingen', editShortcuts ? `Kies tot ${MAX_SHORTCUTS} apps · ze staan ook op je homescherm` : 'Jouw favoriete apps');
-    // edit / done button (top right)
-    const bw = 104, bx = area.x + area.width - PAGE.contentX - bw, by = area.y + 10, overB = inside(pointer.x, pointer.y, { x: bx, y: by, width: bw, height: 32 });
-    ctx.save(); ctx.beginPath(); ctx.roundRect(bx, by, bw, 32, 16); ctx.fillStyle = editShortcuts ? (overB ? '#d9f7b3' : '#c6e994') : (overB ? '#24272a' : '#1a1c1e'); ctx.fill(); ctx.restore();
-    text(editShortcuts ? 'Klaar' : 'Aanpassen', bx + bw / 2, by + 21, 12, editShortcuts ? '#10180c' : '#e8ece6', 700, 'center');
-    hit.scEdit = { x: bx, y: by, width: bw, height: 32 };
-    const x = area.x + PAGE.contentX, w = area.width - PAGE.contentX * 2, y = area.y + PAGE.bodyY;
-    if (!editShortcuts) {
-      const gap = 10, tw = Math.floor((w - gap * (MAX_SHORTCUTS - 1)) / MAX_SHORTCUTS), th = 92;
-      list.forEach((id, i) => { const a = APPS[id]; tile(x + i * (tw + gap), y, tw, th, a.icon, a.label, appStatus(id), a.key, a.tint()); });
-      for (let i = list.length; i < MAX_SHORTCUTS; i++) { // empty spot
-        const tx = x + i * (tw + gap); ctx.save(); ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.roundRect(tx + 0.5, y + 0.5, tw - 1, th - 1, 15.5); ctx.strokeStyle = 'rgba(255,255,255,.12)'; ctx.stroke(); ctx.restore();
-        text('+ Lege plek', tx + tw / 2, y + th / 2 + 4, 11.5, '#6f7a6b', 600, 'center');
-      }
-      text('Tip: Ctrl + Alt + 1–6 opent apps ook met het toetsenbord', x, y + th + 28, 11, '#6f7a6b', 500);
-      return;
-    }
-    // edit mode: every app as a toggle; chosen ones are lit and numbered
-    const cols = 4, gap = 10, cw = Math.floor((w - gap * (cols - 1)) / cols), ch = 52;
-    Object.entries(APPS).filter(([id]) => installed(id)).forEach(([id, a], i) => {
-      const cx = x + (i % cols) * (cw + gap), cy = y + Math.floor(i / cols) * (ch + gap), on = list.indexOf(id), bounds = { x: cx, y: cy, width: cw, height: ch }, over = inside(pointer.x, pointer.y, bounds);
-      ctx.save(); ctx.beginPath(); ctx.roundRect(cx, cy, cw, ch, 14); ctx.fillStyle = on >= 0 ? 'rgba(198,233,148,.12)' : over ? '#1d2021' : '#141617'; ctx.fill();
-      ctx.strokeStyle = on >= 0 ? 'rgba(198,233,148,.55)' : 'rgba(255,255,255,.07)'; ctx.lineWidth = 1.2; ctx.stroke(); ctx.restore();
-      appIcon(cx + 10, cy + 13, 26, a.icon, a.tint(), bounds);
-      text(a.label, cx + 46, cy + 31, 12, '#eef2ec', 600, 'left', cw - 82);
-      // check badge
-      ctx.save(); ctx.beginPath(); ctx.arc(cx + cw - 18, cy + ch / 2, 9, 0, Math.PI * 2);
-      if (on >= 0) { ctx.fillStyle = '#c6e994'; ctx.fill(); ctx.restore(); text(String(on + 1), cx + cw - 18, cy + ch / 2 + 4, 10.5, '#10180c', 800, 'center'); }
-      else { ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore(); }
-      hit['scToggle_' + id] = bounds;
+    const x = area.x, w = area.width, list = shortcuts().filter(id => QUICK_CHOICES.includes(id)), en = EN();
+    big(T('Snelknoppen', 'Quick buttons'), x + 8, area.y + 26, 22, '#fff', 600);
+    text(T(`Kies ${MAX_SHORTCUTS} apps voor je Home · ${list.length} van de ${MAX_SHORTCUTS}`, `Pick ${MAX_SHORTCUTS} apps for your Home · ${list.length} of ${MAX_SHORTCUTS}`), x + 8, area.y + 46, 13, 'rgba(255,255,255,.55)', 500);
+    const bw = 86, bx = x + w - bw - 4, by = area.y + 8, overB = inside(pointer.x, pointer.y, { x: bx, y: by, width: bw, height: 34 });
+    ctx.save(); ctx.beginPath(); ctx.roundRect(bx, by, bw, 34, 17); ctx.fillStyle = overB ? '#e9e9ee' : '#ffffff'; ctx.fill(); ctx.restore();
+    text(T('Klaar', 'Done'), bx + bw / 2, by + 22, 13, '#141416', 600, 'center');
+    hit.scEdit = { x: bx, y: by, width: bw, height: 34 };
+    const apps = QUICK_CHOICES.filter(installed).map(id => HOME_ICONS.find(h => h.id === id)).filter(Boolean);
+    const colW = w / apps.length, s = 58, cy = area.y + 82 + s / 2;
+    apps.forEach((app, i) => {
+      const cx = x + colW * i + colW / 2, on = list.includes(app.id);
+      ctx.save(); ctx.globalAlpha = on ? 1 : 0.42; const { b } = homeIcon(cx, cy, s, app); ctx.restore();
+      text(en ? app.en : app.nl, cx, cy + s / 2 + 20, 12.5, on ? '#ffffff' : 'rgba(255,255,255,.5)', 500, 'center', colW - 8);
+      // a white check when it is on your home screen, an empty circle when not
+      const kx = cx + s / 2 - 4, ky = cy - s / 2 + 4;
+      ctx.save(); ctx.beginPath(); ctx.arc(kx, ky, 11, 0, Math.PI * 2);
+      if (on) { ctx.fillStyle = '#ffffff'; ctx.fill(); ctx.strokeStyle = '#141416'; ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(kx - 4.5, ky + 0.5); ctx.lineTo(kx - 1.2, ky + 3.8); ctx.lineTo(kx + 4.6, ky - 3); ctx.stroke(); }
+      else { ctx.fillStyle = 'rgba(20,20,22,.8)'; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 1.6; ctx.stroke(); }
+      ctx.restore();
+      hit['scToggle_' + app.id] = b;
     });
-    text(list.length >= MAX_SHORTCUTS ? `Vol (${MAX_SHORTCUTS}/${MAX_SHORTCUTS}) · klik er een uit om te wisselen` : `${list.length}/${MAX_SHORTCUTS} gekozen`, x, y + 2 * (ch + gap) + 18, 11, '#7f8a7a', 600);
+    text(T('Tip: Ctrl + Alt + 1–6 opent apps ook met je toetsenbord', 'Tip: Ctrl + Alt + 1–6 opens apps with your keyboard too'), x + w / 2, area.y + area.height - 8, 12, 'rgba(255,255,255,.4)', 500, 'center');
   }
   canvas.addEventListener('click', event => {
     if (currentView !== 'shortcuts' || mode !== 'expanded') return;
     const stop = () => { event.preventDefault(); event.stopImmediatePropagation(); };
-    if (inside(event.clientX, event.clientY, hit.scEdit)) { stop(); editShortcuts = !editShortcuts; sound('click'); return; }
-    if (!editShortcuts) return;
-    for (const id of Object.keys(APPS)) {
+    if (inside(event.clientX, event.clientY, hit.scEdit)) { stop(); editShortcuts = false; setView('home'); sound('click'); return; }
+    for (const id of QUICK_CHOICES) {
       if (!inside(event.clientX, event.clientY, hit['scToggle_' + id])) continue;
-      stop(); let list = shortcuts();
+      stop(); let list = shortcuts().filter(x => QUICK_CHOICES.includes(x));
       if (list.includes(id)) list = list.filter(x => x !== id);
       else if (list.length < MAX_SHORTCUTS) list.push(id);
-      else { window.__twocodeFlash?.('Max 4 · haal er eerst een uit', 1200); return; }
+      else { window.__twocodeFlash?.(T('Max 4 · haal er eerst een uit', 'Max 4 · take one off first'), 1200); return; }
       saveShortcuts(list); sound('click'); return;
     }
   }, true);
@@ -1780,11 +2269,12 @@
   api.onAiMonitorState(update); api.onAiMonitorOpen(({ provider }) => open(provider));
   api.aiMonitorGet().then(update).catch(failure => { error = failure.message; render(); });
   function position() {
-    const show = ['monitor', 'assistant'].includes(currentView) && mode === 'expanded' && visual.width > 600 && visual.height > 245;
+    const show = ['monitor', 'assistant'].includes(currentView) && mode === 'expanded' && visual.width > 500 && visual.height > Math.min(targetHeight() - 30, 150);
+    if (show && doneKey && !doneSeenAt && current()?.state === 'done') doneSeenAt = performance.now(); // you looked: green, fading out
     const display = show ? 'block' : 'none'; if (root.style.display !== display) root.style.display = display;
     if (show) {
       const p = current(), stage = Boolean(p?.kind === 'hooks' && p.connected && window.__twocodePlaceOnStage);
-      root.classList.toggle('cc-stage', stage); root.classList.toggle('cc-codex', stage && p.agent === 'codex'); // Codex: blue
+      root.classList.toggle('cl-new', stage); root.classList.toggle('cc-codex', stage && p.agent === 'codex'); // Codex: blue
       if (stage) window.__twocodePlaceOnStage(root, contentRect()); else window.__twocodePage.place(root, contentRect());
     }
     requestAnimationFrame(position);

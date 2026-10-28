@@ -45,6 +45,12 @@
     // tray, clipboard, note, focus
     'Laat los, ik vang hem!': "Let go, I'll catch it!", '🧺 Laat los, ik vang hem!': "🧺 Let go, I'll catch it!", 'Het bestand komt in je lade': 'The file goes into your tray',
     'Sleep een bestand eruit, of klik om het te openen': 'Drag a file out, or click to open it', 'Sleep bestanden op de island om ze even te bewaren': 'Drop files on the island to keep them for a bit',
+    'Sleep hier een bestand heen om het toe te voegen': 'Drop a file here to add it', 'Sleep een bestand op de island om het even te bewaren': 'Drop a file on the island to keep it for a bit',
+    'Uit de lade halen': 'Take out of the tray', 'Sleep een kaartje eruit, of klik om het te openen': 'Drag a card out, or click to open it', 'Bewaar bestanden even, en sleep ze er later weer uit': 'Keep files for a bit, and drag them out later',
+    'Even checken voor je videogesprek · de camera stopt als je weggaat': 'A quick check before your video call · the camera stops when you leave',
+    'Geen camera gevonden, of Windows geeft geen toegang (Instellingen → Privacy → Camera).': 'No camera found, or Windows gives no access (Settings → Privacy → Camera).',
+    'Klik op een kaart om hem weer te kopiëren': 'Click a card to copy it again',
+    'Sleep hierheen': 'Drop here', 'Wis geschiedenis': 'Clear history',
     'Je lade is leeg': 'Your tray is empty', 'Sleep een bestand op TwoCode om het even te bewaren': 'Drop a file on TwoCode to keep it for a bit',
     'Je laatst gekopieerde tekst · klik om opnieuw te kopiëren': 'Your last copied text · click to copy again', 'Wissen': 'Clear', 'Gekopieerd ✓': 'Copied ✓',
     'Nog niks gekopieerd': 'Nothing copied yet', 'Kopieer iets (Ctrl + C), dan verschijnt het hier.': 'Copy something (Ctrl + C) and it shows up here.',

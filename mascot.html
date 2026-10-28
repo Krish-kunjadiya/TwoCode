@@ -12,6 +12,24 @@
 }
 
 html,
+/* Inter (SIL Open Font License, assets/fonts/Inter-LICENSE.txt): the closest open font to Apple's San Francisco,
+   with optical sizes, so big titles get tighter shapes by themselves */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: block;
+  src: url(./assets/fonts/inter-latin-opsz-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: block;
+  src: url(./assets/fonts/inter-latin-ext-opsz-normal.woff2) format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
 body {
   width: 100%;
   height: 100%;
@@ -19,7 +37,8 @@ body {
   overflow: hidden;
   background: transparent;
   user-select: none;
-  font-family: Arial, sans-serif;
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-optical-sizing: auto;
 }
 
 canvas {
@@ -68,7 +87,7 @@ canvas {
     0 15px;
 
   font:
-    500 11px Arial, sans-serif;
+    500 11px Inter, "Segoe UI", sans-serif;
 
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.025);
@@ -109,8 +128,7 @@ canvas {
 <script>
 
 'use strict';
-
-
+document.fonts?.load( '600 16px Inter' ); // the canvas uses Inter as soon as it is there
 const canvas =
   document.getElementById(
     'canvas'
@@ -135,7 +153,7 @@ const projectInput =
 
 const UI = {
   REST_W:
-    80,
+    116,
 
   COMPACT_W:
     300,
@@ -145,16 +163,16 @@ const UI = {
     36,
 
   BAR_H:
-    24,
+    32,
 
   EXPANDED_W:
-    760,
+    520,
 
   COMPACT_RADIUS:
-    14,
+    16,
 
   EXPANDED_RADIUS:
-    30,
+    32,
 
   HOME_H:
     150,
@@ -1084,77 +1102,36 @@ function setMode(
 }
 
 
+// The island's size moves like a spring (Apple: start from the current on-screen value, keep the velocity when the
+// target changes, settle without wobbling; a hint of overshoot only when it grows). Velocities live outside the
+// transition, so grabbing it mid-way (opening while it closes) carries on smoothly instead of jumping.
+const islandSpring = { width: 0, height: 0, radius: 0, last: 0 };
 function updateTransition(
   now
 ) {
-  if (
-    !transition
-  ) {
-    return;
+  // the spring keeps its own clock: a new target (setMode called again) never restarts it, it just steers it
+  const dt = islandSpring.last ? Math.min( 1 / 20, Math.max( 0, ( now - islandSpring.last ) / 1000 ) ) : 1 / 60;
+  islandSpring.last = now;
+  if ( !transition ) return;
+  const speed = ( transition.duration || 380 ) / 380; // Settings → speed scales the spring's response
+  const response = ( transition.growing ? 0.42 : 0.34 ) * speed, damping = transition.growing ? 0.86 : 1;
+  const stiffness = Math.pow( 2 * Math.PI / response, 2 ), friction = 4 * Math.PI * damping / response;
+  let settled = true;
+  const steps = Math.max( 1, Math.ceil( dt / ( 1 / 240 ) ) ), h = dt / steps;
+  for ( const key of [ 'width', 'height', 'radius' ] ) {
+    let x = visual[ key ], v = islandSpring[ key ];
+    const target = transition.to[ key ];
+    for ( let i = 0; i < steps; i++ ) {
+      v += ( -stiffness * ( x - target ) - friction * v ) * h;
+      x += v * h;
+    }
+    visual[ key ] = x; islandSpring[ key ] = v;
+    if ( Math.abs( x - target ) > 0.3 || Math.abs( v ) > 3 ) settled = false;
   }
-
-
-  const raw =
-    clamp(
-      (
-        now -
-        transition.started
-      ) /
-      transition.duration
-    );
-
-
-  const amount =
-    1 -
-    Math.pow(
-      1 -
-      raw,
-      3
-    );
-
-
-  // The shape moves like a spring (Apple's Dynamic Island): it overshoots a few percent and settles.
-  // The corners just ease, so the shape never looks bent.
-  const springy = transition.ease === 'in' ? raw * raw * raw // the blob squish: slow start, quick end
-    : transition.bounce ? 1 - Math.exp(-4.6 * raw) * Math.cos(12.5 * raw) // the blob opening: a real bounce
-    : 1 - Math.exp(-7 * raw) * Math.cos(7.2 * raw);
-
-
-  visual.width =
-    lerp(
-      transition.from.width,
-      transition.to.width,
-      springy
-    );
-
-
-  visual.height =
-    lerp(
-      transition.from.height,
-      transition.to.height,
-      springy
-    );
-
-
-  visual.radius =
-    lerp(
-      transition.from.radius,
-      transition.to.radius,
-      amount
-    );
-
-
-  if (
-    raw >=
-    1
-  ) {
-    visual = {
-      ...transition.to
-    };
-
-
-    transition =
-      null;
+  if ( settled ) {
+    visual = { ...transition.to };
+    islandSpring.width = islandSpring.height = islandSpring.radius = 0;
+    transition = null;
   }
 }
 
@@ -1170,65 +1147,20 @@ function islandPath(
   height,
   radius
 ) {
+  // It hangs from the top edge of the screen like the notch on a MacBook: at the top it flows out of the edge with
+  // two small inward curves ("ears"), at the bottom it has round corners.
+  const r = Math.max( 0, Math.min( radius, width / 2, height ) );
+  const ear = Math.max( 0, Math.min( 10, height / 3, width / 8 ) );
   ctx.beginPath();
-
-
-  ctx.moveTo(
-    x,
-    y
-  );
-
-
-  ctx.lineTo(
-    x +
-    width,
-    y
-  );
-
-
-  ctx.lineTo(
-    x +
-    width,
-    y +
-    height -
-    radius
-  );
-
-
-  ctx.quadraticCurveTo(
-    x +
-    width,
-    y +
-    height,
-
-    x +
-    width -
-    radius,
-    y +
-    height
-  );
-
-
-  ctx.lineTo(
-    x +
-    radius,
-    y +
-    height
-  );
-
-
-  ctx.quadraticCurveTo(
-    x,
-    y +
-    height,
-
-    x,
-    y +
-    height -
-    radius
-  );
-
-
+  ctx.moveTo( x - ear, y );
+  ctx.lineTo( x + width + ear, y );
+  ctx.quadraticCurveTo( x + width, y, x + width, y + ear );
+  ctx.lineTo( x + width, y + height - r );
+  ctx.arcTo( x + width, y + height, x + width - r, y + height, r );
+  ctx.lineTo( x + r, y + height );
+  ctx.arcTo( x, y + height, x, y + height - r, r );
+  ctx.lineTo( x, y + ear );
+  ctx.quadraticCurveTo( x, y, x - ear, y );
   ctx.closePath();
 }
 
@@ -1281,7 +1213,7 @@ function text(
 ) {
   // Windows 11 font for a sharp, modern look.
   ctx.font =
-    `${weight} ${size}px "Segoe UI Variable Text", "Segoe UI", Arial, sans-serif`;
+    `${weight} ${size}px Inter, "Segoe UI", sans-serif`;
 
 
   ctx.fillStyle =
@@ -1903,6 +1835,34 @@ function drawBlob(look, status, eye, eyeAlpha, fx) {
   }
 }
 
+/* The island is Robo's face: in the small island only his two eyes, with all his moods and his traffic-light colours.
+   They look a little towards the mouse. Dragging them still pulls Robo himself out of the island (buddy-ui.js). */
+function drawIslandEyes( cx, cy, size = 1 ) {
+  if ( window.__twocodeCarried?.() && !window.__twocodeBuddyDrawing ) return; // he is out on the screen
+  const fx = window.__twocodeGhostFx?.() || {}, status = window.__twocodeEyes?.(), look = window.__twocodeLook?.() || {};
+  const eye = angry > 0.05 ? '#ff6b6b' : status?.color || look.eye || '#e3ffd4';
+  const alpha = status?.blink ? 0.3 + 0.7 * ( 0.5 + 0.5 * Math.cos( performance.now() / 200 ) ) : 1;
+  const lookX = pointer.known ? Math.max( -1, Math.min( 1, ( pointer.x - cx ) / 320 ) ) * 2.2 * size : 0;
+  const lookY = pointer.known ? Math.max( -1, Math.min( 1, ( pointer.y - cy ) / 200 ) ) * 0.8 * size : 0;
+  const scale = fx.scale ?? 1, hop = ( fx.dy || 0 ) * 0.18 * size;
+  ctx.save();
+  ctx.translate( cx + lookX, cy + lookY + hop );
+  ctx.rotate( Math.sin( performance.now() * 0.006 ) * 0.08 * dizzy + ( fx.tilt || 0 ) * 0.5 );
+  ctx.scale( scale * ( fx.sx ?? 1 ), scale * ( fx.sy ?? 1 ) );
+  for ( const side of [ -1, 1 ] ) {
+    ctx.save();
+    ctx.translate( side * 8.5 * size, 0 );
+    ctx.scale( 0.62 * size, 0.62 * size );
+    ctx.globalAlpha *= alpha;
+    ctx.shadowColor = eye;
+    ctx.shadowBlur = 10;
+    drawEye( side, eye, angry > 0.05 ? null : fx.mood );
+    ctx.restore();
+  }
+  ctx.restore();
+}
+window.__twocodeIslandEyes = drawIslandEyes;
+
 /*
   Gezichtjes:
   focus = turen, curious = grote ogen,
@@ -2150,115 +2110,43 @@ function drawIsland() {
   const centerX =
     innerWidth /
     2;
-
-
   const x =
     centerX -
     visual.width /
     2;
-
-
   islandBounds = {
     x,
-
     y:
       0,
-
     width:
       visual.width,
-
     height:
       visual.height
   };
-
-
-  // Soft glow in Claude's colour around the island (like light from the stoplight eyes).
-  const glow =
-    window.__twocodeEyes?.()?.color;
-
-
+  // Opaque black, like the Dynamic Island (Apple: no custom backgrounds in the island). A soft shadow lifts it off a
+  // light desktop; while something is going on, a thin key line in its colour runs round the edge.
   ctx.save();
-
-
-  ctx.shadowColor =
-    glow
-      ? glow + '55'
-      : 'rgba(0,0,0,.42)';
-
-
-  ctx.shadowBlur =
-    glow
-      ? 22
-      : 16;
-
-
-  ctx.shadowOffsetY =
-    glow
-      ? 2
-      : 4;
-
-
-  islandPath(
-    x,
-    0,
-    visual.width,
-    visual.height,
-    visual.radius
-  );
-
-
-  ctx.fillStyle =
-    '#000';
-
-
+  ctx.shadowColor = 'rgba(0,0,0,.28)';
+  ctx.shadowBlur = 14;
+  ctx.shadowOffsetY = 3;
+  islandPath( x, 0, visual.width, visual.height, visual.radius );
+  ctx.fillStyle = '#000';
   ctx.fill();
-
-
   ctx.restore();
-
-
-  // Subtle top-lit edge: brighter at the bottom rim, like glass.
-  islandPath(
-    x,
-    0,
-    visual.width,
-    visual.height,
-    visual.radius
-  );
-
-
-  const edge =
-    ctx.createLinearGradient(
-      0,
-      0,
-      0,
-      visual.height
-    );
-
-
-  edge.addColorStop(
-    0,
-    'rgba(255,255,255,.02)'
-  );
-
-
-  edge.addColorStop(
-    1,
-    glow
-      ? glow + '40'
-      : 'rgba(255,255,255,.10)'
-  );
-
-
-  ctx.strokeStyle =
-    edge;
-
-
-  ctx.lineWidth =
-    1;
-
-
-  ctx.stroke();
+  islandPath( x, 0, visual.width, visual.height, visual.radius );
+  ctx.fillStyle = '#000';
+  ctx.fill();
+  window.__twocodeIslandBackdrop?.( x, visual.width, visual.height, visual.radius ); // a page may colour the whole island
+  const line = window.__twocodeEyes?.()?.color;
+  if ( line ) { // (not along the top: there it flows into the screen edge)
+    ctx.save();
+    ctx.beginPath(); ctx.rect( 0, 3, innerWidth, innerHeight ); ctx.clip();
+    islandPath( x + 0.5, 0, visual.width - 1, visual.height - 0.5, visual.radius );
+    ctx.strokeStyle = 'rgba(255,255,255,.1)'; // a faint neutral edge, so the black island stays visible on a dark desktop
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+  }
 }
 
 
@@ -2267,33 +2155,9 @@ function drawIsland() {
 // ============================================================
 
 function contentRect() {
-  const padding =
-    24;
-
-
-  const headerHeight =
-    36;
-
-
-  return {
-    x:
-      islandBounds.x +
-      padding,
-
-    y:
-      headerHeight +
-      10,
-
-    width:
-      islandBounds.width -
-      padding *
-      2,
-
-    height:
-      islandBounds.height -
-      headerHeight -
-      22
-  };
+  // inside the island's frame (icons-ui.js): the header on top, ‹ › on the sides, the tabs at the bottom
+  const g = window.__twocodeNavGeometry?.() || { top: 46, bottom: 22, side: 24 };
+  return { x: islandBounds.x + g.side, y: g.top, width: islandBounds.width - g.side * 2, height: islandBounds.height - g.top - g.bottom };
 }
 
 
@@ -4159,80 +4023,35 @@ function setView(
 // INTRO
 // ============================================================
 
-const introStarted =
+let introStarted =
   performance.now();
 
 
 let introFinished =
   false;
+window.__twocodeReplayIntro = () => { introStarted = performance.now(); introFinished = false; }; // videos and tests: play the startup again
 
 
 function drawIntro(
   now
 ) {
-  const centerX =
-    innerWidth /
-    2;
-
-
-  const progress =
-    clamp(
-      (
-        now -
-        introStarted
-      ) /
-      1200
-    );
-
-
-  const grow =
-    range(
-      progress,
-      0,
-      0.34
-    );
-
-
-  const settle =
-    range(
-      progress,
-      0.62,
-      1
-    );
-
-
-  const width =
-    lerp(
-      UI.REST_W,
-      UI.COMPACT_W,
-      grow
-    );
-
-
-  visual.width =
-    lerp(
-      width,
-      UI.REST_W,
-      settle
-    );
-
-
-  visual.height =
-    UI.BAR_H;
-
-
-  visual.radius =
-    UI.COMPACT_RADIUS;
-
-
-  drawIsland();
-
-
-  drawGhost(
-    centerX,
-    12,
-    16
-  );
+  // Startup, calm like the Dynamic Island: a dot comes out of the top edge and springs open into the small pill,
+  // then Robo opens his eyes (they grow from a line, like opening). Nothing pops in at once.
+  const centerX = innerWidth / 2;
+  const progress = clamp( ( now - introStarted ) / 1300 );
+  const grow = clamp( progress / 0.5 ), back = 1.6;
+  const springy = grow <= 0 ? 0 : 1 + ( back + 1 ) * Math.pow( grow - 1, 3 ) + back * Math.pow( grow - 1, 2 ); // ease-out with a small overshoot
+  visual.width = lerp( 18, UI.REST_W, springy );
+  visual.height = lerp( 4, UI.BAR_H, Math.min( 1, grow * 1.4 ) );
+  visual.radius = Math.min( UI.COMPACT_RADIUS, visual.height / 2 );
+  if ( progress > 0.02 ) drawIsland();
+  const open = clamp( ( progress - 0.45 ) / 0.3 ), lid = open <= 0 ? 0 : 1 - Math.pow( 1 - open, 3 );
+  if ( lid > 0 ) {
+    ctx.save(); ctx.globalAlpha = Math.min( 1, lid * 1.5 );
+    ctx.translate( centerX, visual.height / 2 ); ctx.scale( 1, Math.max( 0.08, lid ) ); ctx.translate( -centerX, -visual.height / 2 );
+    window.__twocodeIslandEyes ? window.__twocodeIslandEyes( centerX, visual.height / 2 ) : drawGhost( centerX, 12, 16 );
+    ctx.restore();
+  }
 
 
   if (
@@ -4316,11 +4135,7 @@ function drawSmall() {
     mode ===
     'rest'
   ) {
-    drawGhost(
-      centerX,
-      12,
-      16
-    );
+    drawIslandEyes( centerX, visual.height / 2 ); // the small island is Robo's face
 
 
     hit.ghost = {
@@ -4413,12 +4228,12 @@ function updateHover(
   }
 
 
+  // the island floats a few px below the screen edge: the mouse at the very top still counts (easy to hit)
   const over =
     pointer.known &&
-    inside(
-      pointer.x,
-      pointer.y,
-      islandBounds
+    (
+      inside( pointer.x, pointer.y, islandBounds ) ||
+      ( pointer.y < 0 && pointer.y > -14 && pointer.x >= islandBounds.x && pointer.x <= islandBounds.x + islandBounds.width )
     );
 
 
@@ -4796,7 +4611,7 @@ function updateProjectInput() {
     !projectReadLoading &&
     projectInputBounds &&
     visual.width >
-      600 &&
+      500 &&
     visual.height >
       220;
 
@@ -4984,12 +4799,7 @@ function drawIslandFrame(
   ctx.clip();
 
 
-  const alpha =
-    range(
-      visual.width,
-      360,
-      600
-    );
+  const alpha = range( visual.width, 360, UI.EXPANDED_W - 12 ); // fully visible once the island is (nearly) open
 
 
   // Small content in the small/medium island (it can be wide, e.g. with answer buttons), big content when open.
@@ -4998,8 +4808,13 @@ function drawIslandFrame(
     visual.width <
     380
   ) {
-    drawSmall();
-
+    // while it shrinks, the small content only fades in once the island is nearly its small size (like the iPhone)
+    const smallFade = mode === 'expanded' ? 1 : Math.max( 0, Math.min( 1, 1 - ( visual.height - modeTarget( mode ).height ) / 24 ) );
+    if ( smallFade > 0.01 ) {
+      ctx.globalAlpha = smallFade;
+      drawSmall();
+      ctx.globalAlpha = 1;
+    }
   } else {
     drawExpanded(
       alpha
@@ -5488,7 +5303,6 @@ setInterval(
 <script src="./chat-ui.js"></script>
 <script src="./extras-ui.js"></script>
 <script src="./focus-ui.js"></script>
-<script src="./blob-ui.js"></script>
 <script src="./tools-ui.js"></script>
 <script src="./island-window-ui.js"></script>
 

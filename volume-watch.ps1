@@ -1,4 +1,6 @@
 # Prints "<volume 0-100> <muted 0/1>" whenever the Windows master volume changes (TwoCode volume bar).
+# Also listens on stdin: "set <0-100>" sets the master volume (the volume block on the home screen), "mute <0/1>" mutes.
+param([int]$Parent = 0) # must come first in a script
 $ErrorActionPreference = 'Stop'
 Add-Type -TypeDefinition @'
 using System;
@@ -33,12 +35,31 @@ namespace TwoCode {
       Marshal.ThrowExceptionForHR(v.GetMute(out mute));
       return ((int)Math.Round(level * 100)).ToString() + " " + (mute ? "1" : "0");
     }
+    public static void Set(int percent) {
+      var v = Endpoint(); percent = Math.Max(0, Math.Min(100, percent));
+      Marshal.ThrowExceptionForHR(v.SetMasterVolumeLevelScalar(percent / 100f, Guid.Empty));
+      if (percent > 0) v.SetMute(false, Guid.Empty);
+    }
+    // Commands from TwoCode come in on stdin, on their own thread (the main loop keeps reporting changes).
+    public static void Listen() {
+      var thread = new System.Threading.Thread(() => {
+        string line;
+        while ((line = Console.In.ReadLine()) != null) {
+          try {
+            var parts = line.Trim().Split(' ');
+            if (parts.Length == 2 && parts[0] == "set") Set(int.Parse(parts[1]));
+            else if (parts.Length == 2 && parts[0] == "mute") Endpoint().SetMute(parts[1] == "1", Guid.Empty);
+          } catch { }
+        }
+      });
+      thread.IsBackground = true; thread.Start();
+    }
   }
 }
 '@
-param([int]$Parent = 0)
 $last = ''
 $tick = 0
+[TwoCode.Audio]::Listen()
 while ($true) {
   # Stop together with TwoCode, also when it was closed abruptly.
   if ($Parent -and (++$tick % 15 -eq 0) -and -not (Get-Process -Id $Parent -ErrorAction SilentlyContinue)) { exit 0 }

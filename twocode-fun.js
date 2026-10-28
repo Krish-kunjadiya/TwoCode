@@ -177,7 +177,7 @@
   }
   const hungry = () => prefs.hunger && hunger() < 30;
   window.__twocodeHunger = () => (prefs.hunger ? hunger() : null);
-  window.__twocodeHomeTitle = () => (hungry() ? 'Ik heb honger… maak een taak af 🍪' : '');
+  window.__twocodeHomeTitle = () => ''; // no hungry message on Home (it made Robo look sad all day)
   if (Date.now() - food.at > 600000) { food.at = Date.now(); store.set('twocode:food', food); } // time while closed doesn't count
 
   // ---------- focus timer (hours, minutes and seconds are chosen on the Focus page, focus-ui.js) ----------
@@ -315,6 +315,13 @@
     return baseDrawGhost(x, y, size, ...rest);
   };
   drawIsland = function () {
+    const out = window.__twocodeOutro?.() || 0;
+    if (out > 0) { // goodbye: narrower and lower, faster at the end (it slips into the edge)
+      const e = out * out, w = visual.width, h = visual.height, r = visual.radius;
+      visual.width = w + (18 - w) * e; visual.height = h * (1 - e); visual.radius = Math.min(r, visual.height / 2);
+      try { if (visual.height > 1) baseDrawIsland(); } finally { visual.width = w; visual.height = h; visual.radius = r; }
+      return;
+    }
     const t = now(); let j = 0;
     for (const k of kicks) j += spring(t - k.at, k.amp, k.hz, k.damp);
     if (Math.abs(j) < 0.002) return baseDrawIsland();
@@ -357,18 +364,38 @@
   // While Robo says hi (or bye) he stands big in the middle of the island: other messages wait (extras-ui.js).
   window.__twocodeHelloBusy = () => (helloQueued && prefs.startup) || showAt != null || byeAt != null;
   window.__twocodeHello = startHello; // also used by the Settings example
+  // Goodbye, calm and quick: "bye-bye", the island goes small, Robo closes his eyes and the island shrinks back into the
+  // top edge, then the app is gone (main.js quits after OUT.end). No moment where the island hangs around empty.
+  const OUT = { eyes: 260, shrink: 300, end: 950 };
+  let outAt = null;
+  const baseIslandEyes = drawIslandEyes;
+  drawIslandEyes = function (cx, cy, size = 1) {
+    if (outAt == null) return baseIslandEyes(cx, cy, size);
+    const k = Math.max(0, Math.min(1, (now() - outAt) / OUT.eyes)); if (k >= 1) return;
+    ctx.save(); ctx.translate(cx, cy); ctx.scale(1, Math.max(0.06, 1 - k * k)); ctx.translate(-cx, -cy); baseIslandEyes(cx, cy, size); ctx.restore();
+  };
+  window.__twocodeIslandEyes = drawIslandEyes;
+  window.__twocodeOutro = () => outAt == null ? 0 : Math.max(0, Math.min(1, (now() - outAt - OUT.eyes * 0.7) / OUT.shrink));
   window.__twocodeBye = () => {
-    ++showId; byeAt = now(); showAt = null; sayByeBye(); feel('happy', BYE.squash); waveUntil = now() + BYE.squash;
-    if (mode !== 'compact') setMode('compact', false);
-    setTimeout(() => { blobTone(0, 640, 150, 0.2, 0.06); kick(-0.1, 3.2); }, BYE.squash); // zips into a dot: "bloop", the island squeezes
-    setTimeout(() => setMode('rest', false), BYE.off);
+    ++showId; byeAt = null; showAt = null; sayByeBye();
+    const wasOpen = mode !== 'rest'; if (wasOpen) setMode('rest', false);
+    outAt = now() + (wasOpen ? 320 : 120);
+    setTimeout(() => blobTone(0, 520, 160, 0.18, 0.05), (wasOpen ? 320 : 120) + OUT.eyes); // a soft "bloop" as it closes
+  };
+  window.__twocodeByeReset = () => { outAt = null; };
+  // while the eyes close, everything else in the small island (cover, bars, time) fades with them; after that only the shape is left
+  const baseSmall = drawSmall;
+  drawSmall = function (...args) {
+    if (outAt == null) return baseSmall.apply(this, args);
+    const k = Math.max(0, Math.min(1, (now() - outAt) / OUT.eyes)); if (k >= 1) return;
+    ctx.save(); ctx.globalAlpha *= 1 - k; try { return baseSmall.apply(this, args); } finally { ctx.restore(); }
   };
   window.twocode?.onGoodbye?.(() => window.__twocodeBye());
 
   // ---------- poking: click TwoCode a few times and he gets angry, click a lot and he gets dizzy ----------
   let pokes = [], dizzyUntil = 0, pokeMessage = '', pokeMessageUntil = 0;
   canvas.addEventListener('click', event => {
-    if (!inside(event.clientX, event.clientY, hit.ghost)) return;
+    if (!(window.__twocodeOnRobo?.(event) ?? inside(event.clientX, event.clientY, hit.ghost))) return;
     const t = now(); pokes = pokes.filter(p => t - p < 1600); pokes.push(t);
     jump(); chime('pop');
     if (pokes.length >= 6) {
@@ -435,7 +462,7 @@
 
   let danceDemoUntil = 0;
   // ---------- what drawGhost asks for ----------
-  const MOODS = { running: 'focus', sending: 'focus', question: 'curious', done: 'happy', error: 'sad', stopped: 'sad', unavailable: 'sad' };
+  const MOODS = { running: 'focus', sending: 'focus', question: 'curious', done: 'happy' }; // never a lasting sad face: an error shows in the eyes' colour
   function fx() {
     const t = now(), status = window.__twocodeStatus?.();
     let dy = 0, tilt = 0, scale = 1;
@@ -451,7 +478,6 @@
       if (move === 2) { dy -= Math.abs(Math.sin(t / 180)) * 4; scale = 1 + Math.abs(Math.sin(t / 180)) * 0.04; } // jump
       if (move === 3) { tilt = Math.sin(t / 120) * 0.08; dy -= Math.abs(Math.sin(t / 240)) * 2; } // wiggle
     }
-    if (!mood && hungry() && prefs.faces) mood = 'sad';
     if (mood === 'sad') dy += 2;
     if (!mood && asleep()) { mood = 'sleep'; dy += Math.sin(t / 900) * 1.5; }
     mood = idleLife(t, mood);
@@ -701,7 +727,7 @@
   function runTest(kind) {
     const claude = k => window.twocode?.aiMonitorHooksTest?.(k).then(() => window.__twocodeMonitor?.refresh()).catch(() => {});
     if (kind === 'hello') startHello();
-    else if (kind === 'bye') { window.__twocodeBye(); setTimeout(() => { byeAt = null; jump(); feel('happy', 900); }, BYE.end + 500); } // a test: he comes back
+    else if (kind === 'bye') { window.__twocodeBye(); setTimeout(() => { window.__twocodeByeReset(); jump(); feel('happy', 900); }, 1600); } // a test: he comes back
     else if (kind === 'music') fakeMusic();
     else if (kind === 'focus') focus.start(60);
     else if (kind === 'clear') { claude('clear'); if (fakeMusicUntil) stopFakeMusic(); if (focus.active()) focus.stop(); }

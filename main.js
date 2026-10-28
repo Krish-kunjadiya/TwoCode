@@ -33,6 +33,7 @@ app.setAppUserModelId(
 
 const PANEL_WIDTH = 860; // wide and low, like NotchNook
 const PANEL_HEIGHT = 320;
+const ISLAND_FLOAT = 0; // the island hangs from the top edge of the screen (like the notch on a MacBook)
 
 let mascotWindow = null;
 let pointerTimer = null;
@@ -4005,7 +4006,7 @@ function positionMascot() {
 
 
   const y =
-    display.bounds.y;
+    display.bounds.y + ISLAND_FLOAT; // the island floats a little below the top edge, like the Dynamic Island
 
 
   mascotWindow.setPosition(
@@ -4116,7 +4117,11 @@ function setMascotInteractive(
     );
 
 
+  // Catching the mouse is only switched on when it changes. Letting clicks through is applied again every
+  // time the island says so (about once a second): Windows could leave the invisible window catching clicks
+  // after Claude finished, so the top of the screen stopped working until you clicked the island.
   if (
+    next &&
     next ===
     mascotInteractive
   ) {
@@ -4500,7 +4505,7 @@ app.on(
     goodbyeShown = true;
     event.preventDefault();
     mascotWindow.webContents.send('twocode:goodbye');
-    setTimeout(() => app.quit(), 1700); // after the goodbye (twocode-fun.js)
+    setTimeout(() => app.quit(), 1000); // right after the goodbye (twocode-fun.js: eyes close, the island slips into the edge)
   }
 );
 

@@ -27,8 +27,8 @@
     },
     // Position a DOM panel (Settings, Claude Code, Lade, Spiegel) on the content column.
     place(el, area) {
-      el.style.left = `${area.x + PAGE.contentX}px`; el.style.top = `${area.y}px`;
-      el.style.width = `${Math.max(100, area.width - PAGE.contentX * 2)}px`; // same margin left and right
+      el.style.left = `${area.x}px`; el.style.top = `${area.y}px`; // the same 24px margin as the header above it
+      el.style.width = `${Math.max(100, area.width)}px`;
       el.style.height = `${area.height}px`; // fixed height, so long pages (Settings) scroll
     }
   };
@@ -36,37 +36,70 @@
 
   const baseHeight = targetHeight;
   // Spotify is a wide, low player (like NotchNook); the other pages need more height.
-  targetHeight = function () { return currentView === 'spotify' ? 196 : PAGE.isPage(currentView) ? PAGE.height : baseHeight(); };
+  // every page only as tall as it needs (like the Dynamic Island: tight around its content)
+  const HEIGHTS = { spotify: 184, focus: 226, tray: 178, clips: 262, note: 250, chat: 300, apps: 246, mirror: 280, settings: 320 };
+  targetHeight = function () { return HEIGHTS[currentView] || (PAGE.isPage(currentView) ? PAGE.height : baseHeight()); };
 
-  // Smooth page changes: canvas pages fade in, DOM pages fade + slide in.
-  let lastView = null, changedAt = 0;
-  const ROOTS = ['twocode-ai-monitor', 'twocode-settings-v2', 'twocode-extras', 'twocode-focus', 'twocode-tools'];
+  // Smooth page changes (this replaced blob-ui.js): opening the island blurs the content in, going to another page slides it in from that side.
+  let lastView = null, changedAt = 0, lastMode = null, slideDir = 0, opening = false;
+  const ROOTS = ['twocode-ai-monitor', 'twocode-settings-v2', 'twocode-extras', 'twocode-focus', 'twocode-tools', 'twocode-chat'];
+  const shownBefore = {};
+  const enter = el => { if (window.__twocodePrefs?.().appAnim === false) return; const cls = opening ? 'tc-enter' : 'tc-slide'; el.classList.remove('tc-enter', 'tc-slide'); void el.offsetWidth; el.classList.add(cls); };
   (function watch() {
-    if (currentView !== lastView) {
+    const opened = mode === 'expanded' && lastMode !== 'expanded';
+    if (currentView !== lastView || opened) {
+      opening = opened; slideDir = opened ? 0 : (window.__twocodeNavDir ?? 0); window.__twocodeNavDir = 0;
       lastView = currentView; changedAt = performance.now();
-      for (const id of ROOTS) { const el = document.getElementById(id); if (el) { el.classList.remove('tc-enter'); void el.offsetWidth; el.classList.add('tc-enter'); } }
+      document.documentElement.style.setProperty('--tc-dx', `${slideDir * 26}px`);
+      for (const id of ROOTS) shownBefore[id] = false; // a page that stays (e.g. Klembord → Notitie) slides in again too
+    }
+    lastMode = mode;
+    for (const id of ROOTS) { // a DOM page that just appeared comes in like the canvas pages
+      const el = document.getElementById(id); if (!el) continue;
+      const shown = el.style.display !== 'none' && el.style.display !== '';
+      if (shown && !shownBefore[id]) enter(el);
+      shownBefore[id] = shown;
     }
     requestAnimationFrame(watch);
   })();
+  const calm = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+  window.__twocodePageAnim = () => ({ opening, slideDir, since: Math.round(performance.now() - changedAt), view: lastView, mode: lastMode }); // for tests
   const baseExpanded = drawExpanded;
   drawExpanded = function (alpha) {
+    if (!opening) { // another page: the frame stays put, only the content slides in from the side you went to
+      const k = Math.min(1, (performance.now() - changedAt) / 280), e = 1 - Math.pow(1 - k, 3);
+      if (e >= 0.995 || window.__twocodePrefs?.().appAnim === false) { baseExpanded(alpha); return; } // Settings → Animaties → App-animaties
+      drawHeader(alpha); // the frame (header, ‹ ›, tabs) does not move
+      const keep = drawHeader; drawHeader = () => {};
+      ctx.save(); if (!calm?.matches) ctx.translate(slideDir * 26 * (1 - e), 0); ctx.globalAlpha *= 0.15 + 0.85 * e;
+      try { baseExpanded(alpha); } finally { ctx.restore(); drawHeader = keep; }
+      return;
+    }
+    const target = targetHeight(), grown = Math.max(0, Math.min(1, (visual.height - 60) / Math.max(1, target - 60)));
+    const k = Math.min(grown, Math.min(1, (performance.now() - changedAt) / 300)), e = 1 - Math.pow(1 - k, 3);
+    if (e >= 0.995) { baseExpanded(alpha); return; }
+    ctx.save();
+    if (!calm?.matches) { const cx = islandBounds.x + islandBounds.width / 2, sc = 0.94 + 0.06 * e; ctx.translate(cx, 0); ctx.scale(sc, sc); ctx.translate(-cx, 0); ctx.filter = `blur(${((1 - e) * 8).toFixed(2)}px)`; }
+    ctx.globalAlpha *= e;
     baseExpanded(alpha);
-    const k = Math.min(1, (performance.now() - changedAt) / 220);
-    if (k < 1) { const a = contentRect(); ctx.save(); ctx.fillStyle = `rgba(0,0,0,${(1 - k) * (1 - k)})`; ctx.fillRect(a.x - 4, a.y - 4, a.width + 8, a.height + 8); ctx.restore(); }
+    ctx.restore();
   };
 
   // Shared look for the DOM pages' title and subtitle.
   const style = document.createElement('style');
   style.textContent = `
-.tc-page-title{font:700 18px/24px Arial,sans-serif;color:#fff;margin:6px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tc-page-sub{font:400 11px/16px Arial,sans-serif;color:#9aa596;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-page-title{font:700 18px/24px Inter, "Segoe UI", sans-serif;color:#fff;margin:6px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tc-page-sub{font:400 11px/16px Inter, "Segoe UI", sans-serif;color:#9aa596;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tc-page-head{display:flex;align-items:flex-start;gap:10px;height:${PAGE.bodyY - 6}px;flex:none}
 .tc-page-head > div{flex:1;min-width:0}
 /* Same Windows 11 font in every panel */
-#twocode-ai-monitor,#twocode-ai-monitor *,#twocode-settings-v2,#twocode-settings-v2 *,#twocode-extras,#twocode-extras *,#twocode-focus,#twocode-focus *,#twocode-tools,#twocode-tools *:not(.tl-clip){font-family:"Segoe UI Variable Text","Segoe UI",sans-serif !important}
-.tc-page-title{font-family:"Segoe UI Variable Display","Segoe UI",sans-serif !important;letter-spacing:-.2px}
-.tc-enter{animation:tc-enter .24s cubic-bezier(.2,.8,.2,1)}
-@keyframes tc-enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+#twocode-ai-monitor,#twocode-ai-monitor *,#twocode-settings-v2,#twocode-settings-v2 *,#twocode-extras,#twocode-extras *,#twocode-focus,#twocode-focus *,#twocode-tools,#twocode-tools *:not(.tl-clip){font-family:Inter, "Segoe UI",sans-serif !important}
+.tc-page-title{font-family:Inter, "Segoe UI",sans-serif !important;letter-spacing:-.2px}
+.tc-enter{animation:tc-enter .34s cubic-bezier(.2,.8,.2,1);transform-origin:50% 0}
+@keyframes tc-enter{from{opacity:0;transform:scale(.95);filter:blur(8px)}to{opacity:1;transform:none;filter:none}}
+.tc-slide{animation:tc-slide .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes tc-slide{from{opacity:.15;transform:translateX(var(--tc-dx,0px))}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.tc-enter{animation:tc-fade .2s ease-out}@keyframes tc-fade{from{opacity:0}}}
 /* Calmer, more refined settings rows and buttons */
 #twocode-settings-v2 .tc-setting-row{background:#0f120f;border:1px solid rgba(255,255,255,.06);border-radius:14px;transition:border-color .15s,background .15s}
 #twocode-settings-v2 .tc-setting-row:hover{border-color:rgba(255,255,255,.12);background:#121612}

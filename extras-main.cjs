@@ -94,17 +94,26 @@ function setup(electron) {
   });
 
   // ---------- volume: a small PowerShell helper reports every change of the master volume ----------
-  let volumeChild = null;
+  let volumeChild = null, volumeNow = null;
+  // the volume block on the home screen sets the Windows volume (0-100) through the same helper
+  handle('extras:volume-set', async payload => {
+    const level = Math.max(0, Math.min(100, Math.round(Number(payload?.level))));
+    if (!Number.isFinite(level) || !volumeChild?.stdin) throw new Error('Volume niet beschikbaar.');
+    volumeChild.stdin.write(`set ${level}
+`); return {};
+  });
+  handle('extras:volume-get', async () => ({ volume: volumeNow }));
   function startVolume() {
     if (process.platform !== 'win32' || volumeChild) return;
     volumeChild = spawn(POWERSHELL, ['-NoLogo', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', path.join(__dirname, 'volume-watch.ps1'), '-Parent', String(process.pid)],
-      { windowsHide: true, shell: false, stdio: ['ignore', 'pipe', 'ignore'] });
+      { windowsHide: true, shell: false, stdio: ['pipe', 'pipe', 'ignore'] });
+    volumeChild.stdin?.on?.('error', () => {});
     let buffer = '';
     volumeChild.stdout.on('data', chunk => {
       buffer += chunk.toString();
       let end; while ((end = buffer.indexOf('\n')) >= 0) {
         const [level, muted] = buffer.slice(0, end).trim().split(' '); buffer = buffer.slice(end + 1);
-        if (level !== undefined && level !== '') send('extras:volume', { level: Number(level), muted: muted === '1' });
+        if (level !== undefined && level !== '') { volumeNow = { level: Number(level), muted: muted === '1' }; send('extras:volume', volumeNow); }
       }
     });
     volumeChild.on('exit', () => { volumeChild = null; });
@@ -128,19 +137,21 @@ Get-PnpDevice -Class Bluetooth -Status OK -ErrorAction SilentlyContinue | ForEac
 
   // ---------- clipboard history: your last 8 copied texts (only in memory, never saved to disk) ----------
   let clips = [], lastClip = '';
-  const clipsView = () => ({ clips: clips.map(text => ({ text: text.slice(0, 400), long: text.length > 400 })) });
+  const copiedAt = new Map(); // text → when it was copied
+  const clipsView = () => ({ clips: clips.map(text => ({ text: text.slice(0, 400), long: text.length > 400, at: copiedAt.get(text) || 0 })) });
   async function readClipboard() {
     // readText can give a string or a promise (newer Electron); anything else is ignored.
     let text = ''; try { const r = electron.clipboard.readText(); text = typeof r === 'string' ? r : r && typeof r.then === 'function' ? await r : ''; } catch {}
     if (typeof text !== 'string' || !text || text === lastClip) return; lastClip = text;
     if (!text.trim() || text.length > 20000) return;
-    clips = [text, ...clips.filter(c => c !== text)].slice(0, 8);
+    clips = [text, ...clips.filter(c => c !== text)].slice(0, 8); copiedAt.set(text, Date.now());
+    for (const key of copiedAt.keys()) if (!clips.includes(key)) copiedAt.delete(key);
     send('extras:clips', clipsView());
   }
   handle('extras:clips-get', async () => clipsView());
   handle('extras:clips-copy', async payload => {
     const text = clips[Number(payload?.index)]; if (typeof text !== 'string') throw new Error('Niet gevonden.');
-    electron.clipboard.writeText(text); lastClip = text; clips = [text, ...clips.filter(c => c !== text)]; return clipsView();
+    electron.clipboard.writeText(text); lastClip = text; clips = [text, ...clips.filter(c => c !== text)]; copiedAt.set(text, Date.now()); return clipsView();
   });
   handle('extras:clips-clear', async () => { clips = []; return clipsView(); });
 

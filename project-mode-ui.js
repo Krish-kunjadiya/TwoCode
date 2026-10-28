@@ -36,7 +36,7 @@
   z-index:50;
   display:none;
   color:#edf3e8;
-  font:10px/15px Arial,sans-serif;
+  font:10px/15px Inter, "Segoe UI", sans-serif;
   pointer-events:auto;
 }
 #twocode-project-v2 * {
@@ -75,7 +75,7 @@
 #twocode-project-v2 button {
   border:0;
   cursor:pointer;
-  font:700 9px Arial,sans-serif;
+  font:700 9px Inter, "Segoe UI", sans-serif;
   border-radius:14px;
   padding:8px 11px;
   background:#20281e;
@@ -221,7 +221,7 @@
   background:#171e14;
   color:#eff5e8;
   padding:9px 11px;
-  font:10px/15px Arial,sans-serif;
+  font:10px/15px Inter, "Segoe UI", sans-serif;
   outline:none;
 }
 #twocode-project-v2 textarea:focus {
@@ -754,7 +754,7 @@
       show =
         currentView === 'project' &&
         mode === 'expanded' &&
-        visual.width > 600 &&
+        visual.width > 500 &&
         visual.height > 230;
     } catch {}
 

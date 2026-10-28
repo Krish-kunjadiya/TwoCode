@@ -9,9 +9,9 @@
   if (!api?.buddyAsk) return;
   const root = document.createElement('section'); root.id = 'twocode-chat'; document.body.appendChild(root);
   const style = document.createElement('style'); style.textContent = `
-#twocode-chat{position:absolute;z-index:60;display:none;color:#f2f2f4;font:12.5px/1.5 "Segoe UI Variable Text","Segoe UI",sans-serif;pointer-events:auto}
+#twocode-chat{position:absolute;z-index:60;display:none;color:#f2f2f4;font:12.5px/1.5 Inter, "Segoe UI",sans-serif;pointer-events:auto}
 #twocode-chat *{box-sizing:border-box}
-#twocode-chat .cr-top{position:absolute;left:92px;right:14px;top:10px;height:26px;display:flex;align-items:center;gap:8px}
+#twocode-chat .cr-top{position:absolute;left:16px;right:12px;top:4px;height:28px;display:flex;align-items:center;gap:8px}
 #twocode-chat .cr-ctx{flex:0 1 auto;min-width:0;display:flex;align-items:center;gap:7px;padding:4px 11px;border-radius:999px;background:rgba(255,255,255,.08);font-size:11.5px;font-weight:600;color:#e8e8ef;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #twocode-chat .cr-ctx i{width:7px;height:7px;border-radius:50%;background:#5ee07a;box-shadow:0 0 6px #5ee07a;flex:none}
 #twocode-chat .cr-ctx button{border:0;background:transparent;color:#9a9aa6;cursor:pointer;font-size:12px;padding:0 0 0 4px}
@@ -20,35 +20,35 @@
 #twocode-chat .cr-via{flex:none;font-size:10.5px;color:#8a8a96;border:0;background:transparent;padding:0;font-family:inherit}
 #twocode-chat .cr-via.off{color:#ffb4a8;cursor:pointer;text-decoration:underline}
 #twocode-chat .cr-pick{flex:none;display:flex;padding:2px;border-radius:999px;background:rgba(255,255,255,.07)}
-#twocode-chat .cr-pick button{border:0;border-radius:999px;padding:3px 10px;background:transparent;color:#9a9aa6;font:600 11px "Segoe UI",sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px}
+#twocode-chat .cr-pick button{border:0;border-radius:999px;padding:3px 10px;background:transparent;color:#9a9aa6;font:600 11px Inter, "Segoe UI", sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px}
 #twocode-chat .cr-pick button i{width:7px;height:7px;border-radius:50%;background:var(--c)}
 #twocode-chat .cr-pick button.on{background:rgba(255,255,255,.16);color:#fff}
-#twocode-chat .cr-fix{display:inline-block;margin-top:6px;border:0;border-radius:999px;padding:5px 12px;background:#fff;color:#111;font:700 11.5px "Segoe UI",sans-serif;cursor:pointer}
-#twocode-chat .cr-new{margin-left:auto;flex:none;border:0;border-radius:999px;padding:4px 11px;background:rgba(255,255,255,.08);color:#c9c9d2;font:600 11px "Segoe UI",sans-serif;cursor:pointer}
+#twocode-chat .cr-fix{display:inline-block;margin-top:6px;border:0;border-radius:999px;padding:5px 12px;background:#fff;color:#111;font:700 11.5px Inter, "Segoe UI", sans-serif;cursor:pointer}
+#twocode-chat .cr-new{margin-left:auto;flex:none;border:0;border-radius:999px;padding:4px 11px;background:rgba(255,255,255,.08);color:#c9c9d2;font:600 11px Inter, "Segoe UI", sans-serif;cursor:pointer}
 #twocode-chat .cr-new:hover{background:rgba(255,255,255,.14);color:#fff}
-#twocode-chat .cr-msgs{position:absolute;left:92px;right:14px;top:44px;bottom:58px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding-right:4px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent}
-#twocode-chat .cr-me{align-self:flex-end;max-width:80%;padding:6px 13px;border-radius:14px;background:rgba(255,255,255,.1);font-weight:600;font-size:13px}
-#twocode-chat .cr-ai{align-self:flex-start;max-width:94%;font-size:13.5px;line-height:1.5;color:#ececf2;user-select:text}
-#twocode-chat .cr-ai p{margin:0 0 7px}#twocode-chat .cr-ai p:last-child{margin-bottom:0}
+#twocode-chat .cr-msgs{position:absolute;left:20px;right:16px;top:40px;bottom:68px;overflow:auto;display:flex;flex-direction:column;gap:12px;padding-right:4px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.15) transparent}
+#twocode-chat .cr-me{align-self:flex-end;max-width:70%;text-align:right;font-weight:500;font-size:13px;color:rgba(255,255,255,.5)}
+#twocode-chat .cr-ai{align-self:flex-start;max-width:100%;font:17px/1.48 Inter, "Segoe UI",sans-serif;letter-spacing:-.1px;color:#fff;user-select:text}
+#twocode-chat .cr-ai p{margin:0 0 9px}#twocode-chat .cr-ai p:last-child{margin-bottom:0}
 #twocode-chat .cr-ai ul,#twocode-chat .cr-ai ol{margin:2px 0 7px;padding-left:18px}#twocode-chat .cr-ai li{margin:2px 0}
-#twocode-chat .cr-ai code{font:11.5px "Cascadia Code",Consolas,monospace;background:rgba(255,255,255,.09);border-radius:5px;padding:1px 5px;color:#f1e7ff}
-#twocode-chat .cr-ai pre{margin:4px 0 8px;padding:8px 11px;border-radius:9px;background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);font:11.5px/1.5 "Cascadia Code",Consolas,monospace;color:#d9e7ff;white-space:pre-wrap;user-select:text}
+#twocode-chat .cr-ai code{font:13px "Cascadia Code",Consolas,monospace;background:rgba(255,255,255,.1);border-radius:7px;padding:2px 7px;color:#fff}
+#twocode-chat .cr-ai pre{margin:6px 0 9px;padding:10px 13px;border-radius:12px;background:rgba(255,255,255,.07);font:12.5px/1.5 "Cascadia Code",Consolas,monospace;color:#fff;white-space:pre-wrap;user-select:text}
 #twocode-chat .cr-err{color:#ffb4a8}
 #twocode-chat .cr-wait{align-self:flex-start;display:flex;gap:5px;padding:6px 2px}
-#twocode-chat .cr-wait i{width:6px;height:6px;border-radius:50%;background:#ffb07a;animation:crb 1s infinite}
+#twocode-chat .cr-wait i{width:6px;height:6px;border-radius:50%;background:#fff;animation:crb 1s infinite}
 #twocode-chat .cr-wait i:nth-child(2){animation-delay:.15s}#twocode-chat .cr-wait i:nth-child(3){animation-delay:.3s}
 @keyframes crb{0%,100%{opacity:.3;transform:none}50%{opacity:1;transform:translateY(-3px)}}
 #twocode-chat .cr-fixes{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:5px}
 #twocode-chat .cr-fixes li{background:rgba(255,255,255,.06);border-radius:10px;padding:6px 9px;font-size:11.5px}
 #twocode-chat .cr-fixes del{color:#ff8f8f}#twocode-chat .cr-fixes ins{color:#9be37a;text-decoration:none}
 #twocode-chat .cr-fixes small{display:block;color:#8a8a96}
-#twocode-chat .cr-act{margin-top:8px;border:0;border-radius:999px;padding:6px 13px;background:#d9f5b0;color:#173b06;font:700 11.5px "Segoe UI",sans-serif;cursor:pointer}
-#twocode-chat .cr-chips{position:absolute;left:92px;right:14px;bottom:56px;display:flex;flex-wrap:wrap;gap:6px}
-#twocode-chat .cr-chips button{border:0;border-radius:999px;padding:5px 11px;background:rgba(255,255,255,.08);color:#e8e8ef;font:600 11.5px "Segoe UI",sans-serif;cursor:pointer}
+#twocode-chat .cr-act{margin-top:10px;border:0;border-radius:999px;padding:8px 15px;background:#fff;color:#141416;font:600 12.5px Inter, "Segoe UI", sans-serif;cursor:pointer}
+#twocode-chat .cr-chips{position:absolute;left:16px;right:16px;bottom:66px;display:flex;flex-wrap:wrap;gap:8px}
+#twocode-chat .cr-chips button{border:0;border-radius:999px;padding:7px 14px;background:rgba(255,255,255,.1);color:#fff;font:600 12.5px Inter, "Segoe UI",sans-serif;cursor:pointer}
 #twocode-chat .cr-chips button:hover{background:rgba(255,255,255,.15)}
-#twocode-chat .cr-input{position:absolute;left:92px;right:14px;bottom:12px;height:36px;display:flex;align-items:center;border-radius:12px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
-#twocode-chat .cr-input:focus-within{box-shadow:inset 0 0 0 1px rgba(255,176,122,.55)}
-#twocode-chat .cr-input input{flex:1;min-width:0;height:100%;border:0;background:transparent;color:#fff;font:13px "Segoe UI",sans-serif;padding:0 14px;outline:none;user-select:text;caret-color:#ffc29a;caret-animation:manual}
+#twocode-chat .cr-input{position:absolute;left:12px;right:12px;bottom:10px;height:46px;display:flex;align-items:center;border-radius:23px;background:rgba(255,255,255,.09);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+#twocode-chat .cr-input:focus-within{box-shadow:inset 0 0 0 1px rgba(255,255,255,.24)}
+#twocode-chat .cr-input input{flex:1;min-width:0;height:100%;border:0;background:transparent;color:#fff;font:14px Inter, "Segoe UI",sans-serif;padding:0 12px;outline:none;user-select:text;caret-color:#fff;caret-animation:manual}
 #twocode-chat .cr-in.cr-me{animation:crme .32s cubic-bezier(.2,1.3,.4,1) both}#twocode-chat .cr-in.cr-ai{animation:crai .45s cubic-bezier(.2,.9,.3,1) both}
 @keyframes crme{from{opacity:0;transform:translate(14px,6px) scale(.92)}to{opacity:1;transform:none}}@keyframes crai{from{opacity:0;transform:translateY(8px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
 #twocode-chat .cr-done{display:inline-flex;align-items:center;gap:6px;margin-bottom:6px;padding:3px 10px 3px 8px;border-radius:999px;background:rgba(126,230,162,.14);color:#8ff0b0;font-size:11.5px;font-weight:700;animation:crpop .5s cubic-bezier(.3,1.6,.5,1) both}
@@ -59,20 +59,125 @@
 #twocode-chat .cr-diff .cr-del{background:rgba(255,92,92,.13);color:#ffb1aa}#twocode-chat .cr-diff .cr-add{background:rgba(126,230,162,.13);color:#a9f5c4}
 #twocode-chat .cr-ask{margin-top:9px;font-weight:600}
 #twocode-chat .cr-yn{display:flex;gap:6px;margin-top:2px}#twocode-chat .cr-yn .cr-act{margin-top:6px}
-#twocode-chat .cr-no{margin-top:6px;border:0;border-radius:999px;padding:6px 13px;background:rgba(255,255,255,.09);color:#e8e8ef;font:600 11.5px "Segoe UI",sans-serif;cursor:pointer}
-#twocode-chat .cr-wait span{margin-left:6px;font-size:11.5px;color:#ffb07a}
-#twocode-chat .cr-chips button.cr-hot{background:linear-gradient(135deg,rgba(255,176,122,.28),rgba(126,230,162,.2));box-shadow:inset 0 0 0 1px rgba(255,176,122,.35)}
+#twocode-chat .cr-no{margin-top:6px;border:0;border-radius:999px;padding:6px 13px;background:rgba(255,255,255,.09);color:#e8e8ef;font:600 11.5px Inter, "Segoe UI", sans-serif;cursor:pointer}
+#twocode-chat .cr-wait span{margin-left:6px;font-size:13px;color:rgba(255,255,255,.7)}
+#twocode-chat .cr-chips button.cr-hot{background:#fff;color:#141416}
 #twocode-chat .cr-input input::placeholder{color:#8a8a96}
-#twocode-chat .cr-input button{width:26px;height:26px;margin-right:5px;border:0;border-radius:50%;background:#fff;color:#111;font:700 14px "Segoe UI",sans-serif;cursor:pointer;flex:none}
+#twocode-chat .cr-input button{width:32px;height:32px;margin-right:7px;border:0;border-radius:50%;background:#fff;color:#111;font:700 14px Inter, "Segoe UI", sans-serif;cursor:pointer;flex:none}
 #twocode-chat .cr-input button:disabled{opacity:.4;cursor:default}
-#twocode-chat .cr-shot{position:absolute;inset:40px 14px 12px 92px;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:rgba(10,10,18,.94);border-radius:14px;cursor:zoom-out}
+#twocode-chat .cr-shot{position:absolute;inset:40px 14px 12px 14px;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:rgba(10,10,18,.94);border-radius:14px;cursor:zoom-out}
 #twocode-chat .cr-shot img{max-width:100%;max-height:calc(100% - 24px);border-radius:8px;box-shadow:0 0 0 1px rgba(255,255,255,.2)}
-#twocode-chat .cr-shot small{color:#a9a9b6;font-size:11px}`;
+#twocode-chat .cr-shot small{color:#a9a9b6;font-size:11px}
+#twocode-chat .cr-eyes{flex:none;display:flex;gap:6px;padding-left:18px}
+#twocode-chat .cr-eyes i{width:7px;height:10px;border-radius:50%;background:#e3ffd4;box-shadow:0 0 8px rgba(190,255,200,.7)}
+#twocode-chat.cr-busy .cr-eyes i{animation:crlook 1.2s ease-in-out infinite}
+@keyframes crlook{0%,100%{transform:translateX(0)}30%{transform:translateX(-2px)}70%{transform:translateX(2px)}}
+#twocode-chat .cr-keys{display:inline-flex;gap:7px;vertical-align:middle;margin:3px 0}
+#twocode-chat kbd.cr-key{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:40px;height:36px;padding:0 13px;border-radius:11px;background:rgba(255,255,255,.13);box-shadow:inset 0 -2px 0 rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.08);font:600 14px Inter, "Segoe UI",sans-serif;color:#fff}
+#twocode-chat kbd.cr-key svg{width:13px;height:13px}
+#twocode-chat .cr-hello{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+#twocode-chat .cr-hello b{font:600 26px/1.15 Inter, "Segoe UI",sans-serif;letter-spacing:-.5px;color:#fff}
+#twocode-chat .cr-hello span{font-size:14px;color:rgba(255,255,255,.55)}
+/* ---- the island's own look (like iMessage and the Dynamic Island): your question in a grey bubble, the answer big and white ---- */
+#twocode-chat{font-family:Inter,"Segoe UI",sans-serif}
+#twocode-chat .cr-top{left:16px;right:16px;top:2px;height:30px}
+#twocode-chat .cr-ctx{background:#1c1c1e;padding:5px 12px;font-size:13px}
+#twocode-chat .cr-via{font-size:13px;color:#8e8e93}
+#twocode-chat .cr-pick{background:#1c1c1e}
+#twocode-chat .cr-pick button{font-size:13px;color:#8e8e93;padding:4px 12px}
+#twocode-chat .cr-pick button.on{background:#3a3a3c;color:#fff}
+#twocode-chat .cr-new{background:#2c2c2e;color:#fff;font-size:13px;padding:5px 12px}
+#twocode-chat .cr-new:hover{background:#3a3a3c}
+#twocode-chat .cr-msgs{left:16px;right:16px;top:40px;bottom:62px;gap:14px}
+#twocode-chat .cr-me{max-width:70%;padding:8px 14px;border-radius:18px;background:#2c2c2e;color:#fff;font-size:15px;line-height:20px;font-weight:400;text-align:left}
+#twocode-chat .cr-ai{font:17px/24px Inter,"Segoe UI",sans-serif;letter-spacing:-.3px;color:#fff}
+#twocode-chat .cr-ai code{background:#2c2c2e;border-radius:6px}
+#twocode-chat .cr-ai pre{background:#1c1c1e;border-radius:12px}
+#twocode-chat kbd.cr-key{height:32px;min-width:34px;padding:0 12px;border-radius:8px;background:#2c2c2e;box-shadow:inset 0 -2px 0 #000;font-size:15px}
+#twocode-chat .cr-hello b{font-size:26px;font-weight:650;letter-spacing:-.35px}
+#twocode-chat .cr-hello span{font-size:15px;color:#8e8e93}
+#twocode-chat .cr-chips{left:16px;right:16px;bottom:62px}
+#twocode-chat .cr-chips button{background:#1c1c1e;color:#fff;font:500 15px Inter,"Segoe UI",sans-serif;padding:8px 14px}
+#twocode-chat .cr-chips button:hover{background:#2c2c2e}
+#twocode-chat .cr-chips button:active,#twocode-chat .cr-new:active{transform:scale(.97);transition:transform .1s ease-out}
+#twocode-chat .cr-chips button.cr-hot{background:#fff;color:#000}
+#twocode-chat .cr-input{left:16px;right:16px;bottom:8px;height:44px;border-radius:22px;background:#1c1c1e;box-shadow:none}
+#twocode-chat .cr-input:focus-within{box-shadow:none;background:#2c2c2e}
+#twocode-chat .cr-input input{font:15px Inter,"Segoe UI",sans-serif}
+#twocode-chat .cr-input input::placeholder{color:#8e8e93}
+#twocode-chat .cr-input button{width:32px;height:32px;margin-right:6px;background:#fff;color:#000}
+#twocode-chat .cr-eyes{padding-left:16px}
+#twocode-chat .cr-eyes i{width:6px;height:9px;box-shadow:none;background:#effff0}
+#twocode-chat .cr-act{background:#fff;color:#000;font:600 15px Inter,"Segoe UI",sans-serif;padding:10px 16px}
+#twocode-chat .cr-no{background:#2c2c2e;font:600 15px Inter,"Segoe UI",sans-serif;padding:10px 16px}
+#twocode-chat .cr-wait i{background:#8e8e93}
+#twocode-chat .cr-wait span{color:#8e8e93;font-size:15px}
+/* v3, calm: grey buttons with a white symbol, the likely one white; rounded rectangles instead of pills */
+#twocode-chat .cr-chips{gap:8px}
+#twocode-chat .cr-chips button{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 14px 0 11px;border-radius:10px;background:#1c1c1e;color:#fff;font:600 14px Inter,"Segoe UI",sans-serif}
+#twocode-chat .cr-chips button:hover{background:#2c2c2e}
+#twocode-chat .cr-chips button svg{flex:none;color:#fff;opacity:.8}
+#twocode-chat .cr-chips button.cr-hot{background:#fff;color:#000}
+#twocode-chat .cr-chips button.cr-hot svg{color:#000}
+#twocode-chat .cr-hello b{font-size:28px;font-weight:700;letter-spacing:-.5px}
+#twocode-chat .cr-input{border-radius:12px}
+#twocode-chat .cr-input button{border-radius:8px;background:#fff;color:#000}
+#twocode-chat .cr-input button:hover{background:#e5e5ea}
+#twocode-chat .cr-me{border-radius:16px}
+/* compact (notch-app size) */
+#twocode-chat .cr-hello b{font-size:19px;letter-spacing:-.2px}
+#twocode-chat .cr-hello span{font-size:12px}
+#twocode-chat .cr-chips{bottom:50px;gap:6px}
+#twocode-chat .cr-chips button{height:28px;padding:0 10px 0 8px;font-size:12px;border-radius:8px;gap:5px}
+#twocode-chat .cr-chips button svg{width:13px;height:13px}
+#twocode-chat .cr-input{height:36px;bottom:6px;border-radius:10px}
+#twocode-chat .cr-input input{font-size:13px}
+#twocode-chat .cr-input button{width:26px;height:26px;margin-right:5px;border-radius:7px}
+#twocode-chat .cr-msgs{top:30px;bottom:50px;gap:10px}
+#twocode-chat .cr-me{font-size:13px;line-height:18px;padding:6px 12px;border-radius:14px}
+#twocode-chat .cr-ai{font-size:14px;line-height:20px;letter-spacing:-.1px}
+#twocode-chat kbd.cr-key{height:24px;min-width:26px;padding:0 8px;border-radius:6px;font-size:12px}
+#twocode-chat .cr-via{font-size:11px}
+#twocode-chat .cr-new{font-size:11px;padding:3px 10px}
+#twocode-chat .cr-wait span{font-size:13px}
+#twocode-chat .cr-act,#twocode-chat .cr-no,#twocode-chat .cr-new{border-radius:10px}
+/* v9 start: Robo's eyes in the middle (on the canvas), a greeting under them, the choices in one row */
+#twocode-chat{pointer-events:none}
+#twocode-chat > *{pointer-events:auto}
+#twocode-chat .cr-top{pointer-events:none}
+#twocode-chat .cr-top > *{pointer-events:auto}
+#twocode-chat .cr-msgs:empty{display:none}
+#twocode-chat .cr-start{position:absolute;left:16px;right:16px;top:76px;display:flex;flex-direction:column;align-items:center;text-align:center;pointer-events:none;animation:cr-up .35s cubic-bezier(.2,.8,.2,1) both}
+@keyframes cr-up{from{opacity:0;transform:translateY(6px)}}
+#twocode-chat .cr-start > b{font-size:17px;line-height:22px;font-weight:600;letter-spacing:-.25px;color:#fff;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#twocode-chat .cr-start > span{margin-top:2px;font-size:12px;line-height:16px;color:#8e8e93}
+#twocode-chat .cr-list{display:flex;justify-content:center;gap:8px;margin-top:16px;max-width:100%;pointer-events:auto}
+#twocode-chat .cr-row{flex:none;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px 0 10px;border:0;border-radius:10px;background:#1c1c1e;color:#fff;font:500 12.5px Inter,"Segoe UI",sans-serif;white-space:nowrap;cursor:pointer;transition:background .15s}
+#twocode-chat .cr-row:hover{background:#2c2c2e}
+#twocode-chat .cr-row:active{transform:scale(.97);transition:transform .1s ease-out}
+#twocode-chat .cr-row svg{flex:none;color:var(--k)}
+#twocode-chat .cr-row.cr-hot{background:#fff;color:#000;font-weight:600}
+#twocode-chat .cr-row.cr-hot svg{color:#000}
+#twocode-chat .cr-input{left:16px;right:16px;bottom:6px;height:36px;border-radius:18px;background:#1c1c1e}
+#twocode-chat .cr-input:focus-within{background:#2c2c2e}
+#twocode-chat .cr-input input{padding:0 14px;font-size:13px}
+#twocode-chat .cr-input button{width:28px;height:28px;margin-right:4px;border-radius:50%;background:#fff;color:#000;font-weight:700}
+#twocode-chat .cr-input button:hover{background:#e5e5ea}
+#twocode-chat .cr-via{font-size:11px;color:#8e8e93}
+#twocode-chat .cr-new{height:24px;padding:0 10px;border-radius:8px;background:#1c1c1e;color:#fff;font-size:11px}
+#twocode-chat .cr-new:hover{background:#2c2c2e}
+#twocode-chat .cr-me{background:#2c2c2e;color:#fff}`;
   document.head.appendChild(style);
 
   const esc = s => String(s ?? '').replace(/[&<>"]/g, x => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[x]));
   function md(text) { // **bold**, `code`, ``` code blocks ```, "- " and "1." lists, paragraphs; everything else stays plain text
-    const inline = s => s.replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+    const KEY = '(?:Windows|Win|Ctrl|Alt|Shift|Tab|Esc|Enter|Spatie|Space|Delete|Del|Backspace|PrtSc|F\\d{1,2}|[A-Z0-9])';
+    const combo = new RegExp(`\\b(?:Windows|Win|Ctrl|Alt|Shift)(?:\\s*\\+\\s*${KEY})+\\b`, 'g'), onlyKeys = new RegExp(`^${KEY}(?:\\s*\\+\\s*${KEY})*$`);
+    const WIN = '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6.5" height="6.5" rx="1"/><rect x="8.5" y="1" width="6.5" height="6.5" rx="1"/><rect x="1" y="8.5" width="6.5" height="6.5" rx="1"/><rect x="8.5" y="8.5" width="6.5" height="6.5" rx="1"/></svg>';
+    const caps = c => `<span class="cr-keys">${c.split(/\s*\+\s*/).map(k => `<kbd class="cr-key">${/^win/i.test(k) ? WIN + 'Win' : k}</kbd>`).join('')}</span>`;
+    const inline = s => s.split(/(`[^`]+`)/).map(part => /^`[^`]+`$/.test(part)
+      ? (onlyKeys.test(part.slice(1, -1)) && /\+/.test(part) ? caps(part.slice(1, -1)) : `<code>${part.slice(1, -1)}</code>`)
+      : part.replace(combo, caps)).join('').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
     const lines = esc(text).split('\n'); let html = '', list = null, block = null, para = [];
     const flush = () => { if (para.length) { html += '<p>' + inline(para.join('<br>')) + '</p>'; para = []; } };
     const close = () => { if (list) { html += `</${list}>`; list = null; } };
@@ -99,20 +204,20 @@
   const refreshAi = () => api.buddyAi?.().then(n => { if (JSON.stringify(n) !== JSON.stringify(aiState)) { aiState = n; render(); } }).catch(() => {});
   // Dutch or English, like the rest of the island (Instellingen → Taal)
   const WORDS = {
-    nl: { chips: [['explain', '💡 Leg uit'], ['spelling', '✏️ Klopt mijn spelling?'], ['translate', '🌍 Vertaal'], ['summary', '📝 Vat samen']],
+    nl: { chips: [['explain', 'Leg uit'], ['spelling', 'Klopt mijn spelling?'], ['translate', 'Vertaal'], ['summary', 'Vat samen']],
       seen: 'Dit heeft Robo gezien', part: 'Dit stukje scherm', forget: 'Niet meer naar kijken', which: 'Welke AI antwoordt', gives: 'Deze AI geeft de antwoorden',
       connect: 'Verbind Claude Code of Codex', fresh: 'Nieuw gesprek', sent: 'Dit heeft Robo gezien en naar de AI gestuurd · klik om te sluiten',
       login: 'Log in met ChatGPT', openCx: 'Open Verbindingen', clean: 'Ik zie geen fouten. Netjes! 🎉', toWord: '✓ Zet in Word (als wijzigingen)',
-      more: 'Ga verder…', about: 'Vraag iets over wat hier staat…', any: 'Vraag me alles…', label: 'Je vraag aan Robo', send: 'Versturen',
-      wrong: 'Er ging iets mis.', browser: 'Kijk in je browser…', loggedIn: 'Gelukt! Stel je vraag nog een keer. 🎉', noLogin: 'Inloggen lukte niet.', fixChip: '🛠️ Los het op', fixMore: '🛠️ Los het voor me op', fixed: p => `Opgelost in ${p}`, fixing: p => `Robo zoekt de fix in ${p}…`, thinking: 'Even kijken…',
+      more: 'Ga verder…', about: 'Vraag iets over wat hier staat…', any: 'Vraag Robo iets…', hello: 'Wat kan ik voor je doen?', helloSub: 'Vraag iets, of kies hieronder.', sees: a => `Ik zie ${a}. Wat wil je weten?`, label: 'Je vraag aan Robo', send: 'Versturen',
+      wrong: 'Er ging iets mis.', browser: 'Kijk in je browser…', loggedIn: 'Gelukt! Stel je vraag nog een keer. 🎉', noLogin: 'Inloggen lukte niet.', fixChip: 'Los het op', fixMore: 'Los het voor me op', fixed: p => `Opgelost in ${p}`, fixing: p => `Robo zoekt de fix in ${p}…`, thinking: 'Even kijken…',
       mayI: f => `Mag ik ${f} aanpassen?`, yes: '✓ Ja, pas het aan', no: 'Nee', saidYes: 'Ja, doe maar', saidNo: 'Nee, laat maar', noChange: 'Oké, ik verander niks.', typing: f => `Robo typt in ${f}…`, line: n => `regel ${n}`,
       inWord: 'Bezig in Word…', applied: (a, t) => `${a} van de ${t} verbeteringen staan in Word, als wijzigingen. Klik in Word op Accepteren of Weigeren.`, failed: 'Dat lukte niet.' },
-    en: { chips: [['explain', '💡 Explain'], ['spelling', '✏️ Check my spelling'], ['translate', '🌍 Translate'], ['summary', '📝 Summarize']],
+    en: { chips: [['explain', 'Explain'], ['spelling', 'Check my spelling'], ['translate', 'Translate'], ['summary', 'Summarize']],
       seen: 'This is what Robo saw', part: 'This part of the screen', forget: 'Stop looking at this', which: 'Which AI answers', gives: 'This AI gives the answers',
       connect: 'Connect Claude Code or Codex', fresh: 'New chat', sent: 'Robo saw this and sent it to the AI · click to close',
       login: 'Sign in with ChatGPT', openCx: 'Open Connections', clean: 'No mistakes. Nice! 🎉', toWord: '✓ Put in Word (as changes)',
-      more: 'Continue…', about: 'Ask about what is here…', any: 'Ask me anything…', label: 'Your question for Robo', send: 'Send',
-      wrong: 'Something went wrong.', browser: 'Check your browser…', loggedIn: 'Done! Ask your question again. 🎉', noLogin: 'Signing in did not work.', fixChip: '🛠️ Fix it', fixMore: '🛠️ Fix it for me', fixed: p => `Fixed in ${p}`, fixing: p => `Robo is finding the fix in ${p}…`, thinking: 'Taking a look…',
+      more: 'Continue…', about: 'Ask about what is here…', any: 'Ask Robo something…', hello: 'What can I do for you?', helloSub: 'Ask anything, or pick one below.', sees: a => `I see ${a}. What do you want to know?`, label: 'Your question for Robo', send: 'Send',
+      wrong: 'Something went wrong.', browser: 'Check your browser…', loggedIn: 'Done! Ask your question again. 🎉', noLogin: 'Signing in did not work.', fixChip: 'Fix it', fixMore: 'Fix it for me', fixed: p => `Fixed in ${p}`, fixing: p => `Robo is finding the fix in ${p}…`, thinking: 'Taking a look…',
       mayI: f => `May I change ${f}?`, yes: '✓ Yes, fix it', no: 'No', saidYes: 'Yes, go ahead', saidNo: 'No, leave it', noChange: 'Okay, I won\'t change anything.', typing: f => `Robo is typing in ${f}…`, line: n => `line ${n}`,
       inWord: 'Working in Word…', applied: (a, t) => `${a} of the ${t} fixes are in Word, as changes. Click Accept or Reject in Word.`, failed: 'That did not work.' }
   };
@@ -125,7 +230,7 @@
     const agents = aiState?.agents || [];
     const via = !aiState ? '' : agents.length > 1
       ? `<div class="cr-pick" title="${L().which}">${agents.map(a => `<button type="button" data-ai="${a.id}" class="${a.id === aiState.current ? 'on' : ''}" style="--c:${AI_DOT[a.id]}"><i></i>${esc(a.name)}</button>`).join('')}</div>`
-      : agents.length ? `<span class="cr-via" title="${L().gives}">via ${esc(agents[0].name)}</span>`
+      : agents.length ? (messages.length || waiting ? `<span class="cr-via" title="${L().gives}">via ${esc(agents[0].name)}</span>` : '')
       : `<button type="button" class="cr-via off" data-do="setup">${L().connect}</button>`;
     const ctx = `<div class="cr-top">${pill}${via}${messages.length ? `<button type="button" class="cr-new" data-do="new">${L().fresh}</button>` : ''}</div>`;
     const shot = zoom && context?.picture ? `<div class="cr-shot" data-do="zoom"><img src="${esc(context.picture)}" alt=""><small>${L().sent}</small></div>` : '';
@@ -152,12 +257,23 @@
       if (m.fixed) html = `<div class="cr-done">✓ ${esc(L().fixed(m.project || ''))}</div>` + html + (m.changes?.length ? diff(m.changes) : '');
       if (m === lastAnswer && context?.project && !m.fixed && !m.fixes && !m.plan && !waiting) html += `<button type="button" class="cr-act" data-kind="fix">${L().fixMore}</button>`;
       return `<div class="cr-ai${fresh}">${html}</div>`;
-    }).join('') + (waiting ? `<div class="cr-wait"><i></i><i></i><i></i><span>${esc(waitingType ? L().typing(waitingType) : waitingFix ? L().fixing(context?.project || '') : L().thinking)}</span></div>` : '');
+    }).join('') + '' + (waiting ? `<div class="cr-wait"><i></i><i></i><i></i><span>${esc(waitingType ? L().typing(waitingType) : waitingFix ? L().fixing(context?.project || '') : L().thinking)}</span></div>` : '');
     const chipList = context?.project ? [L().chips[0], ['fix', L().fixChip], ...L().chips.slice(1, 3)] : L().chips;
-    const chips = !messages.length && !waiting ? `<div class="cr-chips">${chipList.map(([k, label]) => `<button type="button" data-kind="${k}" class="${k === 'fix' ? 'cr-hot' : ''}">${label}</button>`).join('')}</div>` : '';
+    const CHIP = { explain: ['#0091ff', '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z"/>'],
+      spelling: ['#30d158', '<path d="m4 12.5 4 4L18 6"/><path d="M14 18h6"/>'], translate: ['#00d2e0', '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'],
+      summary: ['#bf5af2', '<path d="M5 6h14M5 12h14M5 18h8"/>'], fix: ['#ff9230', '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/>'] };
+    // the start: Robo's own eyes big in the middle (drawn on the island by __twocodeDrawChat, so you can grab him and drag him
+    // onto something on your screen), a greeting, and the things he can do in one row
+    const rows = chipList.map(([k, label]) => { const [colour, icon] = CHIP[k] || ['#8e8e93', ''];
+      return `<button type="button" data-kind="${k}" class="cr-row${k === 'fix' ? ' cr-hot' : ''}" style="--k:${colour}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">${icon}</svg>${label}</button>`; }).join('');
+    const en = window.__twocodePrefs?.().lang === 'en';
+    const hi = context?.app ? L().sees(context.app) : en ? 'What can I do for you?' : 'Wat kan ik voor je doen?';
+    const hiSub = context?.app ? (en ? 'Pick one, or type your question.' : 'Kies er een, of typ je vraag.') : en ? 'Drag me onto something on your screen, or ask below.' : 'Sleep mij naar iets op je scherm, of vraag het hieronder.';
+    const chips = !messages.length && !waiting ? `<div class="cr-start"><b>${esc(hi)}</b><span>${esc(hiSub)}</span><div class="cr-list">${rows}</div></div>` : '';
     const placeholder = messages.length ? L().more : context ? L().about : L().any;
     root.innerHTML = `${ctx}${shot}<div class="cr-msgs">${msgs}</div>${chips}
       <div class="cr-input"><input type="text" maxlength="2000" placeholder="${placeholder}" aria-label="${L().label}"><button type="button" data-do="send" ${waiting ? 'disabled' : ''} aria-label="${L().send}">↑</button></div>`;
+    root.classList.toggle('cr-busy', waiting);
     const input = root.querySelector('input'); input.value = keep; if (focused) input.focus();
     // a new answer: show it from its start (with your question above it), not its end
     const list = root.querySelector('.cr-msgs'), mine = [...list.querySelectorAll('.cr-me')].pop();
@@ -168,7 +284,7 @@
 
   async function ask(kind, text) {
     if (waiting) return;
-    const label = text || (kind === 'fix' ? L().fixChip : L().chips.find(([k]) => k === kind)?.[1])?.replace(/^\S+\s/, '') || '';
+    const label = text || (kind === 'fix' ? L().fixChip : L().chips.find(([k]) => k === kind)?.[1])?.replace(/^\p{Extended_Pictographic}\S*\s/u, '') || '';
     const history = messages.filter(m => !m.error).map(m => ({ who: m.who, text: String(m.text || '').slice(0, 2000) })).slice(-8);
     messages.push({ who: 'me', text: label, fresh: true }); waiting = true; waitingFix = kind === 'fix'; render();
     window.__twocodeChime?.('send');
@@ -235,57 +351,38 @@
     setTimeout(() => root.querySelector('input')?.focus(), 350);
   });
 
-  // ---- Robo's stage: the whole island under the header is his (no card inside the island) ----
-  // Shared with the Claude Code page (ai-monitor-ui.js): purple for the chat, orange for Claude, violet for Codex.
-  // ---- Robo's stage: the whole island under the header is his ----
-  // No box: a soft glow that runs from the black island into warm orange (Claude) or violet (Codex).
-  // Shared with the Claude Code page (ai-monitor-ui.js). [r, g, b] of the glow and of the light.
-  const STAGES = { claude: [[196, 92, 40], [255, 178, 120]], codex: [[44, 120, 236], [130, 190, 255]] };
-  function stageRect(area) { const x = islandBounds.x + 8, y = area.y - 6; return { x, y, width: islandBounds.width - 16, height: Math.max(80, islandBounds.height - y - 8) }; }
+  // ---- the chat uses the whole island (no card in it); shared with the Claude Code page (ai-monitor-ui.js) ----
+  function stageRect(area) { return { x: area.x - 16, y: area.y - 2, width: area.width + 32, height: Math.max(80, area.height + 4) }; } // the page keeps 16px inside: lines up with the frame
   window.__twocodeStageRect = stageRect;
-  // Places a DOM page on the stage (the page helper adds its own margin, so take that off again).
-  window.__twocodePlaceOnStage = (el, area) => { const r = stageRect(area), m = window.__twocodePage.contentX; window.__twocodePage.place(el, { x: r.x - m, y: r.y, width: r.width + m * 2, height: r.height }); };
-  const rgba = (c, a) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
-  // The glow takes the colour of what happens (busy, done, error: your own traffic-light colours), and glides there softly.
-  const hexRgb = hex => { const m = /^#?([0-9a-f]{6})$/i.exec(String(hex || '')); if (!m) return null; const n = parseInt(m[1], 16); return [n >> 16, (n >> 8) & 255, n & 255]; };
-  let glowNow = null, glowAt = 0;
-  window.__twocodeRoboStage = (area, kind = 'claude', thinking = false, tint = null) => {
-    const r = stageRect(area), base = STAGES[kind] || STAGES.claude, t = performance.now() / 1000;
-    const want = hexRgb(tint) || base[0], dt = Math.min(0.1, t - glowAt || 0.016); glowAt = t;
-    glowNow = glowNow ? glowNow.map((v, i) => v + (want[i] - v) * Math.min(1, dt * 3)) : want.slice(); // about a third of a second to change colour
-    const glow = glowNow.map(Math.round), lightC = glow.map(v => Math.min(255, Math.round(v + (255 - v) * 0.45)));
-    const ib = islandBounds, top = area.y - 8; // just under the line below the buttons
-    ctx.save(); ctx.beginPath(); ctx.roundRect(ib.x, 0, ib.width, ib.height, [0, 0, UI.EXPANDED_RADIUS, UI.EXPANDED_RADIUS]); ctx.clip(); // only inside the island
-    // orange at the bottom, fading softly into black towards the left, the right and the top (a wide oval glow, no edges)
-    const h = ib.height - top, cx = ib.x + ib.width / 2, cy = ib.height + 20, stretch = ib.width / (h * 2.1);
-    ctx.save(); ctx.translate(cx, cy); ctx.scale(stretch, 1);
-    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, h * 1.25);
-    g.addColorStop(0, rgba(glow, 0.85)); g.addColorStop(0.35, rgba(glow, 0.55)); g.addColorStop(0.65, rgba(glow, 0.2)); g.addColorStop(1, rgba(glow, 0));
-    ctx.fillStyle = g; ctx.fillRect(-ib.width / stretch, -h * 1.4, ib.width * 2 / stretch, h * 1.6);
-    ctx.restore();
-    // a slow, soft light drifting through it (alive, never busy)
-    const lx = ib.x + ib.width * (0.68 + 0.16 * Math.sin(t / 3)), ly = ib.height * 0.7, light = ctx.createRadialGradient(lx, ly, 0, lx, ly, ib.width * 0.32);
-    light.addColorStop(0, rgba(lightC, 0.1)); light.addColorStop(1, rgba(lightC, 0));
-    ctx.fillStyle = light; ctx.fillRect(ib.x, top, ib.width, ib.height - top);
-    ctx.restore();
-    const rx = r.x + 54, ry = r.y + r.height - 52;
-    drawGhost(rx, ry, 62);
-    hit.ghost = { x: rx - 36, y: ry - 34, width: 72, height: 64 };
-    if (thinking) { // a little thinking badge on his head
-      const bx = rx - 26, by = ry - 28, pulse = 1 + 0.08 * Math.sin(t * 6), c = rgba(lightC, 1);
-      ctx.save(); ctx.beginPath(); ctx.arc(bx, by, 8.5 * pulse, 0, Math.PI * 2); ctx.fillStyle = c; ctx.shadowColor = c; ctx.shadowBlur = 10; ctx.fill(); ctx.restore();
-      for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(bx - 3.5 + i * 3.5, by + Math.sin(t * 8 + i) * 0.8, 1.15, 0, Math.PI * 2); ctx.fillStyle = '#2a1408'; ctx.fill(); }
-    }
-  };
-  // The chat talks to Claude (or Codex): it gets that AI's colour too.
-  // busy = your busy colour, an error stays in your error colour, a fresh answer glows in your done colour for a moment
-  let shineUntil = 0;
+  // Places a DOM page on the stage (8px in from the island's edge; the page keeps 16px inside, so 24 like the header).
+  window.__twocodePlaceOnStage = (el, area) => window.__twocodePage.place(el, stageRect(area));
+  // While Robo thinks, a soft rainbow light runs round the edge of the island (like Siri); it fades out when he answers.
+  let shineUntil = 0, ring = 0;
   window.__twocodeChatShine = () => { shineUntil = performance.now() + 4000; };
-  window.__twocodeDrawChat = area => {
-    const last = messages[messages.length - 1], colour = s => window.__twocodeStateColour?.(s) || null;
-    const tint = waiting ? colour('running') : last?.who === 'ai' && last.error ? colour('error') : last?.who === 'ai' && performance.now() < shineUntil ? colour('done') : null;
-    window.__twocodeRoboStage(area, aiState?.current === 'codex' ? 'codex' : 'claude', waiting, tint);
+  const RAINBOW = ['#ff6b9d', '#ffb86b', '#ffe56b', '#6bffb5', '#6bc5ff', '#a07bff', '#ff6b9d'];
+  const bigRobo = () => currentView === 'chat' && mode === 'expanded' && visible && !messages.length && !waiting;
+  window.__twocodeRoboBig = bigRobo; // the header leaves its own little eyes out then (there is only one Robo)
+  window.__twocodeDrawChat = () => {
+    hit.ghost = null;
+    if (bigRobo() && root.style.left) {
+      const cx = parseFloat(root.style.left) + root.offsetWidth / 2, cy = parseFloat(root.style.top) + 46;
+      window.__twocodeIslandEyes?.(cx, cy, 2.8);
+      hit.ghost = { x: cx - 46, y: cy - 28, width: 92, height: 56 };
+    }
+    ring += ((waiting ? 1 : 0) - ring) * 0.08;
+    if (ring < 0.01) return;
+    const ib = islandBounds, r = visual.radius, t = performance.now();
+    const g = ctx.createConicGradient(t / 700, ib.x + ib.width / 2, ib.height / 2);
+    RAINBOW.forEach((c, i) => g.addColorStop(i / (RAINBOW.length - 1), c));
+    ctx.save(); islandPath(ib.x, 0, ib.width, ib.height, r); ctx.clip();
+    ctx.globalAlpha = ring * 0.9; ctx.strokeStyle = g;
+    ctx.filter = 'blur(9px)'; ctx.lineWidth = 18; islandPath(ib.x, 0, ib.width, ib.height, r); ctx.stroke();
+    ctx.filter = 'none'; ctx.lineWidth = 2.5; islandPath(ib.x, 0, ib.width, ib.height, r); ctx.stroke();
+    ctx.restore();
   };
+
+  // for videos and tests: show a conversation (and Robo thinking) without asking a real AI
+  window.__twocodeChatDemo = ({ list, thinking } = {}) => { if (list) messages = list.map(m => ({ ...m })); waiting = Boolean(thinking); render(); };
 
   function loop() {
     const show = currentView === 'chat' && mode === 'expanded';

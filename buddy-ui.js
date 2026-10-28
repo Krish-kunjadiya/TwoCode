@@ -12,8 +12,11 @@
   window.__twocodeDragging = () => dragging;
   window.__twocodeBuddyDrawing = false;
 
+  // (on an open page you can also grab the little Robo in the header)
+  const onRobo = e => (hit.ghost && inside(e.clientX, e.clientY, hit.ghost)) || (mode === 'expanded' && hit.headEyes && inside(e.clientX, e.clientY, hit.headEyes));
+  window.__twocodeOnRobo = onRobo;
   canvas.addEventListener('pointerdown', e => {
-    if (e.button !== 0 || out || window.__twocodeHomeEditing?.() || window.__twocodeAppsOff?.().has('buddy') || !hit.ghost || !inside(e.clientX, e.clientY, hit.ghost)) return;
+    if (e.button !== 0 || out || window.__twocodeHomeEditing?.() || window.__twocodeAppsOff?.().has('buddy') || !onRobo(e)) return;
     down = { x: e.clientX, y: e.clientY, id: e.pointerId };
   });
   canvas.addEventListener('pointermove', e => {

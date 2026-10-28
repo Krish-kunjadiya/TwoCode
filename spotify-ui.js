@@ -5,6 +5,7 @@
   const api = window.twocode;
   // Colour of the album cover (extras-ui.js), Spotify green as fallback.
   const accent = () => window.__twocodeAlbumColour || '#1ed760';
+  const tr2 = t => window.__twocodeTr ? window.__twocodeTr(t) : t; // the island's language for text not drawn with text()
   const time = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
   const position = () => Math.min(spotifyState.duration_ms || 0,
     (spotifyState.progress_ms || 0) + (spotifyState.is_playing ? performance.now() - spotifySyncAt : 0));
@@ -19,6 +20,39 @@
     ctx.fill(); ctx.restore();
   }
   window.__twocodeMediaIcon = mediaIcon;
+  // The music visualizer in the cover's colour: bars that follow the sound when TwoCode can hear it, otherwise a made-up
+  // dance. Every bar rises fast and falls slowly (like a real level meter), with a soft glow in the same colour.
+  const vizState = {};
+  window.__twocodeVisualizer = (key, x, cy, w, h, colour, n = 6) => {
+    const levels = window.__twocodeAudioLevels?.(), t = performance.now() / 1000, playing = spotifyState.is_playing;
+    const bars = vizState[key] && vizState[key].length === n ? vizState[key] : (vizState[key] = new Array(n).fill(0.15));
+    const gap = Math.max(2, (w / n) * 0.4), bw = (w - gap * (n - 1)) / n;
+    ctx.save(); ctx.shadowColor = colour; ctx.shadowBlur = h * 0.35;
+    for (let i = 0; i < n; i++) {
+      const raw = !playing ? 0.06 : levels ? levels[Math.min(levels.length - 1, Math.floor(i * levels.length / n))] || 0.06
+        : 0.2 + 0.6 * Math.abs(Math.sin(t * (2.1 + i * 0.43) + i * 1.7)) * (0.65 + 0.35 * Math.sin(t * 1.3 + i * 0.9));
+      const want = !playing ? 0.1 : Math.min(1, 0.12 + 1.15 * Math.pow(raw, 0.65)); // lift the quiet part, so the bars really dance; flat when paused
+      bars[i] += (want - bars[i]) * (want > bars[i] ? 0.5 : 0.16);
+      const bh = Math.max(bw, h * Math.min(1, bars[i]));
+      box(x + i * (bw + gap), cy - bh / 2, bw, bh, bw / 2, colour);
+    }
+    ctx.restore();
+  };
+  // While music plays, the album's colour rises from the bottom of the island (black at the top, like a notch).
+  let tintK = 0, tintColour = null;
+  const rgba = (c, a) => { const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c); if (m) return `rgba(${m[1]},${m[2]},${m[3]},${a})`; const n = parseInt(String(c).replace('#', '').slice(0, 6), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
+  window.__twocodeIslandBackdrop = (x, w, h, r) => {
+    const want = mode === 'expanded' && window.__twocodeTintIsland && performance.now() - (window.__twocodeTintAt || 0) < 120;
+    if (want) tintColour = window.__twocodeTintIsland;
+    const strength = want ? (window.__twocodeTintStrength ?? 1) : 0; window.__twocodeTintStrength = undefined; // a page may dim it (it says so every frame)
+    tintK += (strength - tintK) * (want ? 0.12 : 0.12);
+    if (tintK < 0.01 || !tintColour) return;
+    ctx.save(); islandPath(x, 0, w, h, r); ctx.clip();
+    // black at the top (where the screen edge is), the cover's colour rising from the bottom
+    const g = ctx.createLinearGradient(0, h * 0.18, 0, h);
+    g.addColorStop(0, rgba(tintColour, 0)); g.addColorStop(0.5, rgba(tintColour, 0.2 * tintK)); g.addColorStop(1, rgba(tintColour, 0.6 * tintK));
+    ctx.fillStyle = g; ctx.fillRect(x, 0, w, h); ctx.restore();
+  };
   // ---- Spotify Connect: where the music plays (this PC, your phone, the car…) and moving it, like Spotify's speaker button ----
   let devicesOpen = false, devices = [], devicesNote = '';
   function devIcon(type, x, y, s, colour) { // small line icons per kind of device
@@ -41,93 +75,83 @@
     if (r?.ok) { devicesOpen = false; devicesNote = ''; window.__twocodeFlash?.('🔊  ' + device.name, 1200); window.__twocodeChime?.('pop'); setTimeout(() => refreshSpotify(), 700); }
     else devicesNote = r?.error || 'Dat lukte niet.';
   }
-  function control3(x, y, r, kind, key, primary) {
-    const bounds = { x: x - r, y: y - r, width: r * 2, height: r * 2 }, over = inside(pointer.x, pointer.y, bounds);
-    if (primary || over) { ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fillStyle = primary ? '#f4f7f0' : 'rgba(255,255,255,.08)'; ctx.fill(); ctx.restore(); }
-    mediaIcon(kind, x, y, primary ? 15 : 13, primary ? '#050605' : (over ? '#fff' : '#d9dfd4'));
-    hit[key] = bounds;
-  }
 
-  // Wide, low player (inspired by NotchNook / Alcove / Apple's Dynamic Island): a big album cover on the left,
-  // then the song with a live visualizer, a long progress bar, and big controls. The album colour lights it up.
+  // The player: one glass card tinted by the album cover, the cover big on the left,
+  // then the song, a clean progress line and iPhone-style controls (a white play button in the middle).
   drawSpotify = function (content) {
-    const left = content.x + 4, right = content.x + content.width - 6, top = content.y + 2, track = spotifyState.track;
+    const left = content.x + 4, top = content.y + 2, track = spotifyState.track;
     hit.ghost = null;
-    if (!spotifyConnected) {
-      window.__twocodeIcon?.('music', left + 24, top + 40, 30);
-      text('Spotify koppelen', left + 56, top + 36, 19, '#fff', 700);
-      text('Dan zie en bedien je je muziek hier.', left + 56, top + 56, 12, '#9aa596');
-      pill(left + 56, top + 74, 190, '♫', 'Koppel Spotify', 'spConnect');
+    if (!spotifyConnected) { // not linked yet: a small tile, two lines and one button
+      const x0 = content.x, y0 = content.y + 6;
+      box(x0, y0, 52, 52, 10, '#1c1c1e'); window.__twocodeIcon?.('music', x0 + 26, y0 + 26, 22, '#8e8e93', null, 'rgba(0,0,0,0)');
+      text('Spotify koppelen', x0 + 64, y0 + 22, 15, '#fff', 600);
+      text('Dan zie en bedien je je muziek hier.', x0 + 64, y0 + 40, 12, '#8e8e93', 400);
+      const b = { x: x0 + 64, y: y0 + 54, width: 128, height: 28 }, over = inside(pointer.x, pointer.y, b);
+      box(b.x, b.y, b.width, b.height, 8, over ? '#e5e5ea' : '#ffffff');
+      text('Koppel Spotify', b.x + b.width / 2, b.y + 18.5, 12, '#000', 600, 'center');
+      hit.spConnect = b;
       return;
     }
-    const size = Math.min(content.height - 4, 132), art = albumImage?.complete && albumImage.naturalWidth, colour = accent();
-    // soft album-coloured glow behind the cover (a radial gradient: no hard edges)
-    if (art) {
-      const gx = left + size / 2, gy = top + size / 2, glow = ctx.createRadialGradient(gx, gy, size * 0.2, gx, gy, size * 2.1);
-      glow.addColorStop(0, colour.replace('rgb(', 'rgba(').replace(')', ',.38)').replace(/^#(..)(..)(..)$/, (m, r, g, b) => `rgba(${parseInt(r, 16)},${parseInt(g, 16)},${parseInt(b, 16)},.38)`));
-      glow.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.save(); ctx.fillStyle = glow; ctx.beginPath(); ctx.roundRect(left + size / 2, top, right - left - size / 2, size, 16); ctx.fill(); ctx.restore(); // starts behind the cover: no edges
-    }
-    // cover
-    ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 18; ctx.shadowOffsetY = 6;
-    box(left, top, size, size, 16, '#1b211a'); ctx.restore();
-    if (art) { ctx.save(); ctx.beginPath(); ctx.roundRect(left, top, size, size, 16); ctx.clip(); ctx.drawImage(albumImage, left, top, size, size); ctx.restore(); }
-    else window.__twocodeIcon?.('music', left + size / 2, top + size / 2, 40, '#5d6858');
-
-    const x = left + size + 24, w = right - x, vizW = 168;
-    // title + artist, visualizer on the right
+    // the player, compact like a notch app: the cover colours the island, small sharp white type
+    const art = albumImage?.complete && albumImage.naturalWidth, colour = accent(), soft = 'rgba(255,255,255,.55)';
+    window.__twocodeTintIsland = window.__twocodeAlbumColour; window.__twocodeTintAt = performance.now();
+    const x0 = content.x, right = content.x + content.width, top0 = content.y + 2, cs = 60;
+    const display = (str, tx, ty, sz, col, weight = 600, max) => { ctx.save(); ctx.font = `${weight} ${sz}px Inter, "Segoe UI", sans-serif`; ctx.fillStyle = col; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      let t = String(str || ''); if (max) while (t.length > 1 && ctx.measureText(t).width > max) t = t.slice(0, -2) + '…'; ctx.fillText(t, tx, ty); ctx.restore(); };
+    if (art) { ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 4; box(x0, top0, cs, cs, 10, '#1c1c1e'); ctx.restore();
+      ctx.save(); ctx.beginPath(); ctx.roundRect(x0, top0, cs, cs, 10); ctx.clip(); ctx.drawImage(albumImage, x0, top0, cs, cs); ctx.restore(); }
+    else { box(x0, top0, cs, cs, 10, '#1c1c1e'); window.__twocodeIcon?.('music', x0 + cs / 2, top0 + cs / 2, 22, '#8e8e93', null, 'rgba(0,0,0,0)'); }
+    // the visualizer in the cover's colour (it moves with the music when TwoCode can hear it)
+    window.__twocodeVisualizer('page', right - 44, top0 + 24, 44, 28, colour, 6);
+    const tx = x0 + cs + 12, titleW = right - 56 - tx;
     if (!track) {
-      text('Er speelt nu niks', x, top + 30, 18, '#fff', 700, 'left', w - vizW - 16);
-      text('Start muziek in Spotify, of druk op afspelen.', x, top + 50, 12.5, 'rgba(235,240,230,.6)', 500, 'left', w - vizW - 16);
-      hit.spTitle = { x, y: top + 10, width: w - vizW, height: 28 };
+      display(tr2('Er speelt nu niks'), tx, top0 + 26, 15, '#fff', 600, titleW);
+      text('Start muziek in Spotify, of druk op afspelen.', tx, top0 + 44, 12, '#8e8e93', 400, 'left', titleW);
     } else {
-      const over = inside(pointer.x, pointer.y, { x, y: top + 10, width: w - vizW - 16, height: 28 });
-      text(track.name, x, top + 30, 18, over ? colour : '#fff', 700, 'left', w - vizW - 16);
-      text(track.artist, x, top + 50, 12.5, 'rgba(235,240,230,.62)', 500, 'left', w - vizW - 16);
-      hit.spTitle = { x, y: top + 10, width: w - vizW - 16, height: 28 };
+      const over = inside(pointer.x, pointer.y, { x: tx, y: top0 + 10, width: titleW, height: 20 });
+      display(track.name, tx, top0 + 26, 15, over ? soft : '#fff', 600, titleW);
+      text(track.artist, tx, top0 + 44, 12, soft, 400, 'left', titleW);
     }
-    const dev = spotifyState.device, elsewhere = dev && !dev.here, bw = 150, bx = right - bw, by = top + 12;
-    const overDev = inside(pointer.x, pointer.y, { x: bx, y: by, width: bw, height: 30 });
-    box(bx, by, bw, 30, 15, devicesOpen || overDev ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.08)');
-    devIcon(dev?.type || 'Computer', bx + 18, by + 15, 15, elsewhere ? colour : '#e8ece6');
-    text(dev ? dev.name : 'Apparaten', bx + 34, by + 19.5, 11.5, elsewhere ? colour : '#e8ece6', 700, 'left', bw - 44);
-    hit.spDevices = { x: bx, y: by, width: bw, height: 30 };
-
-    // long progress bar with times
-    const barY = top + 76, part = spotifyState.duration_ms ? position() / spotifyState.duration_ms : 0;
-    const overBar = inside(pointer.x, pointer.y, { x, y: barY - 8, width: w, height: 18 }), bh = overBar ? 6 : 4;
-    box(x, barY - bh / 2, w, bh, 3, 'rgba(255,255,255,.14)');
-    box(x, barY - bh / 2, Math.max(bh, w * part), bh, 3, overBar ? colour : '#f4f7f0');
-    if (overBar) { ctx.save(); ctx.beginPath(); ctx.arc(x + w * part, barY, 6, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill(); ctx.restore(); }
-    hit.spSeek = { x, y: barY - 8, width: w, height: 18 };
-    text(time(position()), x, barY + 17, 10, 'rgba(235,240,230,.5)', 600);
-    text(spotifyState.duration_ms ? '-' + time(spotifyState.duration_ms - position()) : '0:00', right, barY + 17, 10, 'rgba(235,240,230,.5)', 600, 'right');
-
-    // controls, centred under the bar
-    const cy = top + size - 18, cx = x + w / 2;
-    control3(cx - 58, cy, 18, 'prev', 'spPrev');
-    control3(cx, cy, 21, spotifyState.is_playing ? 'pause' : 'play', 'spPlay', true);
-    control3(cx + 58, cy, 18, 'next', 'spNext');
-    // open in Spotify (small, right)
-    const ox = right - 14, overOpen = inside(pointer.x, pointer.y, { x: ox - 16, y: cy - 16, width: 32, height: 32 });
-    window.__twocodeIcon?.('music', ox, cy, 16, overOpen ? colour : 'rgba(235,240,230,.55)');
-    hit.spOpen = { x: ox - 16, y: cy - 16, width: 32, height: 32 };
+    hit.spTitle = { x: tx, y: top0 + 10, width: titleW, height: 20 };
+    // the timeline: elapsed, a thin bar (grows when you point at it), remaining
+    const barY = top0 + cs + 16, bx0 = x0 + 34, bw = right - 40 - bx0, part = spotifyState.duration_ms ? position() / spotifyState.duration_ms : 0;
+    const overBar = inside(pointer.x, pointer.y, { x: bx0, y: barY - 8, width: bw, height: 16 }), bh = overBar ? 6 : 3;
+    text(time(position()), x0, barY + 3.5, 10, soft, 500);
+    box(bx0, barY - bh / 2, bw, bh, bh / 2, 'rgba(255,255,255,.2)');
+    box(bx0, barY - bh / 2, Math.max(bh, bw * part), bh, bh / 2, '#ffffff');
+    text(spotifyState.duration_ms ? '-' + time(spotifyState.duration_ms - position()) : '0:00', right, barY + 3.5, 10, soft, 500, 'right');
+    hit.spSeek = { x: bx0, y: barY - 8, width: bw, height: 16 };
+    // controls: previous, play/pause, next, small and centred; where it plays, bottom right
+    const cy = barY + 22, mid = (x0 + right) / 2;
+    const ctl = (kx, kind, key, size) => { // plain white symbols, they dim while you point at them
+      const b = { x: kx - 20, y: cy - 14, width: 40, height: 28 }, over = inside(pointer.x, pointer.y, b);
+      ctx.save(); ctx.globalAlpha *= over ? 0.6 : 1; mediaIcon(kind, kx, cy, size, '#ffffff'); ctx.restore(); hit[key] = b;
+    };
+    ctl(mid - 46, 'prev', 'spPrev', 12); ctl(mid, spotifyState.is_playing ? 'pause' : 'play', 'spPlay', 17); ctl(mid + 46, 'next', 'spNext', 12);
+    const dev = spotifyState.device;
+    ctx.save(); ctx.font = '600 11px Inter, "Segoe UI", sans-serif'; const devLabel = dev ? dev.name : tr2('Deze pc'), dw = Math.min(130, ctx.measureText(devLabel).width + 34); ctx.restore();
+    const dbx = right - dw, dby = cy - 11, overDev = inside(pointer.x, pointer.y, { x: dbx, y: dby, width: dw, height: 22 });
+    box(dbx, dby, dw, 22, 7, devicesOpen || overDev ? 'rgba(255,255,255,.2)' : 'rgba(255,255,255,.1)');
+    devIcon(dev?.type || 'Computer', dbx + 13, dby + 11, 12, '#ffffff');
+    text(devLabel, dbx + 25, dby + 15, 11, '#ffffff', 600, 'left', dw - 30);
+    hit.spDevices = { x: dbx, y: dby, width: dw, height: 22 };
+    hit.spOpen = null;
     for (let i = 0; i < 5; i++) hit['spDev' + i] = null;
-    if (devicesOpen) {
-      const px = x - 8, py = top - 2, pw = right - px + 4, ph = size + 4;
-      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 20; box(px, py, pw, ph, 16, '#121512'); ctx.restore();
-      text('Speel af op', px + 16, py + 24, 13, '#fff', 700);
-      text('✕', px + pw - 18, py + 24, 13, 'rgba(255,255,255,.6)', 700, 'center'); hit.spDevClose = { x: px + pw - 32, y: py + 6, width: 28, height: 28 };
-      const list = devices.slice(0, 4);
+    if (devicesOpen) { // where it plays: a list like iOS's AirPlay menu
+      const pw = 280, list = devices.slice(0, 4), ph = 52 + list.length * 40 + (devicesNote ? 22 : 0), px = right - pw, py = Math.max(content.y, dby - ph - 8);
+      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 24; ctx.shadowOffsetY = 8; box(px, py, pw, ph, 12, '#1c1c1e'); ctx.restore();
+      text('Speel af op', px + 16, py + 28, 15, '#fff', 600);
+      text('✕', px + pw - 22, py + 28, 14, '#8e8e93', 600, 'center'); hit.spDevClose = { x: px + pw - 40, y: py + 6, width: 36, height: 36 };
       list.forEach((d, i) => {
-        const ry = py + 36 + i * 24, over = inside(pointer.x, pointer.y, { x: px + 8, y: ry, width: pw - 16, height: 22 });
-        if (over) box(px + 8, ry, pw - 16, 22, 8, 'rgba(255,255,255,.07)');
-        devIcon(d.type, px + 24, ry + 11, 13, d.active ? colour : '#cfd5cc');
-        text(d.name, px + 40, ry + 15, 12, d.active ? colour : '#eef2ec', d.active ? 700 : 600, 'left', pw - 150);
-        text(d.active ? 'Speelt nu' : d.here ? 'Deze pc' : '', px + pw - 16, ry + 15, 10.5, d.active ? colour : 'rgba(255,255,255,.45)', 600, 'right');
-        hit['spDev' + i] = { x: px + 8, y: ry, width: pw - 16, height: 22, device: d };
+        const ry = py + 44 + i * 40, b = { x: px + 6, y: ry, width: pw - 12, height: 40 }, over = inside(pointer.x, pointer.y, b);
+        box(px + 16, ry, pw - 32, 1, 0, '#2c2c2e');
+        if (over) box(b.x, b.y + 2, b.width, b.height - 4, 8, '#2c2c2e');
+        devIcon(d.type, px + 26, ry + 20, 15, '#ffffff');
+        text(d.name, px + 46, ry + 25, 15, '#ffffff', d.active ? 600 : 500, 'left', pw - 110);
+        if (d.active) { ctx.save(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath(); ctx.moveTo(px + pw - 30, ry + 20); ctx.lineTo(px + pw - 26, ry + 24); ctx.lineTo(px + pw - 19, ry + 16); ctx.stroke(); ctx.restore(); }
+        hit['spDev' + i] = { ...b, device: d };
       });
-      if (devicesNote) text(devicesNote, px + 16, py + ph - 12, 10.5, 'rgba(255,255,255,.55)', 600, 'left', pw - 32);
+      if (devicesNote) text(devicesNote, px + 16, py + ph - 12, 12, '#8e8e93', 500, 'left', pw - 32);
     }
   };
 
